@@ -902,3 +902,29 @@ README are where the disclosure lives.
 - Measured: nothing.
 - Decided by Maurice: SPEC-008 approved, `wp provemark-c2pa check`. Not
   pushed.
+
+## 2026-09-26 — SPEC-008 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-008.
+- Produced: `UploadHook::checkAndStore()` (the one check-and-store path,
+  used by the upload hook with `get_attached_file()` and by the command
+  with `wp_get_original_image_path()`); `src/RecheckCommand.php`
+  (`wp provemark-c2pa check`: IDs / `--all` / `--unchecked` /
+  `--state=`, `--dry-run`, table + summary or `--format=json`, a progress
+  bar over 20 images, pages of 500 fetched before checking); registration
+  only under WP-CLI, inside a function so the plugin adds no global
+  variable; `tests/Integration/RecheckTest.php`; `wp-cli/wp-cli` 2.12.0
+  under `require-dev` for PHPStan (`php-stubs/wp-cli-stubs` requires
+  WordPress stubs up to 6.x and conflicts with 7.1), its `utils.php` in
+  PHPStan's `scanFiles`; PHPStan's memory limit raised to 1 GB (it crashed
+  at 512 MB reading WP-CLI). Traceability filled; status stays `approved`.
+- Measured: before the code all ten SPEC-008 tests **red**. After:
+  integration 98 passed, `composer check` green. Mutations: the command
+  using `get_attached_file()` turned AC2 **red**; ignoring `--dry-run`
+  turned AC7 **red**; both restored. Test bugs found and fixed: `--all`
+  ran before `--unchecked` and left nothing unchecked; `?? 'x'` turned a
+  real `null` into `'x'`. Plugin Check on the build flagged the two
+  `meta_query` uses as possibly slow: annotated (on demand, in WP-CLI, in
+  pages).
+- Decided by Maurice: SPEC-008 approved earlier. Not pushed.

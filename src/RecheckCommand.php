@@ -128,7 +128,8 @@ final class RecheckCommand
 
         $query = ['post_mime_type' => UploadHook::MIME_TYPES];
         if (isset($assocArgs['unchecked'])) {
-            $query['meta_query'] = [['key' => UploadHook::META_KEY, 'compare' => 'NOT EXISTS']];
+            // On demand in WP-CLI, in pages of 500: no page request waits on it.
+            $query['meta_query'] = [['key' => UploadHook::META_KEY, 'compare' => 'NOT EXISTS']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
         }
         if (isset($assocArgs['state'])) {
             $states = array_map('trim', explode(',', is_string($assocArgs['state']) ? $assocArgs['state'] : ''));
@@ -137,7 +138,7 @@ final class RecheckCommand
                 WP_CLI::error('Unknown state: '.implode(', ', $unknown).'. Use --all, --unchecked or --state= with '.implode(', ', self::STATES).'.');
             }
             unset($query['post_mime_type']);
-            $query['meta_query'] = [['key' => Index::STATE_KEY, 'value' => $states, 'compare' => 'IN']];
+            $query['meta_query'] = [['key' => Index::STATE_KEY, 'value' => $states, 'compare' => 'IN']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
         }
 
         return $this->all($query);
