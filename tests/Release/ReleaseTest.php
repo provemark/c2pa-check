@@ -17,7 +17,7 @@ it('AC1: holds what runs, and nothing else', function (): void {
 
     expect($exit)->toBe(0)
         ->and(array_keys($tops))->toBe(['provemark-c2pa-check']);
-    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'README.md', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'vendor/autoload.php', 'vendor/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor/provemark/c2pa-verifier/LICENSE'] as $needed) {
+    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'README.md', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor/provemark/c2pa-verifier/LICENSE'] as $needed) {
         expect($inside)->toContain($needed);
     }
 
