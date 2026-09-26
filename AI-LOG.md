@@ -928,3 +928,15 @@ README are where the disclosure lives.
   `meta_query` uses as possibly slow: annotated (on demand, in WP-CLI, in
   pages).
 - Decided by Maurice: SPEC-008 approved earlier. Not pushed.
+
+## 2026-09-26 — SPEC-008 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-008 implemented and push.
+- Produced: SPEC-008 status `implemented`.
+- Measured: locally before this commit: `composer check` green (unit 38),
+  integration 98 passed, release 6 passed; in the development environment
+  `wp provemark-c2pa check --all --dry-run` listed the five examples and
+  changed nothing, and the command without a selection exited 1. The CI
+  result of the push goes in the next entry.
+- Decided by Maurice: SPEC-008 implemented; push.
