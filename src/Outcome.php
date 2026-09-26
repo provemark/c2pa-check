@@ -18,7 +18,7 @@ use Provemark\C2paVerifier\Verifier\VerificationReport;
  */
 final class Outcome
 {
-    public const SCHEMA = 1;
+    public const int SCHEMA = 1;
 
     /**
      * @return array<string, mixed>

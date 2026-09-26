@@ -17,8 +17,10 @@ function wpCli(array $args): array
 
     exec($command, $lines, $exit);
 
-    // wp-env wraps WP-CLI's output in its own status lines (ℹ, ✔, ✖).
-    $lines = array_filter($lines, fn (string $line): bool => ! preg_match('/^(ℹ|✔|✖) /u', $line));
+    // wp-env wraps WP-CLI's output in its own status lines (ℹ, ✔, ✖); when
+    // the output does not end in a newline, the status is on the same line.
+    $lines = array_map(fn (string $line): string => (string) preg_replace('/(ℹ|✔|✖) (Starting|Ran|Command) .*$/u', '', $line), $lines);
+    $lines = array_filter($lines, fn (string $line): bool => $line !== '');
 
     return ['exit' => $exit, 'output' => trim(implode("\n", $lines))];
 }
@@ -120,4 +122,107 @@ function stable(array $entry): array
     unset($entry['verifier'], $entry['checked_at'], $entry['remote_manifest_url']);
 
     return $entry;
+}
+
+/**
+ * Uploads a host file into WordPress with WP-CLI and returns the attachment ID.
+ */
+function importMedia(string $hostPath): int
+{
+    $result = wpCli(['media', 'import', containerPath($hostPath), '--porcelain']);
+    $id = (int) $result['output'];
+
+    return $id > 0 ? $id : throw new RuntimeException('wp media import failed: '.$result['output']);
+}
+
+/**
+ * The stored entry of an attachment, or null when there is none.
+ *
+ * @return array<mixed>|null
+ */
+function storedEntry(int $id): ?array
+{
+    $result = wpCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json']);
+    $lines = array_values(array_filter(explode("\n", $result['output']), fn (string $l): bool => str_starts_with($l, '{')));
+    $entry = $lines === [] ? null : json_decode($lines[0], true);
+
+    return is_array($entry) ? $entry : null;
+}
+
+/**
+ * Runs PHP in WordPress (wp eval) and returns its output.
+ */
+function wpEval(string $php): string
+{
+    return wpCli(['eval', $php, '--user=admin'])['output'];
+}
+
+/**
+ * An attachment (no file) whose stored entry is exactly $entry; null means
+ * no entry at all. The value travels as base64 JSON so no shell quoting can
+ * change it.
+ */
+function attachmentWithEntry(mixed $entry): int
+{
+    $payload = base64_encode((string) json_encode($entry));
+    $out = wpEval(<<<PHP
+        \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
+        \$entry = json_decode(base64_decode('{$payload}'), true);
+        if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); }
+        echo 'ID:', \$id, "\n";
+        PHP);
+    $id = (int) preg_replace('/.*ID:(\d+).*/s', '$1', $out);
+
+    return $id > 0 ? $id : throw new RuntimeException('could not make an attachment: '.$out);
+}
+
+/**
+ * The Media Library list-mode cell for an attachment, as HTML.
+ */
+function columnHtml(int $id): string
+{
+    return wpEval("do_action('manage_media_custom_column', 'provemark_c2pa', {$id});");
+}
+
+/**
+ * The attachment-details rows as WordPress renders them: on Edit Media
+ * (in_modal false) or in a media modal (in_modal true).
+ */
+function detailsHtml(int $id, bool $inModal): string
+{
+    $modal = $inModal ? 'true' : 'false';
+
+    return wpEval("require_once ABSPATH.'wp-admin/includes/media.php'; echo get_compat_media_markup({$id}, ['in_modal' => {$modal}])['item'];");
+}
+
+/**
+ * What a reader sees: the text of some HTML, entities decoded.
+ */
+function visibleText(string $html): string
+{
+    return trim((string) preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+}
+
+/**
+ * Elements and event-handler attributes that HTML would create.
+ *
+ * @return list<string>
+ */
+function activeMarkup(string $html): array
+{
+    $doc = new DOMDocument;
+    @$doc->loadHTML('<?xml encoding="UTF-8"><div>'.$html.'</div>', LIBXML_NOERROR);
+    $found = [];
+    foreach ($doc->getElementsByTagName('*') as $el) {
+        if (in_array(strtolower($el->nodeName), ['script', 'img', 'a', 'iframe', 'svg'], true)) {
+            $found[] = '<'.$el->nodeName.'>';
+        }
+        foreach ($el->attributes ?? [] as $attr) {
+            if (str_starts_with(strtolower($attr->nodeName), 'on') || strtolower($attr->nodeName) === 'href') {
+                $found[] = $attr->nodeName.'=';
+            }
+        }
+    }
+
+    return $found;
 }

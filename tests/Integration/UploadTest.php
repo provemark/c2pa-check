@@ -2,39 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * Uploads a host file into WordPress with WP-CLI and returns the attachment ID.
- */
-function importMedia(string $hostPath): int
-{
-    $result = wpCli(['media', 'import', containerPath($hostPath), '--porcelain']);
-    $id = (int) $result['output'];
-
-    return $id > 0 ? $id : throw new RuntimeException('wp media import failed: '.$result['output']);
-}
-
-/**
- * The stored entry of an attachment, or null when there is none.
- *
- * @return array<mixed>|null
- */
-function storedEntry(int $id): ?array
-{
-    $result = wpCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json']);
-    $lines = array_values(array_filter(explode("\n", $result['output']), fn (string $l): bool => str_starts_with($l, '{')));
-    $entry = $lines === [] ? null : json_decode($lines[0], true);
-
-    return is_array($entry) ? $entry : null;
-}
-
-/**
- * Runs PHP in WordPress (wp eval) and returns its output.
- */
-function wpEval(string $php): string
-{
-    return wpCli(['eval', $php])['output'];
-}
-
 it('AC1: stores the CLI\'s verdict for a signed upload', function (string $name): void {
     $entry = storedEntry(importMedia(fixturePath($name)));
 
@@ -61,7 +28,7 @@ it('AC4: checks the original of a large image, not its -scaled copy', function (
     $path = fixturePath('adobe-20260425-lightroom-classic-church.jpg');
     $id = importMedia($path);
 
-    expect(wpEval("echo basename(get_attached_file($id)), \"\\n\";"))->toEndWith('-scaled.jpg')
+    expect(wpEval("echo basename(get_attached_file($id));"))->toEndWith('-scaled.jpg')
         ->and(stable((array) storedEntry($id)))->toBe(expectedEntry($path))
         ->and(storedEntry($id)['state'] ?? null)->toBe('Valid');
 })->group('SPEC-001');

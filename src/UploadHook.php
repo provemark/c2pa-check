@@ -13,9 +13,9 @@ use Throwable;
  */
 final class UploadHook
 {
-    public const META_KEY = '_provemark_c2pa_result';
+    public const string META_KEY = '_provemark_c2pa_result';
 
-    public const MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    public const array MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
     public function __construct(private readonly Checker $checker) {}
 

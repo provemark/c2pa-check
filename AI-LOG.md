@@ -354,3 +354,33 @@ README are where the disclosure lives.
   drafted).
 - Measured: nothing.
 - Decided by Maurice: SPEC-002 approved with the three proposals.
+
+## 2026-09-26 — SPEC-002 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: implement the approved SPEC-002, tests first and seen red.
+- Produced: `src/Display.php` (wording, reading a stored entry strictly,
+  `text()`: controls and direction characters to U+FFFD, then `esc_html`),
+  `src/MediaScreens.php` (column and attachment-details row, output also
+  through `wp_kses_post`); typed class constants in `UploadHook` and
+  `Outcome`; `tests/Integration/DisplayTest.php`; the WP-CLI helpers moved
+  from `UploadTest.php` to `tests/Pest.php` (shared by two files, so
+  parallel runs see them) with render helpers (`columnHtml`,
+  `detailsHtml`, `visibleText`, `activeMarkup` via DOMDocument).
+  Traceability filled.
+- Measured: before `src/Display.php` and `src/MediaScreens.php`, the 25
+  SPEC-002 tests **red** (empty output). After: integration 41 passed,
+  `composer check` green (unit 21, also parallel), Plugin Check clean.
+  Removing `esc_html` and the character filter from `Display::text()` made
+  AC6 (3 cases) and AC7 **red**, so those tests bind the escaping; restored.
+- Found on the way: Plugin Check requires the text domain as a string
+  literal in every call (`NonSingularStringLiteralDomain`), so no constant;
+  wp-env appends its status line to output without a trailing newline,
+  now stripped in `wpCli()`; PHPStan could not narrow types through a
+  boolean helper, so the entry fields are checked inline with `is_string`.
+- Also: PhpStorm reported `it` / `expect` as undefined in the tests: the
+  `vendor/` packages are excluded folders in the IDE project but missing
+  from its PHP include path (only the two wp-env WordPress folders are
+  there). Maurice to enable "Add packages as libraries" under Settings →
+  PHP → Composer; `.idea/` is not edited by the assistant.
+- Decided by Maurice: nothing new in this step.

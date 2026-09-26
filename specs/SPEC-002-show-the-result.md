@@ -197,12 +197,12 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
+| AC1 | `tests/Integration/DisplayTest.php` :: AC1; :: registers a Content Credentials column | `src/Display.php` `Display::headline`; `src/MediaScreens.php` `addColumn`, `renderColumn` |
+| AC2 | `tests/Integration/DisplayTest.php` :: AC2 (Edit Media, modal) | `Display::details`, `Display::lines`; `MediaScreens::addDetails` |
+| AC3 | `tests/Integration/DisplayTest.php` :: AC3 | `Display::lines` (codes) |
+| AC4 | `tests/Integration/DisplayTest.php` :: AC4 | `Display::lines` (remote manifest URL as text) |
+| AC5 | `tests/Integration/DisplayTest.php` :: AC5 | `Display::lines` (reason in words) |
+| AC6 | `tests/Integration/DisplayTest.php` :: AC6 | `Display::text` (`esc_html`); `MediaScreens` (`wp_kses_post`) |
+| AC7 | `tests/Integration/DisplayTest.php` :: AC7 | `Display::text` (`UNSAFE_CHARACTERS` → U+FFFD) |
+| AC8 | `tests/Integration/DisplayTest.php` :: AC8 | `Display::read` |
+| AC9 | `tests/Integration/DisplayTest.php` :: AC9 | `MediaScreens`, `UploadHook` (SPEC-001) |
