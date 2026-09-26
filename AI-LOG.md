@@ -821,3 +821,13 @@ README are where the disclosure lives.
   "Satisfy Plugin Check on the request and the backfill query"; the commit
   before it ("Sanitize the list request…") has no entry of its own.
 - Decided by Maurice: nothing new. Not pushed.
+
+## 2026-09-26 — SPEC-007 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-007 implemented and push.
+- Produced: SPEC-007 status `implemented`.
+- Measured: locally before this commit: `composer check` green (unit 38),
+  integration 88 passed, release 6 passed. The CI result of the push goes
+  in the next entry.
+- Decided by Maurice: SPEC-007 implemented; push.
