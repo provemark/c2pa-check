@@ -1052,3 +1052,26 @@ README are where the disclosure lives.
   starts with `composer validate --strict`, as CI does. `composer check`
   green locally.
 - Decided by Maurice: fix it. Not pushed yet.
+
+## 2026-09-26 — Update URI: false
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: add the `Update URI` header, so a plugin that someone else
+  registers as `provemark-c2pa-check` on wordpress.org can never be
+  offered as an update to this one.
+- Measured: CI run 36249900369 on `f9fdc8c` green on every job. Read in
+  core (`wp-includes/update.php`): every plugin is still sent to
+  api.wordpress.org; the WordPress 5.8 dev note (make.wordpress.org/core,
+  2021-06-29) says the API then "will not return any result" for a plugin
+  whose `Update URI` is not its wordpress.org URL, recommends `false` or a
+  URI with a unique hostname, and says the plugin team keeps the header
+  out of wordpress.org-hosted plugins. Plugin Check 2.1.0's source does
+  not mention the header. The new test was **red** (`UpdateURI` empty)
+  before the header, green after.
+- Produced: `Update URI: false` in the plugin header; a test in
+  `tests/Integration/ActivationTest.php` that reads it through
+  `get_plugin_data()`; the reason and "remove before submitting to
+  wordpress.org" in `NOTES.md`.
+- Decided by Maurice: add the header. The value `false` (not a GitHub URL,
+  whose shared hostname other updaters hook) is the assistant's choice.
+  Not pushed.

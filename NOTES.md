@@ -101,6 +101,18 @@ PHPUnit versions (reasoned; not measured).
 - 2026-09-26, distribution: GitHub only for now (Maurice). No
   wordpress.org account yet, so `readme.txt` has no `Contributors` line.
 
+- 2026-09-26, `Update URI: false` in the plugin header (decided by
+  Maurice; value chosen by the assistant). WordPress sends every plugin to
+  api.wordpress.org for update checks; with an `Update URI` other than its
+  own wordpress.org URL "the API will not return any result"
+  (make.wordpress.org/core, 2021-06-29, WordPress 5.8). Without it, a
+  plugin someone later registers as `provemark-c2pa-check` on
+  wordpress.org would be offered as an update to this plugin's users.
+  `false` rather than a GitHub URL: `github.com` is shared, and any plugin
+  hooking `update_plugins_github.com` could answer for it. **Remove the
+  header before submitting to wordpress.org**: its plugin team rejects it
+  there. Plugin Check 2.1.0 does not look at it (searched its source).
+
 ## Temporary measures (remove when their condition is met)
 
 - None open. (Resolved: the empty-suite flag and `src` in PHPStan in M1;
