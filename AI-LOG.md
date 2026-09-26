@@ -160,3 +160,29 @@ README are where the disclosure lives.
 - Decided by Maurice: M0.5 as proposed; no wordpress.org account, GitHub
   only for now; exclude development files in the test until M5 checks the
   built release.
+
+## 2026-09-26 — M0.6: CI on GitHub
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: CI with the same commands as locally on PHP 8.3, 8.4 and 8.5, in
+  a private repository `provemark/c2pa-check`.
+- Produced: `.github/workflows/ci.yml` with three jobs: `check` (composer
+  validate, install from the committed lock, `composer check`) and
+  `integration` (wp-env with `WP_ENV_PHP_VERSION` from the matrix, a step
+  that fails unless the container's PHP equals the matrix version, then
+  `composer test:integration`), both on 8.3/8.4/8.5 with `fail-fast: false`
+  on `ubuntu-24.04`; and `all-green`, which succeeds only when both
+  succeeded. `npm ci --ignore-scripts` so that every npm version behaves as
+  npm 11 did locally. Action versions: checkout v7, cache v6 and
+  setup-php v2 as in the verifier; setup-node v7 (latest release, measured).
+- Also, before the first push: the Plugin Check test named a local
+  gitignored file in its exclusion list, and the M0.5 log entry named it
+  too. The test now excludes whatever git ignores in the plugin root
+  (`git ls-files --others --ignored --exclude-standard`) and `.github/`;
+  the M0.5 commit was amended, as it had never been pushed.
+- Measured locally: the version check prints `8.3` in the container and
+  `grep -x '8.5'` on it exits 1; YAML parses; integration tests green,
+  `composer check` green. The CI run itself is measured after the push and
+  recorded in the next entry.
+- Decided by Maurice: M0.6 as proposed; the repository private under
+  `provemark`.

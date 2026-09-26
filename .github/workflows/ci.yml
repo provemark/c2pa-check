@@ -1,0 +1,110 @@
+# The same commands as locally, on the three PHP versions the plugin
+# supports. `check` needs nothing but PHP; `integration` runs a real
+# WordPress in wp-env (Docker) with the plugin mapped in. There is no
+# non-blocking job and no continue-on-error: a red job is a red run.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    name: composer check (PHP ${{ matrix.php }})
+    # Pinned, not ubuntu-latest, as in the verifier: a runner change should
+    # be a commit of its own, not a surprise.
+    runs-on: ubuntu-24.04
+    strategy:
+      # Let every version finish: one red version must not hide another.
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: openssl, mbstring
+          coverage: none
+
+      - run: composer validate --strict
+
+      # Composer's download cache: archives only, fetched from Packagist once
+      # per version instead of once per run.
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php${{ matrix.php }}-
+
+      # composer.lock is committed (this is a plugin, not a library), so CI
+      # installs exactly the versions that ship.
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - run: composer check
+
+  integration:
+    name: integration (WordPress, PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.3', '8.4', '8.5']
+    steps:
+      - uses: actions/checkout@v7
+
+      # PHP on the runner only drives Pest and WP-CLI calls; WordPress itself
+      # runs on matrix.php inside the wp-env container.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring
+          coverage: none
+
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php8.3-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php8.3-
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      # --ignore-scripts: npm 11 blocks install scripts by default and wp-env
+      # works without them (measured locally); this makes every npm version
+      # behave the same.
+      - run: npm ci --ignore-scripts
+
+      - run: npm run env:start
+        env:
+          WP_ENV_PHP_VERSION: ${{ matrix.php }}
+
+      # WordPress must really run on matrix.php: if the override were ignored,
+      # every leg would run on .wp-env.json's 8.3 and still be green.
+      - run: |
+          node_modules/.bin/wp-env run cli php -r 'echo PHP_MAJOR_VERSION, ".", PHP_MINOR_VERSION, PHP_EOL;' 2>/dev/null \
+            | grep -x '${{ matrix.php }}'
+
+      - run: composer test:integration
+
+  # One job for a branch protection rule to hang on. It succeeds only when
+  # every matrix leg of both jobs succeeded; skipped or cancelled is not
+  # success.
+  all-green:
+    name: all green
+    needs: [check, integration]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          test "${{ needs.check.result }}" = "success" || { echo "check: ${{ needs.check.result }}"; exit 1; }
+          test "${{ needs.integration.result }}" = "success" || { echo "integration: ${{ needs.integration.result }}"; exit 1; }
