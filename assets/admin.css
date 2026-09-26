@@ -1,0 +1,67 @@
+/* Provemark C2PA Check: the verdict badge and the facts (SPEC-002 amendment 1).
+   Colours from the WordPress admin palette. */
+
+.compat-field-provemark_c2pa th {
+	vertical-align: top;
+}
+
+.provemark-c2pa-badges {
+	margin: 0 0 8px;
+}
+
+.provemark-c2pa-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	box-sizing: border-box;
+	min-height: 24px;
+	vertical-align: middle;
+	margin: 0 4px 4px 0;
+	padding: 2px 8px 2px 6px;
+	border: 1px solid currentColor;
+	border-radius: 3px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.6;
+	white-space: nowrap;
+	color: #50575e;
+	background: #f6f7f7;
+}
+
+.provemark-c2pa-badge .dashicons {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+.provemark-c2pa-badge--trusted { color: #007017; background: #edfaef; }
+.provemark-c2pa-badge--valid { color: #135e96; background: #f0f6fc; }
+.provemark-c2pa-badge--invalid { color: #b32d2e; background: #fcf0f1; }
+.provemark-c2pa-badge--error,
+.provemark-c2pa-badge--unreadable { color: #8a4b00; background: #fcf9e8; }
+.provemark-c2pa-badge--ai { color: #3c434a; background: #fff; }
+
+.provemark-c2pa-facts {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 2px 12px;
+	margin: 0;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.provemark-c2pa-facts dt {
+	margin: 0;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.provemark-c2pa-facts dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.provemark-c2pa-facts code {
+	padding: 0 3px;
+	font-size: 11px;
+}

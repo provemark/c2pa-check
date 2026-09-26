@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+use DateTimeImmutable;
+use DateTimeZone;
+
 /**
  * Turns a stored SPEC-001 entry into safe HTML: the only place wording and
  * escaping live (SPEC-002). It shows what was stored and never makes a
@@ -28,13 +31,7 @@ final class Display
      */
     public static function headline(mixed $entry): string
     {
-        $read = self::read($entry);
-        [$class, $headline] = self::headlineOf($read);
-        $html = '<span class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'.esc_html($headline).'</span>';
-
-        return self::showsAiLabel($read)
-            ? $html.'<br><span class="provemark-c2pa-ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</span>'
-            : $html;
+        return self::badges(self::read($entry));
     }
 
     /**
@@ -45,19 +42,19 @@ final class Display
     public static function details(mixed $entry): string
     {
         $read = self::read($entry);
-        [$class, $headline] = self::headlineOf($read);
-        $lines = is_array($read) ? self::lines($read) : [];
+        [$class] = self::headlineOf($read);
 
-        $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">';
-        $html .= '<p><strong>'.esc_html($headline).'</strong></p>';
-        if (self::showsAiLabel($read)) {
-            $html .= '<p class="provemark-c2pa-ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</p>';
-        }
-        foreach ($lines as $line) {
-            $html .= '<p>'.$line.'</p>';
+        $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'."\n".'<p class="provemark-c2pa-badges">'.self::badges($read).'</p>';
+        $rows = is_array($read) ? self::rows($read) : [];
+        if ($rows !== []) {
+            $html .= "\n".'<dl class="provemark-c2pa-facts">';
+            foreach ($rows as [$term, $value]) {
+                $html .= "\n".'<dt>'.$term."</dt>\n<dd>".$value.'</dd>';
+            }
+            $html .= "\n".'</dl>';
         }
 
-        return $html.'</div>';
+        return $html."\n".'</div>';
     }
 
     /**
@@ -140,33 +137,59 @@ final class Display
     }
 
     /**
-     * "Checked … with c2pa-verifier …", and against which trust (SPEC-004).
+     * The verdict (and the AI label) as badges: an icon that is decoration
+     * only, and the words (SPEC-002 amendment 1).
+     *
+     * @param  array{state: string, ai: bool}|false|null  $read
      */
-    private static function checkedLine(string $checkedAt, string $verifier, ?string $trust): string
+    private static function badges(array|false|null $read): string
     {
-        $at = self::text($checkedAt);
-        $version = self::text($verifier);
+        [$class, $headline] = self::headlineOf($read);
+        $icon = match ($class) {
+            'trusted' => 'yes-alt',
+            'valid' => 'yes',
+            'invalid' => 'dismiss',
+            'error', 'unreadable' => 'warning',
+            default => 'minus',
+        };
 
-        if ($trust === null) {
-            /* translators: 1: time of the check (UTC), 2: verifier version */
-            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s', 'provemark-c2pa-check'), $at, $version);
-        }
+        $html = '<span class="provemark-c2pa-badge provemark-c2pa-badge--'.esc_attr($class).'"><span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span>'.esc_html($headline).'</span>';
+
+        return self::showsAiLabel($read)
+            ? $html.' <span class="provemark-c2pa-badge provemark-c2pa-badge--ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</span>'
+            : $html;
+    }
+
+    /**
+     * "2026-09-26 08:04 UTC" for the plugin's own time stamp; anything else
+     * is shown as it is (escaped).
+     */
+    private static function checkedAt(string $checkedAt): string
+    {
+        $at = DateTimeImmutable::createFromFormat('!Y-m-d\TH:i:s\Z', $checkedAt, new DateTimeZone('UTC'));
+
+        return $at === false ? self::text($checkedAt) : esc_html($at->format('Y-m-d H:i').' UTC');
+    }
+
+    /**
+     * Which trust the check used (SPEC-004), in words.
+     */
+    private static function trustList(string $trust): string
+    {
         if ($trust === 'custom') {
-            /* translators: 1: time of the check (UTC), 2: verifier version */
-            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against custom trust settings', 'provemark-c2pa-check'), $at, $version);
+            return esc_html__('Custom trust settings', 'provemark-c2pa-check');
         }
         if ($trust === 'none') {
-            /* translators: 1: time of the check (UTC), 2: verifier version */
-            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s without a trust list', 'provemark-c2pa-check'), $at, $version);
+            return esc_html__('None', 'provemark-c2pa-check');
         }
 
         $date = self::text(substr($trust, 5, 10));
 
         return str_ends_with($trust, '+digicert')
-            /* translators: 1: time of the check (UTC), 2: verifier version, 3: date of the trust list */
-            ? sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against the C2PA trust list of %3$s (with DigiCert timestamps)', 'provemark-c2pa-check'), $at, $version, $date)
-            /* translators: 1: time of the check (UTC), 2: verifier version, 3: date of the trust list */
-            : sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against the C2PA trust list of %3$s', 'provemark-c2pa-check'), $at, $version, $date);
+            /* translators: %s: date of the C2PA trust list */
+            ? sprintf(esc_html__('C2PA, %s (with DigiCert timestamps)', 'provemark-c2pa-check'), $date)
+            /* translators: %s: date of the C2PA trust list */
+            : sprintf(esc_html__('C2PA, %s', 'provemark-c2pa-check'), $date);
     }
 
     /**
@@ -203,36 +226,36 @@ final class Display
     }
 
     /**
-     * The detail lines, each already safe HTML.
+     * The facts under the badges: term and value, each already safe HTML.
      *
      * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
-     * @return list<string>
+     * @return list<array{string, string}>
      */
-    private static function lines(array $entry): array
+    private static function rows(array $entry): array
     {
-        $lines = [];
-
-        if ($entry['state'] === 'Invalid' && $entry['codes'] !== []) {
-            /* translators: %s: comma-separated C2PA status codes */
-            $lines[] = sprintf(esc_html__('Codes: %s', 'provemark-c2pa-check'), implode(', ', array_map(self::text(...), $entry['codes'])));
-        }
+        $rows = [];
 
         $signer = $entry['signer'];
         if ($signer !== null && in_array($entry['state'], ['Trusted', 'Valid', 'Invalid'], true)) {
-            $lines[] = $signer['issuer'] === null
-                /* translators: %s: the signer's common name */
-                ? sprintf(esc_html__('Signed by %s', 'provemark-c2pa-check'), self::text($signer['common_name']))
-                /* translators: 1: the signer's common name, 2: its certificate issuer */
-                : sprintf(esc_html__('Signed by %1$s (%2$s)', 'provemark-c2pa-check'), self::text($signer['common_name']), self::text($signer['issuer']));
+            $rows[] = [
+                esc_html__('Signer', 'provemark-c2pa-check'),
+                $signer['issuer'] === null ? self::text($signer['common_name']) : self::text($signer['common_name']).' ('.self::text($signer['issuer']).')',
+            ];
             if ($entry['signed_at'] !== null) {
-                /* translators: %s: the signing time as the file states it */
-                $lines[] = sprintf(esc_html__('Signed at %s', 'provemark-c2pa-check'), self::text($entry['signed_at']));
+                $rows[] = [esc_html__('Signed at', 'provemark-c2pa-check'), self::text($entry['signed_at'])];
             }
+        }
+
+        if ($entry['state'] === 'Invalid' && $entry['codes'] !== []) {
+            $rows[] = [
+                esc_html__('Codes', 'provemark-c2pa-check'),
+                implode("<br>\n", array_map(static fn (string $code): string => '<code>'.self::text($code).'</code>', $entry['codes'])),
+            ];
         }
 
         if ($entry['state'] === 'none' && $entry['remote_manifest_url'] !== null) {
             /* translators: %s: a URL from the file, shown as text and never fetched */
-            $lines[] = sprintf(esc_html__('Refers to Content Credentials elsewhere (not checked): %s', 'provemark-c2pa-check'), self::text($entry['remote_manifest_url']));
+            $rows[] = [esc_html__('Refers to', 'provemark-c2pa-check'), sprintf(esc_html__('%s (not checked)', 'provemark-c2pa-check'), self::text($entry['remote_manifest_url']))];
         }
 
         if ($entry['state'] === 'error') {
@@ -241,14 +264,18 @@ final class Display
                 'unreadable' => __('the file could not be read', 'provemark-c2pa-check'),
                 default => __('the verifier failed', 'provemark-c2pa-check'),
             };
-            /* translators: %s: why the file could not be checked */
-            $lines[] = sprintf(esc_html__('Reason: %s', 'provemark-c2pa-check'), esc_html($words));
+            $rows[] = [esc_html__('Reason', 'provemark-c2pa-check'), esc_html($words)];
         }
 
         if ($entry['checked_at'] !== null && $entry['verifier'] !== null) {
-            $lines[] = self::checkedLine($entry['checked_at'], $entry['verifier'], $entry['trust']);
+            /* translators: 1: time of the check, 2: verifier version */
+            $rows[] = [esc_html__('Checked', 'provemark-c2pa-check'), sprintf(esc_html__('%1$s, c2pa-verifier %2$s', 'provemark-c2pa-check'), self::checkedAt($entry['checked_at']), self::text($entry['verifier']))];
         }
 
-        return $lines;
+        if ($entry['trust'] !== null) {
+            $rows[] = [esc_html__('Trust list', 'provemark-c2pa-check'), self::trustList($entry['trust'])];
+        }
+
+        return $rows;
     }
 }

@@ -21,6 +21,21 @@ final class MediaScreens
         add_filter('manage_media_columns', $this->addColumn(...));
         add_action('manage_media_custom_column', $this->renderColumn(...), 10, 2);
         add_filter('attachment_fields_to_edit', $this->addDetails(...), 10, 2);
+        add_action('admin_enqueue_scripts', $this->enqueueStyle(...));
+    }
+
+    /**
+     * The badges and rows (SPEC-002 amendment 1). Small, so on every admin
+     * screen: the media modal can open anywhere.
+     */
+    public function enqueueStyle(): void
+    {
+        wp_enqueue_style(
+            'provemark-c2pa-check',
+            plugins_url('assets/admin.css', dirname(__DIR__).'/provemark-c2pa-check.php'),
+            ['dashicons'],
+            (string) filemtime(dirname(__DIR__).'/assets/admin.css'),
+        );
     }
 
     /**

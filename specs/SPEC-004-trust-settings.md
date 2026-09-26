@@ -194,6 +194,14 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
 - Age threshold: 183 days after the list date.
 - The age warning shows on the settings page only.
 
+## Amendments
+
+1. **2026-09-26, approved by Maurice van Loon**, with SPEC-002 amendment
+   1. AC7's endings become a **Trust list** row: "C2PA, 2026-08-14 (with
+   DigiCert timestamps)", "C2PA, 2026-08-14", "Custom trust settings",
+   "None"; an entry without `trust` has no such row and ends with the
+   **Checked** row.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at

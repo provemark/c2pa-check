@@ -88,11 +88,11 @@ it('AC7: names the trust source in the details', function (?string $trust, strin
 
     expect(visibleText(detailsHtml(attachmentWithEntry($entry), false)))->toMatch('/'.preg_quote($ending, '/').'$/');
 })->with([
-    ['c2pa-2026-08-14+digicert', 'with c2pa-verifier v0.2.3 against the C2PA trust list of 2026-08-14 (with DigiCert timestamps)'],
-    ['c2pa-2026-08-14', 'with c2pa-verifier v0.2.3 against the C2PA trust list of 2026-08-14'],
-    ['custom', 'with c2pa-verifier v0.2.3 against custom trust settings'],
-    ['none', 'with c2pa-verifier v0.2.3 without a trust list'],
-    [null, 'Checked 2026-09-26T12:00:00Z with c2pa-verifier v0.2.3'],
+    ['c2pa-2026-08-14+digicert', 'Trust list C2PA, 2026-08-14 (with DigiCert timestamps)'],
+    ['c2pa-2026-08-14', 'Trust list C2PA, 2026-08-14'],
+    ['custom', 'Trust list Custom trust settings'],
+    ['none', 'Trust list None'],
+    [null, 'Checked 2026-09-26 12:00 UTC, c2pa-verifier v0.2.3'],
 ])->group('SPEC-004');
 
 it('AC8: shows the settings page to administrators only, escaped', function (): void {

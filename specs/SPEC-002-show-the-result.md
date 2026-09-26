@@ -190,6 +190,23 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
   never reformatted.
 - Wording: the headlines and lines in the table above, as written.
 
+## Amendments
+
+1. **2026-09-26, approved by Maurice van Loon** (he chose "badge and rows"
+   after seeing the first version on Edit Media). The headline is a
+   coloured badge with a Dashicon that is decoration only
+   (`aria-hidden`); "AI-generated (signed)" (SPEC-003) is a badge beside
+   it, in the column too. The details lines become a definition list of
+   term and value: **Signer** "{common_name} ({issuer})", **Signed at**
+   (the file's own string), **Codes** (one `<code>` per line), **Refers
+   to** "{url} (not checked)", **Reason** (in words), **Checked**
+   "{Y-m-d H:i} UTC, c2pa-verifier {verifier}" (the plugin's own
+   `checked_at`, reformatted; anything unparsable shown as is), and
+   **Trust list** (SPEC-004). AC2–AC5 and AC9 check those texts. A
+   stylesheet, `assets/admin.css`, is loaded on every admin screen (the
+   media modal can open anywhere), depending on `dashicons`. Escaping is
+   unchanged: every value still goes through `Display::text()`.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at
@@ -205,4 +222,5 @@ least one test; every source file maps back to this spec.
 | AC6 | `tests/Integration/DisplayTest.php` :: AC6 | `Display::text` (`esc_html`); `MediaScreens` (`wp_kses_post`) |
 | AC7 | `tests/Integration/DisplayTest.php` :: AC7 | `Display::text` (`UNSAFE_CHARACTERS` → U+FFFD) |
 | AC8 | `tests/Integration/DisplayTest.php` :: AC8 | `Display::read` |
+| Amendment 1 | `tests/Integration/DisplayTest.php` :: amendment 1 (stylesheet; badge and rows) | `Display::badges`, `Display::rows`, `MediaScreens::enqueueStyle`, `assets/admin.css` |
 | AC9 | `tests/Integration/DisplayTest.php` :: AC9 | `MediaScreens`, `UploadHook` (SPEC-001) |

@@ -28,21 +28,21 @@ it('AC2: shows the signer and the check in the details', function (bool $inModal
 
     expect($text)->toContain('Content Credentials')
         ->toContain('Intact: signer not trusted')
-        ->toContain('Signed by C2PA Signer (C2PA Test Signing Cert)')
-        ->toContain('Checked 2026-09-26T12:00:00Z with c2pa-verifier v0.2.3');
+        ->toContain('Signer C2PA Signer (C2PA Test Signing Cert)')
+        ->toContain('Checked 2026-09-26 12:00 UTC, c2pa-verifier v0.2.3');
 })->with(['Edit Media' => false, 'modal' => true])->group('SPEC-002');
 
 it('AC3: shows every code of an invalid file, in order', function (): void {
     $id = attachmentWithEntry(sampleEntry(['state' => 'Invalid', 'codes' => ['signingCredential.untrusted', 'assertion.dataHash.mismatch']]));
 
     expect(visibleText(detailsHtml($id, false)))->toContain('Does not verify')
-        ->toContain('Codes: signingCredential.untrusted, assertion.dataHash.mismatch');
+        ->toContain('Codes signingCredential.untrusted assertion.dataHash.mismatch');
 })->group('SPEC-002');
 
 it('AC4: shows a manifest URL as text, never as a link', function (): void {
     $html = detailsHtml(attachmentWithEntry(sampleEntry(['state' => 'none', 'signer' => null, 'remote_manifest_url' => 'https://example.test/manifest'])), true);
 
-    expect(visibleText($html))->toContain('Refers to Content Credentials elsewhere (not checked): https://example.test/manifest')
+    expect(visibleText($html))->toContain('Refers to https://example.test/manifest (not checked)')
         ->and($html)->not->toContain('<a')
         ->and($html)->not->toContain('href');
 })->group('SPEC-002');
@@ -51,7 +51,7 @@ it('AC5: says why a file could not be checked', function (string $reason, string
     $id = attachmentWithEntry(sampleEntry(['state' => 'error', 'signer' => null, 'format' => null, 'reason' => $reason]));
 
     expect(visibleText(detailsHtml($id, false)))->toContain('Could not be checked')
-        ->toContain('Reason: '.$words);
+        ->toContain('Reason '.$words);
 })->with([
     ['interrupted', 'the check did not finish'],
     ['unreadable', 'the file could not be read'],
@@ -108,5 +108,36 @@ it('AC9: shows a real upload\'s result end to end', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
 
     expect(visibleText(columnHtml($id)))->toBe('Intact: signer not trusted')
-        ->and(visibleText(detailsHtml($id, true)))->toContain('Signed by C2PA Signer (C2PA Test Signing Cert)');
+        ->and(visibleText(detailsHtml($id, true)))->toContain('Signer C2PA Signer (C2PA Test Signing Cert)');
+})->group('SPEC-002');
+
+it('amendment 1: loads its stylesheet in the admin, with Dashicons', function (): void {
+    // Only the plugin's own callback: firing the whole hook in WP-CLI runs
+    // core callbacks that expect an admin screen.
+    $out = wpEval(<<<'PHP'
+        $screens = new Provemark\C2paCheck\MediaScreens;
+        $screens->enqueueStyle();
+        echo json_encode([
+            'hooked' => has_action('admin_enqueue_scripts') !== false,
+            'enqueued' => wp_style_is('provemark-c2pa-check', 'enqueued'),
+            'deps' => wp_styles()->registered['provemark-c2pa-check']->deps ?? [],
+            'src' => wp_styles()->registered['provemark-c2pa-check']->src ?? '',
+        ]);
+        PHP);
+    $result = json_decode($out, true);
+
+    expect($result)->toBeArray()
+        ->and(is_array($result) ? $result['enqueued'] ?? null : null)->toBeTrue()
+        ->and(is_array($result) ? $result['hooked'] ?? null : null)->toBeTrue()
+        ->and(is_array($result) ? $result['deps'] ?? null : null)->toBe(['dashicons'])
+        ->and(is_array($result) ? $result['src'] ?? null : null)->toEndWith('/provemark-c2pa-check/assets/admin.css');
+})->group('SPEC-002');
+
+it('amendment 1: shows the verdict as a badge, and the facts as rows', function (): void {
+    $html = detailsHtml(attachmentWithEntry(sampleEntry(['state' => 'Trusted', 'ai' => true, 'trust' => 'c2pa-2026-08-14+digicert'])), true);
+
+    expect($html)->toContain('provemark-c2pa-badge--trusted')
+        ->toContain('provemark-c2pa-badge--ai')
+        ->toContain('<dl class="provemark-c2pa-facts">')
+        ->and(visibleText($html))->toContain('Verified: trusted signer AI-generated (signed)');
 })->group('SPEC-002');

@@ -685,3 +685,26 @@ README are where the disclosure lives.
   tests green, including the planted `echo $_GET` breaking the baseline.
 - Still open in SPEC-006: screenshots; CI not yet run (not pushed).
 - Decided by Maurice: SPEC-006 approved; amendment 1 awaits his approval.
+
+## 2026-09-26 — Details as badge and rows (SPEC-002 amendment 1, SPEC-004 amendment 1)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice found the verifier text under the attachment details
+  poorly laid out (Edit Media); he chose "badge and rows" from two
+  mock-ups.
+- Produced: `Display` renders the verdict as a badge with a Dashicon
+  (decoration, `aria-hidden`) and the AI label as a second badge, and the
+  facts as a `<dl>` (Signer, Signed at, Codes, Refers to, Reason, Checked,
+  Trust list); `assets/admin.css` (WordPress admin palette), enqueued by
+  `MediaScreens::enqueueStyle()` on admin screens with `dashicons`; tests
+  updated to the new texts, plus two amendment tests; amendments in
+  SPEC-002 and SPEC-004.
+- Measured: with the tests updated first, 15 **red**; after the change,
+  integration 69 passed and `composer check` green. In Chrome, Edit Media
+  for a Trusted AI image and an Invalid one, and the list column, render
+  as intended. Firing the whole `admin_enqueue_scripts` in WP-CLI triggers
+  core warnings (no admin screen), so the test calls the plugin's own
+  callback. Also seen: the uninstall test (SPEC-005 AC1) deletes every
+  stored result in the development environment, so earlier uploads there
+  show "Not checked" after a test run.
+- Decided by Maurice: badge and rows. Not pushed.
