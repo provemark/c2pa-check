@@ -976,3 +976,22 @@ README are where the disclosure lives.
   was deleted locally and on GitHub at Maurice's request.
 - Decided by Maurice: no Docker cache; start on prefixing the bundled
   verifier's namespace.
+
+## 2026-09-26 — SPEC-009 drafted (prefix the bundled verifier)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: start on prefixing the bundled verifier's namespace.
+- Measured, in a scratch copy of the build: the Composer-installed
+  Strauss 0.30.0 could not run inside the build folder (its bin script
+  loads the plugin's `vendor/autoload.php` first); the release's
+  `strauss.phar` (11.6 MB, SHA-256 08c1a8e5…c38c66c96) moved the verifier
+  to `vendor-prefixed/` under `Provemark\C2paCheck\Vendor\`, rewrote the
+  `use` lines in `src/`, and wired its autoloader into
+  `vendor/autoload.php`; afterwards the original class did not exist, the
+  prefixed one did, `InstalledVersions` still gave `v0.2.3`, and a check of
+  `fixture-signed.jpg` gave `Valid`.
+- Produced: `specs/SPEC-009-prefix-bundled-verifier.md` (status `draft`):
+  prefixing in the build only, Strauss pinned by version and checksum,
+  four criteria (two error paths, including another copy of the verifier
+  loaded first), SPEC-006 amendment 2; two non-blocking open questions.
+- Decided by Maurice: start with the prefix. Not pushed.
