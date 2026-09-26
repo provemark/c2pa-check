@@ -17,7 +17,7 @@ it('AC1: holds what runs, and nothing else', function (): void {
 
     expect($exit)->toBe(0)
         ->and(array_keys($tops))->toBe(['provemark-c2pa-check']);
-    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'README.md', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor/provemark/c2pa-verifier/LICENSE'] as $needed) {
+    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'README.md', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor-prefixed/provemark/c2pa-verifier/LICENSE'] as $needed) {
         expect($inside)->toContain($needed);
     }
 
@@ -25,8 +25,8 @@ it('AC1: holds what runs, and nothing else', function (): void {
         .'|^(AI-LOG\.md|NOTES\.md|package(-lock)?\.json|composer\.lock|\.wp-env.*\.json|phpstan\.neon|phpunit\.xml|pint\.json)$'
         .'|(^|/)\.[^/]+$|\.key$'
         .'|^vendor/bin/'
-        .'|^vendor/provemark/c2pa-verifier/(docs|notes|specs|bin|tests)/'
-        .'|^vendor/provemark/c2pa-verifier/(AI-LOG|NOTES|CHANGELOG|CONTRIBUTING|SECURITY|README)\.md$#';
+        .'|^vendor-prefixed/provemark/c2pa-verifier/(docs|notes|specs|bin|tests)/'
+        .'|^vendor-prefixed/provemark/c2pa-verifier/(AI-LOG|NOTES|CHANGELOG|CONTRIBUTING|SECURITY|README)\.md$#';
     expect(array_values(array_filter($inside, fn (string $file): bool => preg_match($forbidden, $file) === 1)))->toBe([]);
 })->group('SPEC-006');
 
@@ -56,7 +56,7 @@ it('AC4: keeps the shipped verifier within its reviewed WPCS baseline', function
             $baseline[$sniff] = $count;
         }
     }
-    $shipped = dirname(__DIR__, 2).'/build/provemark-c2pa-check/vendor/provemark/c2pa-verifier/src';
+    $shipped = dirname(__DIR__, 2).'/build/provemark-c2pa-check/vendor-prefixed/provemark/c2pa-verifier/src';
 
     expect($baseline)->not->toBeEmpty()
         ->and(wpcsFindings($shipped))->not->toBeEmpty()
@@ -84,3 +84,61 @@ it('AC5: stays up and says so when its bundled libraries are missing', function 
         installReleaseZip();
     }
 })->group('SPEC-006');
+
+it('SPEC-009 AC1: carries only the prefixed verifier', function (): void {
+    exec('unzip -Z1 '.escapeshellarg(releaseZip()), $lines);
+    $unprefixed = [];
+    foreach ($lines as $file) {
+        if (! str_ends_with($file, '.php')) {
+            continue;
+        }
+        $code = [];
+        exec('unzip -p '.escapeshellarg(releaseZip()).' '.escapeshellarg($file), $code);
+        if (preg_match('/^\s*(namespace|use)\s+\\\\?Provemark\\\\C2paVerifier\\\\/m', implode("\n", $code)) === 1) {
+            $unprefixed[] = $file;
+        }
+    }
+
+    expect(array_values(array_filter($lines, fn (string $f): bool => str_starts_with($f, 'provemark-c2pa-check/vendor/provemark/'))))->toBe([])
+        ->and($lines)->toContain('provemark-c2pa-check/vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php')
+        ->and($unprefixed)->toBe([]);
+})->group('SPEC-009');
+
+it('SPEC-009 AC3: is not disturbed by another copy of the verifier', function (): void {
+    // A must-use plugin loads before the plugin and defines the verifier's
+    // unprefixed class, as another plugin bundling it would.
+    releaseEval(<<<'PHP'
+        if (! is_dir(WPMU_PLUGIN_DIR)) { mkdir(WPMU_PLUGIN_DIR, 0777, true); }
+        file_put_contents(WPMU_PLUGIN_DIR.'/other-verifier.php', '<?php namespace Provemark\C2paVerifier\Verifier; final class Verifier { public function verify($stream, $settings = null) { throw new \RuntimeException("another copy"); } }');
+        PHP);
+    try {
+        expect(releaseEval('echo class_exists("Provemark\\\\C2paVerifier\\\\Verifier\\\\Verifier", false) ? "planted" : "missing";'))->toBe('planted');
+
+        $entry = releaseEntry(releaseImport('fixture-signed.jpg'));
+
+        expect($entry['state'] ?? null)->toBe('Valid');
+    } finally {
+        releaseEval('unlink(WPMU_PLUGIN_DIR."/other-verifier.php");');
+    }
+})->group('SPEC-009');
+
+it('SPEC-009 AC4: stops the build when strauss.phar is not the pinned one', function (): void {
+    $root = dirname(__DIR__, 2);
+    $phar = $root.'/build/.tools/strauss-0.30.0.phar';
+    $kept = $phar.'.kept';
+
+    expect(is_file($phar))->toBeTrue();
+    rename($phar, $kept);
+    file_put_contents($phar, 'not strauss');
+    try {
+        exec('sh '.escapeshellarg($root.'/tools/build.sh').' 2>&1', $lines, $exit);
+
+        expect($exit)->not->toBe(0)
+            ->and(implode("\n", $lines))->toContain('SHA-256')
+            ->and(is_file(releaseZip()))->toBeFalse();
+    } finally {
+        rename($kept, $phar);
+        exec('sh '.escapeshellarg($root.'/tools/build.sh').' 2>&1');
+        installReleaseZip();
+    }
+})->group('SPEC-009');

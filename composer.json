@@ -53,5 +53,20 @@
             "@build",
             "pest --testsuite=Release"
         ]
+    },
+    "extra": {
+        "strauss": {
+            "target_directory": "vendor-prefixed",
+            "namespace_prefix": "Provemark\\C2paCheck\\Vendor\\",
+            "packages": [
+                "provemark/c2pa-verifier"
+            ],
+            "update_call_sites": [
+                "src",
+                "provemark-c2pa-check.php",
+                "uninstall.php"
+            ],
+            "delete_vendor_packages": true
+        }
     }
 }
