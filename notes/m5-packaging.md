@@ -30,9 +30,32 @@ build can be checked by mapping it into wp-env under another folder name
 and passing `--slug=provemark-c2pa-check`, but the bundled verifier is never
 scanned by Plugin Check (the probe of 2026-09-26 in `NOTES.md` agrees).
 
-## Open (for Maurice)
+## WordPress Coding Standards on the shipped verifier
 
-- Whether the zip carries the verifier as Packagist delivers it (4.0 MB)
-  or only what runs (`src/`, `LICENSE`, autoloader).
-- How the shipped verifier code is checked, given that Plugin Check never
-  looks at `vendor/`.
+PHPCS 3.13.6 with WPCS 3 (in a scratch project), sniffs
+`WordPress.Security.EscapeOutput`, `.ValidatedSanitizedInput`,
+`.NonceVerification`, `WordPress.WP.AlternativeFunctions`,
+`WordPress.PHP.DiscouragedPHPFunctions`, `.DevelopmentFunctions`,
+`WordPress.DB.RestrictedFunctions`, `WordPress.WP.DiscouragedFunctions`,
+on `vendor/provemark/c2pa-verifier/src` (v0.2.3): 641 findings in 10
+sources.
+
+| sniff | count | what it is (reasoned from reading the lines) |
+|---|---|---|
+| `Security.EscapeOutput.ExceptionNotEscaped` | 608 | exception messages with an interpolated value; the plugin never outputs a verifier exception message except `TrustException`'s on the settings page, through `esc_html` |
+| `WP.AlternativeFunctions.file_system_operations_*` | 17 | `fopen` / `fread` / `fwrite` / `fclose` on streams, the verifier's input |
+| `PHP.DevelopmentFunctions.error_log_set_error_handler` | 6 | catching OpenSSL warnings around its calls |
+| `PHP.DiscouragedPHPFunctions.obfuscation_base64_*` | 8 | PEM and DER certificate encoding |
+| `WP.AlternativeFunctions.json_encode_json_encode` | 2 | not WordPress code |
+| `WP.AlternativeFunctions.file_get_contents_file_get_contents` | 1 | a local file |
+
+None of them points at a hole in how the plugin uses the verifier
+(reasoned); zero findings is not a reachable bar for a library written
+without WordPress.
+
+## Decisions
+
+Decided by Maurice (2026-09-26): the zip carries only what runs
+(`src/`, `LICENSE`, the autoloader); the shipped verifier is checked with
+the WPCS security sniffs directly, and findings go to him, and to the
+verifier as issues when they are real.

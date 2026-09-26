@@ -608,3 +608,21 @@ README are where the disclosure lives.
   Plugin Check takes a plugin name only, always excludes `vendor/`, and
   has `--slug`.
 - Decided by Maurice: SPEC-004 implemented; prepare M5; not pushed.
+
+## 2026-09-26 — SPEC-005 and SPEC-006 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare M5 after Maurice's two decisions.
+- Produced: `specs/SPEC-005-uninstall.md` (draft: `uninstall.php` removes
+  the entries and the three options; deactivation keeps them; three
+  criteria) and `specs/SPEC-006-release-build.md` (draft: `.gitattributes`,
+  `composer build` with the verifier trimmed to what runs, a clean second
+  wp-env with the zip, Plugin Check on the build with nothing excluded, a
+  WPCS baseline for the shipped verifier, CI, screenshots; five criteria;
+  two non-blocking open questions); `notes/m5-packaging.md` extended with
+  the WPCS scan and the decisions.
+- Measured: WPCS 3 security sniffs on the verifier's `src/` (v0.2.3): 641
+  findings in 10 sources, 608 of them exception messages with interpolated
+  values; `wp-env start --config` exists.
+- Decided by Maurice: the zip carries only what runs; the shipped verifier
+  is checked with the WPCS security sniffs directly. Not pushed.

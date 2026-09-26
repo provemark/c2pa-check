@@ -1,0 +1,144 @@
+# SPEC-006: The release build
+
+| Field      | Value                                             |
+|------------|---------------------------------------------------|
+| Status     | draft                                             |
+| Author     | Maurice van Loon                                  |
+| Approved   | —                                                 |
+| Supersedes | —                                                 |
+
+> Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
+> `implemented` (Traceability filled). No implementation code while `draft`.
+> Only the Traceability section of an `approved` spec may change without a new
+> approval; everything else needs a proposed amendment.
+
+## Problem
+
+Everything so far runs in the development environment, where `vendor/`
+comes from `composer install` and the plugin is a mapped folder. A site
+owner installs a zip. `notes/m5-packaging.md` measured what a zip built
+naively would hold: the repository's tests, specs and tooling, and a
+4.0 MB `vendor/` of which only the verifier's `src/` (680 KB), its
+`LICENSE` and Composer's autoloader run. It also measured that Plugin Check
+never scans `vendor/`, and that the WordPress Coding Standards' security
+sniffs give 641 findings on the verifier's `src/`, none of which points at
+a hole in how the plugin uses it (reasoned).
+
+Decisions this spec follows (Maurice, 2026-09-26): the zip carries only
+what runs; the shipped verifier is checked with the WPCS security sniffs
+directly; findings go to Maurice, and to the verifier as issues when they
+are real. `NOTES.md` (Temporary measures): the Plugin Check test's list of
+excluded development files is replaced by checking the build.
+
+## Scope
+
+**In scope**
+
+- `.gitattributes` with `export-ignore` for everything that does not ship.
+- `composer build`: `git archive` of `HEAD` into
+  `build/provemark-c2pa-check/`, `composer install --no-dev
+  --optimize-autoloader` there, the verifier trimmed to `src/`, `LICENSE`
+  and `composer.json`, and `build/provemark-c2pa-check.zip`.
+- A second, clean wp-env (`.wp-env.release.json`, its own port) with no
+  mapping: WordPress, Plugin Check, and the built zip as its only other
+  plugin.
+- Plugin Check on that build, with no excluded files (replacing the
+  exclusion list in `tests/Integration/PluginCheckTest.php`).
+- A WPCS security scan of the build's `vendor/provemark/c2pa-verifier/src`
+  against a reviewed baseline (`tests/wpcs-verifier-baseline.json`: count
+  per sniff for v0.2.3); a new sniff or a higher count fails.
+- In CI: build, start the clean environment, run the release tests, on one
+  PHP version.
+- Screenshots of the column, the details and the settings page for the
+  README (`docs/screenshots/`), not shipped.
+
+**Out of scope** (each needs its own spec before it may be built)
+
+- A GitHub release, a tag, or a wordpress.org submission (each needs
+  Maurice's explicit go).
+- Changing the verifier; its findings become issues there.
+
+## Behavior
+
+Acceptance criteria as Given/When/Then. Each is individually testable and will be
+covered by a Pest test tagged `->group('SPEC-006')`, in `tests/Unit` when it
+needs no WordPress and in `tests/Integration` (wp-env, WP-CLI) when it does.
+At least one criterion MUST be an error / malformed-input path. This project
+fails closed: it never shows a verdict the verifier did not give, a failure
+is stored as state `error` with a reason, and the upload always proceeds.
+Everything read from a file is untrusted text; a criterion that displays it
+says how it is escaped.
+
+- **AC1 — the zip holds what runs, and nothing else**
+  - Given `composer build` on a clean checkout
+  - When the zip's file list is read
+  - Then it has one top folder `provemark-c2pa-check/` with the main file,
+    `uninstall.php`, `readme.txt`, `README.md`, `LICENSE`, `src/`, `trust/`
+    and `vendor/` (Composer's autoloader and the verifier's `src/`,
+    `LICENSE`, `composer.json`), and none of `tests/`, `specs/`, `notes/`,
+    `.github/`, `AI-LOG.md`, `NOTES.md`, `package.json`, `composer.lock`,
+    `.wp-env*.json`, `phpstan.neon`, `phpunit.xml`, `pint.json`, dotfiles,
+    `*.key`
+
+- **AC2 — the zip installs and works on a clean WordPress**
+  - Given the clean environment with the built zip installed and active
+  - When `fixture-signed.jpg` and the Pixel 10 photo are uploaded
+  - Then their entries are `Valid` and `Trusted`, equal to the CLI with the
+    default settings, and the settings page renders
+
+- **AC3 — Plugin Check passes on the build, with nothing excluded**
+  - Given the installed build
+  - When `wp plugin check provemark-c2pa-check` runs without exclusions
+  - Then it reports no errors and no warnings
+
+- **AC4 — the shipped verifier matches its reviewed WPCS baseline** *(error path)*
+  - Given the build's verifier `src/` and the baseline
+  - When the WPCS security sniffs run
+  - Then every sniff's count is at most its baseline count and no sniff
+    outside the baseline appears; a planted `echo $_GET['x'];` in a copy
+    makes the test fail
+
+- **AC5 — a build without its verifier fails loudly** *(error path)*
+  - Given a build whose `vendor/` is missing
+  - When it is activated on the clean WordPress
+  - Then it stays active, shows the "bundled libraries are missing" notice,
+    and no upload gets an entry (M0.2's behaviour, now on the zip)
+
+## References
+
+- WordPress: [Plugin Check](https://wordpress.org/plugins/plugin-check/),
+  [plugin readme](https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/);
+  WPCS 3 security sniffs; Composer `--no-dev`, `git archive` and
+  `.gitattributes` `export-ignore`.
+- Oracle: `unzip -l` of the zip; Plugin Check 2.1.0 on the clean
+  environment; PHPCS with WPCS 3; the verifier CLI with the default
+  settings. Measured in `notes/m5-packaging.md`.
+- Reasoned: that wp-env installs a zip listed under `plugins` in a
+  `--config` file and gives that environment its own Compose project; to
+  be measured first.
+
+## API sketch
+
+```text
+composer build          → build/provemark-c2pa-check.zip
+npm run release:start   → wp-env start --config .wp-env.release.json
+composer test:release   → pest --testsuite=Release (tests/Release/)
+```
+
+## Open questions
+
+- **WPCS as a dev dependency (non-blocker).** Proposal:
+  `wp-coding-standards/wpcs` ^3 under `require-dev`, run by the release
+  test on the build only.
+- **Which PHP version for the release job in CI (non-blocker).**
+  Proposal: 8.3, the lowest supported.
+
+## Traceability
+
+| Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
+|----------------------|-----------------------------|----------------------|
+| AC1                  | —                           | —                    |
+| AC2                  | —                           | —                    |
+| AC3                  | —                           | —                    |
+| AC4                  | —                           | —                    |
+| AC5                  | —                           | —                    |
