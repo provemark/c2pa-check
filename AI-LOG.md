@@ -403,3 +403,21 @@ README are where the disclosure lives.
   because PHPStan at level max requires the value type. `composer check`
   green, integration 41 passed.
 - Decided by Maurice: no undefined functions shown in the IDE.
+
+## 2026-09-26 — Faster integration tests
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the integration jobs in CI take long; make them faster.
+- Produced: `wpCli()` in `tests/Pest.php` runs `docker exec` on this
+  project's wp-env cli container (found by its Compose project label)
+  instead of `wp-env run cli`; same user and working directory (the
+  container's own, as `wp-env run` uses).
+- Measured: one `wp eval` call 1.09 s through `wp-env run`, 0.23 s through
+  `docker exec`. Local integration suite 84 s → 27 s (41 passed both
+  times). CI before (run 36225996963): integration jobs 202–236 s, of
+  which `env:start` 91 s and the tests 86 s (PHP 8.3). After (run
+  36226386706): jobs 153–175 s, `env:start` 88 s, tests 41 s. Starting
+  wp-env is left as it is.
+- Not in the commit that made the change (`Run WP-CLI in the tests through
+  docker exec`): this entry, which needed the CI measurement; added here.
+- Decided by Maurice: the CI speed-up first.
