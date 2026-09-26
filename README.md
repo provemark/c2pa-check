@@ -39,10 +39,15 @@ licences.
 ## Building and testing
 
 `composer check` runs Pint, PHPStan at level max and the unit tests.
-`npm run env:start` starts WordPress in wp-env for `composer
-test:integration`; `composer build` makes `build/provemark-c2pa-check.zip`,
-and `npm run release:start` with `composer test:release` installs and
-checks that zip on a clean second WordPress. The specifications are in
+Three wp-env environments, each its own WordPress:
+
+| command | port | for |
+|---|---|---|
+| `npm run env:start` | 8888 | development, by hand; no test touches it |
+| `npm run test:start` | 8892 | `composer test:integration` (uploads, uninstalls, thousands of test attachments) |
+| `npm run release:start` | 8890 | `composer test:release`: `composer build` makes `build/provemark-c2pa-check.zip`, which is installed and checked there |
+
+The specifications are in
 [`specs/`](specs/), measurements in [`notes/`](notes/), decisions in
 [`NOTES.md`](NOTES.md).
 

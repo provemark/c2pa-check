@@ -831,3 +831,25 @@ README are where the disclosure lives.
   integration 88 passed, release 6 passed. The CI result of the push goes
   in the next entry.
 - Decided by Maurice: SPEC-007 implemented; push.
+
+## 2026-09-26 — Integration tests in their own environment
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: move the integration tests out of Maurice's development
+  environment (the uninstall test emptied it on every run, and the tests
+  left thousands of attachments there).
+- Produced: `.wp-env.test.json` (port 8892, the plugin mapped, activated
+  by an `afterStart` lifecycle script, since wp-env does not activate a
+  mapped plugin); `npm run test:start` / `test:stop`; `wpCli()` defaults to
+  the `test` environment (the development one is never the default);
+  the CI integration job starts and version-checks the test environment
+  (`wp-env run --config`); `.gitattributes` leaves the new file out of the
+  zip; `README.md` lists the three environments.
+- Measured: `wp-env run` accepts `--config`; the test environment's
+  project is `wp-env-c2pa_verifier_wp-test-<hash>`; without the lifecycle
+  script the plugin was `inactive` there, with it `active`. Integration 88
+  passed on the test environment (107 s); Maurice's environment counted
+  2 114 attachments and 5 entries before and after the run.
+  `composer check` green. Also: CI run 36231049596 (SPEC-007, pushed) was
+  green on every job.
+- Decided by Maurice: move the integration tests. Not pushed.

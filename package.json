@@ -7,7 +7,9 @@
     "env:start": "wp-env start",
     "env:stop": "wp-env stop",
     "release:start": "wp-env start --config .wp-env.release.json",
-    "release:stop": "wp-env stop --config .wp-env.release.json"
+    "release:stop": "wp-env stop --config .wp-env.release.json",
+    "test:start": "wp-env start --config .wp-env.test.json",
+    "test:stop": "wp-env stop --config .wp-env.test.json"
   },
   "devDependencies": {
     "@wordpress/env": "11.16.0"

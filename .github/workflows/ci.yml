@@ -84,14 +84,14 @@ jobs:
       # behave the same.
       - run: npm ci --ignore-scripts
 
-      - run: npm run env:start
+      - run: npm run test:start
         env:
           WP_ENV_PHP_VERSION: ${{ matrix.php }}
 
       # WordPress must really run on matrix.php: if the override were ignored,
-      # every leg would run on .wp-env.json's 8.3 and still be green.
+      # every leg would run on .wp-env.test.json's 8.3 and still be green.
       - run: |
-          node_modules/.bin/wp-env run cli php -r 'echo PHP_MAJOR_VERSION, ".", PHP_MINOR_VERSION, PHP_EOL;' 2>/dev/null \
+          node_modules/.bin/wp-env run --config .wp-env.test.json cli php -r 'echo PHP_MAJOR_VERSION, ".", PHP_MINOR_VERSION, PHP_EOL;' 2>/dev/null \
             | grep -x '${{ matrix.php }}'
 
       - run: composer test:integration

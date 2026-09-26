@@ -5,7 +5,8 @@ use Provemark\C2paCheck\TrustConfig;
 
 /**
  * The name of this project's running wp-env "cli" container: the
- * development environment (.wp-env.json), or a variant such as `release`
+ * development environment (.wp-env.json), or a variant such as `test`
+ * (.wp-env.test.json, the integration tests) or `release`
  * (.wp-env.release.json). wp-env names its Compose project
  * "wp-env-<folder>[-<variant>]-<8 hex>" (read in its load-config.js).
  */
@@ -37,10 +38,12 @@ function cliContainer(string $variant = ''): string
  * (measured), because `wp-env run` starts Node first every time.
  *
  * @param  list<string>  $args  WP-CLI arguments, each passed as one shell argument
- * @param  string  $variant  '' for the development environment, 'release' for the clean one
+ * @param  string  $variant  'test' for the integration tests' own environment
+ *                           (.wp-env.test.json), 'release' for the clean one; never
+ *                           '' (the development environment, which is Maurice's)
  * @return array{exit: int, output: string}
  */
-function wpCli(array $args, string $variant = ''): array
+function wpCli(array $args, string $variant = 'test'): array
 {
     $command = 'docker exec '.escapeshellarg(cliContainer($variant)).' wp '
         .implode(' ', array_map(escapeshellarg(...), $args))
