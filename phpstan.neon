@@ -5,7 +5,6 @@ parameters:
     level: max
     paths:
         - provemark-c2pa-check.php
-        - src
         - tests
     # No ignoreErrors and no excludePaths. Every finding is fixed at the source
     # or discussed in the spec that introduces the code; nothing is waved

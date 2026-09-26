@@ -107,6 +107,10 @@ PHPUnit versions (reasoned; not measured).
   because `tests/Unit` is empty (decided 2026-09-26). **Remove the flag in
   M1**, in the commit that adds the first unit test; an empty suite must
   fail again from then on.
+- `phpstan.neon` does not list `src` while that directory is empty: git
+  keeps no empty directory, PHPStan refuses a missing path, and a
+  `src/.gitkeep` is a hidden file Plugin Check rejects (it would ship).
+  **Add `src` back in M1**, with the first class.
 - The Plugin Check test excludes development files by name
   (`tests/Integration/PluginCheckTest.php`). **Replace in M5** by running
   Plugin Check on the built release.

@@ -186,3 +186,22 @@ README are where the disclosure lives.
   recorded in the next entry.
 - Decided by Maurice: M0.6 as proposed; the repository private under
   `provemark`.
+
+## 2026-09-26 — M0.6: first CI runs
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: get the first CI run green; nothing reverted silently.
+- Measured: run 36221589081 (`e152697`): `integration` **green** on PHP
+  8.3, 8.4 and 8.5, and the version step passed, so `WP_ENV_PHP_VERSION`
+  does override `.wp-env.json`; `check` **red** on all three: "Path
+  .../src does not exist" (git keeps no empty directory; locally `src/`
+  existed). Fix one, `src/.gitkeep` (`bc88fee`): `composer check` green in
+  a clean clone, but run 36221758918 then had `check` green and
+  `integration` **red** on all three: Plugin Check "ERROR, hidden_files" on
+  `src/.gitkeep`, which would ship. The clean-clone check had covered only
+  `composer check`, not the integration suite.
+- Produced: `src/.gitkeep` removed again; `src` taken out of
+  `phpstan.neon`'s paths until M1 adds the first class (recorded under
+  Temporary measures in `NOTES.md`). Locally, with no `src/` present as in
+  CI: `composer check` green, integration 2 passed.
+- Decided by Maurice: nothing new; a fix within M0.6.
