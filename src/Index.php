@@ -48,7 +48,9 @@ final class Index
         $ids = get_posts([
             'post_type' => 'attachment',
             'post_status' => 'any',
-            'meta_query' => [
+            // One-time, in batches of $limit: the only way to find entries
+            // without an index.
+            'meta_query' => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 ['key' => UploadHook::META_KEY, 'compare' => 'EXISTS'],
                 ['key' => self::STATE_KEY, 'compare' => 'NOT EXISTS'],
             ],

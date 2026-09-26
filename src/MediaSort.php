@@ -168,10 +168,10 @@ final class MediaSort
     {
         $values = [];
         foreach ([self::PARAM, 'orderby', 'order'] as $key) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter and sort, as WordPress's own list screens
-            $raw = $_GET[$key] ?? null;
-            // sanitize_text_field keeps the case: `Trusted` must stay unknown (AC4).
-            $values[$key] = is_string($raw) ? sanitize_text_field(wp_unslash($raw)) : null;
+            // A read-only list filter and sort, as on WordPress's own list
+            // screens, so no nonce. sanitize_text_field keeps the case:
+            // `Trusted` must stay unknown (AC4).
+            $values[$key] = isset($_GET[$key]) && is_string($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
 
         return ['provemark_c2pa' => $values[self::PARAM], 'orderby' => $values['orderby'], 'order' => $values['order']];

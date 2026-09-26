@@ -803,3 +803,21 @@ README are where the disclosure lives.
   unique `post_name` (5 s) and the test cleans up in `finally`; PHPStan
   needed `wpdb` narrowed with `instanceof` and table names through `%i`.
 - Decided by Maurice: SPEC-007 approved earlier. Not pushed.
+
+## 2026-09-26 — SPEC-007: Plugin Check on the build
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: (continuing SPEC-007) the release tests after the build.
+- Measured: Plugin Check on the build warned about `$_GET` without
+  `wp_unslash()` / sanitizing, a direct database query in the backfill,
+  and then a possibly slow `meta_query`. Changed: the three request values
+  are read in one place as `sanitize_text_field(wp_unslash($_GET[...]))`
+  (text, not `sanitize_key()`, which lowercases and would have let
+  `Trusted` through as `trusted`, against AC4: a new test through the real
+  request, seen **red** with `sanitize_key()`); the backfill uses
+  `get_posts()` with a meta query (`phpcs:ignore` on its slow-query sniff,
+  with the reason). After: release 6 passed, integration 88 passed,
+  `composer check` green. This entry is amended into the commit
+  "Satisfy Plugin Check on the request and the backfill query"; the commit
+  before it ("Sanitize the list request…") has no entry of its own.
+- Decided by Maurice: nothing new. Not pushed.
