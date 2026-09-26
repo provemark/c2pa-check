@@ -505,3 +505,11 @@ README are where the disclosure lives.
   `showsAiLabel()` made AC2, AC3 and AC5 (Invalid, none, error) **red**;
   a planted `$report->store` made AC7 **red**; both restored.
 - Decided by Maurice: SPEC-003 approved earlier; not pushed.
+
+## 2026-09-26 — SPEC-003 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-003 implemented.
+- Produced: SPEC-003 status `implemented` (Traceability filled when built).
+- Measured: nothing new.
+- Decided by Maurice: SPEC-003 implemented; not pushed.
