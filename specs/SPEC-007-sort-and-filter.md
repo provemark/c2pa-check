@@ -160,6 +160,14 @@ final class MediaSort
 None. Resolved by Maurice on 2026-09-26, as proposed in the draft: the
 select's options use SPEC-002's headlines, after "All Content Credentials".
 
+## Amendments
+
+1. **2026-09-26, a fix within the approved behaviour ("newest first"),
+   reported to Maurice.** CI run 36232610171 failed AC4 on PHP 8.3 and 8.5:
+   two images of the same state uploaded in the same second tie on
+   `post_date`, and MySQL may return them in either order. The ORDER BY
+   now ends with `ID DESC`; AC2 checks that order for the tie.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

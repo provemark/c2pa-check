@@ -853,3 +853,26 @@ README are where the disclosure lives.
   `composer check` green. Also: CI run 36231049596 (SPEC-007, pushed) was
   green on every job.
 - Decided by Maurice: move the integration tests. Not pushed.
+
+## 2026-09-26 — Pushed; a tie in the sort order fixed; dev environment cleaned
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: push the integration-environment change, and clean Maurice's
+  development environment.
+- Measured: CI run 36232610171 on `a351197`: `check` and `release` green,
+  integration green on PHP 8.4 but **red** on 8.3 and 8.5, each on SPEC-007
+  AC4 "orders ascending when the order is not asc or desc". Cause
+  (reasoned, then confirmed): the image without an entry and the PDF share
+  a state and were made in the same second, so they tie on `post_date` and
+  MySQL may order them either way between two queries; it had passed
+  locally and in the previous CI run by chance.
+- Produced: the ORDER BY ends with `ID DESC`; AC2 now asserts the tie's
+  order (the PDF, made last, first); SPEC-007 amendment 1 records it.
+  Without `ID DESC`, AC2 is **red**; with it, the SPEC-007 tests passed
+  three runs in a row; `composer check` green.
+- Cleaned, at Maurice's request: 2 109 test attachments deleted from the
+  development environment with their files; the five examples (IDs
+  12926–12930) kept; posts, pages and options untouched; no orphaned meta
+  left.
+- Decided by Maurice: push; clean the development environment. This
+  commit is not pushed yet.

@@ -46,8 +46,9 @@ it('AC2: sorts from good to nothing, and back', function (): void {
     $asc = listedIds($ids, ['orderby' => 'provemark_c2pa', 'order' => 'asc'])['ids'];
     $desc = listedIds($ids, ['orderby' => 'provemark_c2pa', 'order' => 'desc'])['ids'];
 
+    // Same state and same second: the higher ID (the PDF, made last) first.
     expect(array_slice($asc, 0, 6))->toBe($good)
-        ->and(array_slice($asc, 6))->toEqualCanonicalizing([$g['unchecked'], $g['pdf']])
+        ->and(array_slice($asc, 6))->toBe([$g['pdf'], $g['unchecked']])
         ->and(array_slice($desc, 2))->toBe(array_reverse($good))
         ->and(wpEval("echo json_encode(apply_filters('manage_upload_sortable_columns', []));"))->toContain('"provemark_c2pa"');
 })->group('SPEC-007');

@@ -118,8 +118,8 @@ final class MediaSort
 
     /**
      * The ORDER BY for a query that asked for the column: the states in
-     * ORDER, no index last, newest first within a state. Built from
-     * constants only.
+     * ORDER, no index last, newest first within a state (date, then ID).
+     * Built from constants only.
      *
      * @param  array<string, string>  $clauses
      * @return array<string, string>
@@ -138,7 +138,9 @@ final class MediaSort
         }
 
         $clauses['join'] = ($clauses['join'] ?? '').$wpdb->prepare(' LEFT JOIN %i AS provemark_c2pa_sort ON provemark_c2pa_sort.post_id = %i.ID AND provemark_c2pa_sort.meta_key = %s', $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY);
-        $clauses['orderby'] = 'CASE provemark_c2pa_sort.meta_value'.$cases.' ELSE '.count(self::ORDER).' END '.$order.", {$wpdb->posts}.post_date DESC";
+        // post_date alone ties for uploads in the same second; ID settles it
+        // (a higher ID is newer), so the order is the same on every request.
+        $clauses['orderby'] = 'CASE provemark_c2pa_sort.meta_value'.$cases.' ELSE '.count(self::ORDER).' END '.$order.", {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
 
         return $clauses;
     }
