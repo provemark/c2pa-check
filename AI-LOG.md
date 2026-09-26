@@ -595,3 +595,16 @@ README are where the disclosure lives.
 - Produced: SPEC-004 status `implemented` (Traceability filled when built).
 - Measured: nothing new.
 - Decided by Maurice: SPEC-004 implemented; not pushed.
+
+## 2026-09-26 — M5.0: packaging measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare M5 (packaging).
+- Produced: `notes/m5-packaging.md`.
+- Measured: a `git archive` build with `composer install --no-dev` has a
+  4.0 MB `vendor/`, most of it the verifier's docs, notes, specs, bin and
+  logs, which its `.gitattributes` ships on purpose; the repository has no
+  `.gitattributes` yet, so an archive would carry tests and tooling;
+  Plugin Check takes a plugin name only, always excludes `vendor/`, and
+  has `--slug`.
+- Decided by Maurice: SPEC-004 implemented; prepare M5; not pushed.
