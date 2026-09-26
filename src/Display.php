@@ -58,6 +58,23 @@ final class Display
     }
 
     /**
+     * How an entry sorts and filters (SPEC-007): its state, `unreadable`
+     * when it is not a SPEC-001 entry, and whether the AI label shows.
+     * Null for no entry. Reads the entry exactly as the display does.
+     *
+     * @return array{string, bool}|null
+     */
+    public static function classify(mixed $entry): ?array
+    {
+        $read = self::read($entry);
+        if ($read === null) {
+            return null;
+        }
+
+        return $read === false ? ['unreadable', false] : [$read['state'], self::showsAiLabel($read)];
+    }
+
+    /**
      * Untrusted text from the file, safe to put in HTML: controls and
      * direction characters become U+FFFD, then esc_html.
      */

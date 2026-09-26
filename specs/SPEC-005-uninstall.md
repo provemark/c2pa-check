@@ -101,6 +101,13 @@ delete_option('provemark_c2pa_trust_failed');
 
 - None.
 
+## Amendments
+
+1. **2026-09-26, approved by Maurice van Loon** with SPEC-007. Uninstall
+   also deletes the index keys `_provemark_c2pa_state` and
+   `_provemark_c2pa_ai` and the option `provemark_c2pa_index_done`; AC1
+   checks them.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

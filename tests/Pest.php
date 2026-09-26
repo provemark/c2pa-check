@@ -328,8 +328,9 @@ function wpEval(string $php): string
 }
 
 /**
- * An attachment (no file) whose stored entry is exactly $entry; null means
- * no entry at all. The value travels as base64 JSON so no shell quoting can
+ * An attachment (no file) whose stored entry is exactly $entry, indexed as
+ * the plugin indexes a stored entry (SPEC-007); null means no entry and no
+ * index at all. The value travels as base64 JSON so no shell quoting can
  * change it.
  */
 function attachmentWithEntry(mixed $entry): int
@@ -338,7 +339,7 @@ function attachmentWithEntry(mixed $entry): int
     $out = wpEval(<<<PHP
         \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
         \$entry = json_decode(base64_decode('$payload'), true);
-        if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); }
+        if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); delete_post_meta(\$id, '_provemark_c2pa_state'); delete_post_meta(\$id, '_provemark_c2pa_ai'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); if (class_exists('Provemark\\C2paCheck\\Index')) { Provemark\\C2paCheck\\Index::write(\$id, \$entry); } }
         echo 'ID:', \$id, "\n";
         PHP);
     $id = (int) preg_replace('/.*ID:(\d+).*/s', '$1', $out);
@@ -498,4 +499,44 @@ function beyondBaseline(array $findings, array $baseline): array
     }
 
     return $beyond;
+}
+
+/**
+ * The SPEC-007 index keys of an attachment in the development environment.
+ *
+ * @return array{state: string, ai: string}
+ */
+function indexOf(int $id): array
+{
+    $out = wpEval("echo json_encode(['state' => get_post_meta($id, '_provemark_c2pa_state', true), 'ai' => get_post_meta($id, '_provemark_c2pa_ai', true)]);");
+    $decoded = json_decode($out, true);
+
+    return [
+        'state' => is_array($decoded) && is_string($decoded['state'] ?? null) ? $decoded['state'] : '',
+        'ai' => is_array($decoded) && is_string($decoded['ai'] ?? null) ? $decoded['ai'] : '',
+    ];
+}
+
+/**
+ * The attachment IDs a Media Library list query returns when the plugin's
+ * query change sees $request, limited to $ids; and the SQL it ran.
+ *
+ * @param  list<int>  $ids
+ * @param  array<string, mixed>  $request
+ * @return array{ids: list<int>, sql: string}
+ */
+function listedIds(array $ids, array $request): array
+{
+    $in = implode(',', $ids);
+    $payload = base64_encode((string) json_encode($request));
+    $out = wpEval(<<<PHP
+        \$request = json_decode(base64_decode('$payload'), true);
+        add_action('pre_get_posts', function (WP_Query \$q) use (\$request): void { Provemark\\C2paCheck\\MediaSort::apply(\$q, \$request); });
+        \$q = new WP_Query(['post_type' => 'attachment', 'post_status' => 'inherit', 'posts_per_page' => -1, 'post__in' => [$in], 'fields' => 'ids']);
+        echo json_encode(['ids' => array_map('intval', \$q->posts), 'sql' => \$q->request]);
+        PHP);
+    $decoded = json_decode($out, true);
+    $found = is_array($decoded) && is_array($decoded['ids'] ?? null) ? array_values(array_filter($decoded['ids'], is_int(...))) : [];
+
+    return ['ids' => $found, 'sql' => is_array($decoded) && is_string($decoded['sql'] ?? null) ? $decoded['sql'] : $out];
 }

@@ -164,10 +164,10 @@ select's options use SPEC-002's headlines, after "All Content Credentials".
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
+| AC1 | `tests/Integration/SortFilterTest.php` :: AC1 | `src/Index.php` `Index::write`; `src/Display.php` `Display::classify`; `src/UploadHook.php` |
+| AC2 | `tests/Integration/SortFilterTest.php` :: AC2 | `src/MediaSort.php` `MediaSort::sortable`, `apply`, `orderClauses` |
+| AC3 | `tests/Integration/SortFilterTest.php` :: AC3 | `MediaSort::apply` (meta clauses) |
+| AC4 | `tests/Integration/SortFilterTest.php` :: AC4 (both) | `MediaSort::chosen`, `apply` (order `ASC` unless `desc`) |
+| AC5 | `tests/Integration/SortFilterTest.php` :: AC5 (both) | `MediaSort::renderSelect`, `options` |
+| AC6 | `tests/Integration/SortFilterTest.php` :: AC6 | `Index::backfill`, `MediaSort::backfill` (`Index::DONE_OPTION`) |
+| AC7 | `tests/Integration/UninstallTest.php` :: AC1 | `uninstall.php` |

@@ -13,6 +13,9 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 delete_post_meta_by_key('_provemark_c2pa_result');
+delete_post_meta_by_key('_provemark_c2pa_state');
+delete_post_meta_by_key('_provemark_c2pa_ai');
 delete_option('provemark_c2pa_digicert');
 delete_option('provemark_c2pa_custom_trust');
 delete_option('provemark_c2pa_trust_failed');
+delete_option('provemark_c2pa_index_done');

@@ -15,6 +15,7 @@
 declare(strict_types=1);
 use Provemark\C2paCheck\Checker;
 use Provemark\C2paCheck\MediaScreens;
+use Provemark\C2paCheck\MediaSort;
 use Provemark\C2paCheck\SettingsPage;
 use Provemark\C2paCheck\UploadHook;
 
@@ -37,4 +38,5 @@ require_once __DIR__.'/vendor/autoload.php';
 
 (new UploadHook(new Checker))->register();
 (new MediaScreens)->register();
+(new MediaSort)->register();
 (new SettingsPage)->register();

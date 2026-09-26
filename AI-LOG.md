@@ -774,3 +774,32 @@ README are where the disclosure lives.
 - Produced: SPEC-007 status `approved`.
 - Measured: nothing.
 - Decided by Maurice: SPEC-007 approved. Not pushed.
+
+## 2026-09-26 — SPEC-007 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-007, tests first.
+- Produced: `src/Index.php` (the two index keys, derived through
+  `Display::classify()` so they match what the display shows; a batched
+  backfill), `src/MediaSort.php` (sortable column, the select on
+  `restrict_manage_posts`, the query change in `pre_get_posts` with an
+  allowlist, the ORDER BY built from constants with `%i` / `%s`
+  placeholders, the backfill on `admin_init`); `UploadHook` indexes each
+  stored entry; `uninstall.php` removes the index (SPEC-005 amendment 1);
+  `tests/Integration/SortFilterTest.php`; the uninstall test extended;
+  test helpers `indexOf()`, `listedIds()`, and `attachmentWithEntry()` now
+  indexes. Traceability filled; status stays `approved` until Maurice
+  marks it implemented.
+- Measured: in the media list `restrict_manage_posts` fires with
+  `$which === 'bar'` (read in core). Before the code, 15 SPEC-007 tests
+  **red**; the "ignore" cases and "no select on other post types" were
+  green, as nothing happened. After: integration 87 passed, `composer
+  check` green. Letting `chosen()` accept any string turned the SQL and
+  state-name cases of AC4 **red**; using the raw AI flag in `classify()`
+  turned AC1 **red**; both restored.
+- Found on the way: failed AC6 runs left 3 600 test attachments behind
+  (removed by title in SQL); 1 200 attachments with one title made
+  WordPress search ever longer for a free slug (121 s), so each gets a
+  unique `post_name` (5 s) and the test cleans up in `finally`; PHPStan
+  needed `wpdb` narrowed with `instanceof` and table names through `%i`.
+- Decided by Maurice: SPEC-007 approved earlier. Not pushed.

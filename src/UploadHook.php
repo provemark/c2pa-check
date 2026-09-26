@@ -48,7 +48,9 @@ final class UploadHook
             // backslashes in text from the file (SPEC-001 amendment 2). The
             // provisional entry goes first, before anything that could stop
             // the request, reading the trust lists included.
-            update_post_meta($attachmentId, self::META_KEY, wp_slash($this->checker->interrupted()));
+            $provisional = $this->checker->interrupted();
+            update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
+            Index::write($attachmentId, $provisional);
 
             [$settings, $trust] = ($this->trustConfig)()->build();
             if ($trust === 'none') {
@@ -61,6 +63,7 @@ final class UploadHook
             $entry = $this->checker->check(is_string($path) ? $path : '', $settings, $trust);
 
             update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
+            Index::write($attachmentId, $entry);
         } catch (Throwable) {
             // The upload always proceeds; whatever was stored last stays.
         }
