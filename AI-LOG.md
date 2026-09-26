@@ -344,3 +344,13 @@ README are where the disclosure lives.
   no undefined WordPress functions in `src/UploadHook.php`.
 - Decided by Maurice: M2 approach as proposed; pushing within M2 without
   asking per commit. The spec awaits approval.
+
+## 2026-09-26 — SPEC-002 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: take the three proposals and mark SPEC-002 approved.
+- Produced: SPEC-002 status `approved`, open questions resolved as proposed
+  (no codes for `Valid`; `signed_at` shown as is, escaped; wording as
+  drafted).
+- Measured: nothing.
+- Decided by Maurice: SPEC-002 approved with the three proposals.

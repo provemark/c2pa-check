@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -183,14 +183,12 @@ final class MediaScreens
 
 ## Open questions
 
-- **Codes for `Valid` (non-blocker).** A `Valid` file always carries
-  `signingCredential.untrusted`; SPEC-001 does not store codes for `Valid`.
-  Proposal: show none; the headline says "signer not trusted".
-- **Signing time format (non-blocker).** `signed_at` is the file's own
-  string. Proposal: show it as is (escaped), not reformat it with
-  `wp_date()`, so that the plugin never interprets untrusted input.
-- **Wording (non-blocker).** The headlines above are a proposal; Maurice
-  may change them before approval.
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
+
+- Codes for `Valid`: not shown; the headline says "signer not trusted".
+- `signed_at`: shown as the file's own string, through `Display::text()`,
+  never reformatted.
+- Wording: the headlines and lines in the table above, as written.
 
 ## Traceability
 
