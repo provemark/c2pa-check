@@ -587,3 +587,11 @@ README are where the disclosure lives.
   trust lists, moved before them.
 - Decided by Maurice: SPEC-004 approved earlier, SPEC-003 amendment 1
   chosen earlier; not pushed.
+
+## 2026-09-26 — SPEC-004 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-004 implemented.
+- Produced: SPEC-004 status `implemented` (Traceability filled when built).
+- Measured: nothing new.
+- Decided by Maurice: SPEC-004 implemented; not pushed.
