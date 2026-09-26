@@ -63,3 +63,23 @@ README are where the disclosure lives.
   running, so that proof moves to M0.3 (wp-env).
 - Decided by Maurice: M0.2 as proposed. `Requires at least: 7.1` (only what
   is tested) is the assistant's choice within that approval, open to change.
+
+## 2026-09-26 — M0.2 addendum: activation measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: run Docker through Colima and prove that the empty plugin
+  activates in a real WordPress, recorded apart from M0.3.
+- Produced: no code. Local environment only: Colima started; a symlink
+  `~/.docker/cli-plugins/docker-compose` to Homebrew's `docker-compose`, so
+  that `docker compose` (which wp-env calls) resolves.
+- Measured, with `WP_ENV_PHP_VERSION=8.3 npx @wordpress/env start` and no
+  `.wp-env.json`: WordPress 7.1.2 on PHP 8.3.35. `wp plugin deactivate` and
+  `wp plugin activate` both succeed; after activation
+  `class_exists(Provemark\C2paVerifier\Verifier\Verifier::class)` is true.
+  With `vendor/` moved aside the plugin stays active, nothing fatal, and
+  `do_action('admin_notices')` prints the one notice. `vendor/` restored.
+- Found: without a config file wp-env mounts the plugin under the folder
+  name (`C2PA_Verifier_WP`), not the slug; `.wp-env.json` in M0.3 maps it
+  to `provemark-c2pa-check`.
+- Decided by Maurice: Colima instead of Docker Desktop; the compose symlink;
+  this measurement as its own commit.

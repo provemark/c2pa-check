@@ -86,3 +86,6 @@ PHPUnit versions (reasoned; not measured).
   since WordPress 5.3.0 (code reference), and the current release is 7.1.2
   (`api.wordpress.org/core/version-check/1.7`). The header says `7.1`: we
   claim only what we test. Lowering it means adding that version to CI.
+- 2026-09-26, activation: the empty plugin activates and deactivates in
+  WordPress 7.1.2 on PHP 8.3.35 (wp-env via Colima), loads the verifier, and
+  without `vendor/` shows one admin notice instead of a fatal error.
