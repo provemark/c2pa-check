@@ -320,3 +320,27 @@ README are where the disclosure lives.
   (check and integration, PHP 8.3 / 8.4 / 8.5).
 - Decided by Maurice: amendment 1; the `phpcs:ignore` on `fopen`/`fclose`
   in `Checker` (WP_Filesystem has no stream API); SPEC-001 implemented.
+
+## 2026-09-26 — M2.0 measured, SPEC-002 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: measure where the result can be shown, then draft SPEC-002.
+- Produced: `notes/m2-where-to-show.md`; `specs/SPEC-002-show-the-result.md`
+  (status `draft`): a list-mode column and an attachment-details row,
+  wording per state, `Display::text()` that replaces control and Unicode
+  direction characters by U+FFFD before `esc_html`, nine criteria (two
+  error paths plus a malformed-entry path), three non-blocking open
+  questions.
+- Measured: `manage_media_columns` / `manage_media_custom_column` give a
+  visible column in list mode; `attachment_fields_to_edit` gives a row on
+  Edit Media, in the Media Library modal and in the block editor's
+  `wp.media` modal. Read in core: `get_compat_media_markup()` inserts an
+  `html` field and its label unescaped.
+- Also: PhpStorm on this machine did not resolve WordPress functions; the
+  WordPress stubs file (5.7 MB) is above PhpStorm's default 2.5 MB indexing
+  limit. `idea.max.intellisense.filesize=8000` was added to Maurice's
+  PhpStorm custom properties, and Maurice enabled PhpStorm's WordPress
+  integration pointing at wp-env's WordPress; afterwards PhpStorm reported
+  no undefined WordPress functions in `src/UploadHook.php`.
+- Decided by Maurice: M2 approach as proposed; pushing within M2 without
+  asking per commit. The spec awaits approval.
