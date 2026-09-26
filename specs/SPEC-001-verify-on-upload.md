@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
@@ -86,7 +86,7 @@ The stored entry is an array:
 | `format` | the report's `format`, or `null` for `error` |
 | `signer` | `['issuer' => ?string, 'common_name' => string]` from `signatureInfo`, or `null` when the report has none |
 | `signed_at` | `signatureInfo['time']` when present, else `null` |
-| `codes` | for `Invalid`: the `code` of every status, in the report's order; otherwise `[]` |
+| `codes` | for `Invalid`: the `code` of every failure, as the report's `toArray()['validation_status']` and the CLI give them (active manifest first, then each ingredient's); otherwise `[]` (amendment 1) |
 | `remote_manifest_url` | the report's `remoteManifestUrl` when present (never fetched), else `null` |
 | `reason` | for `error`: `interrupted`, `unreadable` or `exception`; otherwise `null` |
 | `verifier` | the installed `provemark/c2pa-verifier` version (`InstalledVersions::getPrettyVersion`) |
@@ -220,6 +220,14 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
   checked.
 - Hook priority: the default, 10; nothing measured calls for another.
 - `codes` for `Valid`: not stored; `codes` is filled for `Invalid` only.
+
+## Amendments
+
+1. **2026-09-26, approved by Maurice van Loon.** The `codes` row said "the
+   `code` of every status, in the report's order". `result->statuses` also
+   holds successes and informational codes, in another order, while AC3
+   compares with the CLI's `validation_status`, which holds failures only.
+   The row now names that list. Found by AC3's unit test while building.
 
 ## Traceability
 

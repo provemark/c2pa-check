@@ -308,3 +308,15 @@ README are where the disclosure lives.
     `@var`.
 - Decided by Maurice: SPEC-001 approved earlier; the `codes` amendment and
   the `phpcs:ignore` are put to him.
+
+## 2026-09-26 — SPEC-001 implemented; M1 done
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: apply the `codes` amendment and mark SPEC-001 implemented.
+- Produced: SPEC-001 amendment 1 (`codes` are the report's
+  `validation_status` failures, as the CLI gives them); status
+  `implemented`.
+- Measured: CI run 36223978023 on the SPEC-001 commit green on all jobs
+  (check and integration, PHP 8.3 / 8.4 / 8.5).
+- Decided by Maurice: amendment 1; the `phpcs:ignore` on `fopen`/`fclose`
+  in `Checker` (WP_Filesystem has no stream API); SPEC-001 implemented.
