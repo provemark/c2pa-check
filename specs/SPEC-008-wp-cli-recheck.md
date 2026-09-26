@@ -157,11 +157,11 @@ check`.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
+| AC1 | `tests/Integration/RecheckTest.php` :: AC1 | `src/UploadHook.php` `UploadHook::checkAndStore`; `src/RecheckCommand.php` `check` |
+| AC2 | `tests/Integration/RecheckTest.php` :: AC2 | `RecheckCommand::check` (`wp_get_original_image_path`) |
+| AC3 | `tests/Integration/RecheckTest.php` :: AC3 | `RecheckCommand::select`, `all`, `explicit` |
+| AC4 | `tests/Integration/RecheckTest.php` :: AC4 | `RecheckCommand::select` (`WP_CLI::error`) |
+| AC5 | `tests/Integration/RecheckTest.php` :: AC5 | `RecheckCommand::explicit` (`WP_CLI::warning`) |
+| AC6 | `tests/Integration/RecheckTest.php` :: AC6 | `UploadHook::checkAndStore`, `Checker::check` (`unreadable`) |
+| AC7 | `tests/Integration/RecheckTest.php` :: AC7 | `RecheckCommand::check` (`--dry-run`) |
+| AC8 | `tests/Integration/RecheckTest.php` :: AC8 | `RecheckCommand::check` (`format_items`, JSON), `summary` |

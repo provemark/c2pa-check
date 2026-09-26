@@ -3,6 +3,10 @@ includes:
 
 parameters:
     level: max
+    # WP-CLI's helper functions (format_items, make_progress_bar) are not
+    # autoloaded; PHPStan reads them from WP-CLI itself (SPEC-008).
+    scanFiles:
+        - vendor/wp-cli/wp-cli/php/utils.php
     paths:
         - provemark-c2pa-check.php
         - uninstall.php

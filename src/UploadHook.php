@@ -44,28 +44,42 @@ final class UploadHook
                 return;
             }
 
-            // update_post_meta() unslashes its value; wp_slash() keeps
-            // backslashes in text from the file (SPEC-001 amendment 2). The
-            // provisional entry goes first, before anything that could stop
-            // the request, reading the trust lists included.
-            $provisional = $this->checker->interrupted();
-            update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
-            Index::write($attachmentId, $provisional);
-
-            [$settings, $trust] = ($this->trustConfig)()->build();
-            if ($trust === 'none') {
-                update_option(self::TRUST_FAILED_OPTION, true, false);
-            } else {
-                delete_option(self::TRUST_FAILED_OPTION);
-            }
-
             $path = get_attached_file($attachmentId);
-            $entry = $this->checker->check(is_string($path) ? $path : '', $settings, $trust);
-
-            update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
-            Index::write($attachmentId, $entry);
+            $this->checkAndStore($attachmentId, is_string($path) ? $path : '');
         } catch (Throwable) {
             // The upload always proceeds; whatever was stored last stays.
         }
+    }
+
+    /**
+     * Checks one file and stores the result for the attachment: the path an
+     * upload takes and a re-check takes (SPEC-008), so both give the same
+     * verdict. Returns the stored entry.
+     *
+     * @return array<string, mixed>
+     */
+    public function checkAndStore(int $attachmentId, string $path): array
+    {
+        // update_post_meta() unslashes its value; wp_slash() keeps
+        // backslashes in text from the file (SPEC-001 amendment 2). The
+        // provisional entry goes first, before anything that could stop
+        // the request, reading the trust lists included.
+        $provisional = $this->checker->interrupted();
+        update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
+        Index::write($attachmentId, $provisional);
+
+        [$settings, $trust] = ($this->trustConfig)()->build();
+        if ($trust === 'none') {
+            update_option(self::TRUST_FAILED_OPTION, true, false);
+        } else {
+            delete_option(self::TRUST_FAILED_OPTION);
+        }
+
+        $entry = $this->checker->check($path, $settings, $trust);
+
+        update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
+        Index::write($attachmentId, $entry);
+
+        return $entry;
     }
 }

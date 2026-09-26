@@ -16,6 +16,7 @@ declare(strict_types=1);
 use Provemark\C2paCheck\Checker;
 use Provemark\C2paCheck\MediaScreens;
 use Provemark\C2paCheck\MediaSort;
+use Provemark\C2paCheck\RecheckCommand;
 use Provemark\C2paCheck\SettingsPage;
 use Provemark\C2paCheck\UploadHook;
 
@@ -36,7 +37,15 @@ if (! is_readable(__DIR__.'/vendor/autoload.php')) {
 
 require_once __DIR__.'/vendor/autoload.php';
 
-(new UploadHook(new Checker))->register();
-(new MediaScreens)->register();
-(new MediaSort)->register();
-(new SettingsPage)->register();
+// In a function, so the plugin adds no global variables.
+(static function (): void {
+    $hook = new UploadHook(new Checker);
+    $hook->register();
+    (new MediaScreens)->register();
+    (new MediaSort)->register();
+    (new SettingsPage)->register();
+
+    if (defined('WP_CLI') && WP_CLI) {
+        WP_CLI::add_command('provemark-c2pa', new RecheckCommand($hook));
+    }
+})();
