@@ -82,6 +82,21 @@ it('AC4: ignores anything else in the request', function (mixed $filter, mixed $
     'an array' => [['trusted'], 'desc'],
 ])->group('SPEC-007');
 
+it('AC4: ignores a state name in the real request, not only in apply()', function (): void {
+    $out = wpEval(<<<'PHP'
+        global $pagenow;
+        $pagenow = 'upload.php';
+        set_current_screen('upload');
+        $_GET = ['provemark_c2pa' => 'Trusted'];
+        $q = new WP_Query();
+        $GLOBALS['wp_the_query'] = $q;
+        (new Provemark\C2paCheck\MediaSort)->onPreGetPosts($q);
+        echo json_encode($q->get('meta_query'));
+        PHP);
+
+    expect($out)->not->toContain('_provemark_c2pa_state');
+})->group('SPEC-007');
+
 it('AC4: orders ascending when the order is not asc or desc', function (): void {
     $g = sevenGroups();
     $ids = array_values($g);

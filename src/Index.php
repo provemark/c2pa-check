@@ -45,22 +45,24 @@ final class Index
      */
     public static function backfill(int $limit = 500): int
     {
-        $wpdb = self::db();
-        $ids = $wpdb->get_col($wpdb->prepare(
-            'SELECT r.post_id FROM %i r LEFT JOIN %i s ON s.post_id = r.post_id AND s.meta_key = %s WHERE r.meta_key = %s AND s.meta_id IS NULL ORDER BY r.post_id ASC LIMIT %d',
-            $wpdb->postmeta,
-            $wpdb->postmeta,
-            self::STATE_KEY,
-            UploadHook::META_KEY,
-            $limit,
-        ));
+        $ids = get_posts([
+            'post_type' => 'attachment',
+            'post_status' => 'any',
+            'meta_query' => [
+                ['key' => UploadHook::META_KEY, 'compare' => 'EXISTS'],
+                ['key' => self::STATE_KEY, 'compare' => 'NOT EXISTS'],
+            ],
+            'orderby' => 'ID',
+            'order' => 'ASC',
+            'posts_per_page' => $limit,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
 
         $count = 0;
         foreach ($ids as $id) {
-            if (is_numeric($id)) {
-                self::write((int) $id, get_post_meta((int) $id, UploadHook::META_KEY, true));
-                $count++;
-            }
+            self::write($id, get_post_meta($id, UploadHook::META_KEY, true));
+            $count++;
         }
 
         return $count;

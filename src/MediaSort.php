@@ -64,7 +64,7 @@ final class MediaSort
             return;
         }
 
-        $chosen = self::chosen($_GET[self::PARAM] ?? null); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter, checked against a fixed list
+        $chosen = self::chosen(self::request()[self::PARAM]);
 
         echo '<label for="provemark-c2pa-filter" class="screen-reader-text">'.esc_html__('Filter by Content Credentials', 'provemark-c2pa-check').'</label>';
         echo '<select name="'.esc_attr(self::PARAM).'" id="provemark-c2pa-filter">';
@@ -83,7 +83,7 @@ final class MediaSort
             return;
         }
 
-        self::apply($query, $_GET); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter and sort, checked against fixed lists
+        self::apply($query, self::request());
     }
 
     /**
@@ -156,6 +156,25 @@ final class MediaSort
         if (Index::backfill(self::BACKFILL_BATCH) < self::BACKFILL_BATCH) {
             update_option(Index::DONE_OPTION, true, false);
         }
+    }
+
+    /**
+     * The three request values this class reads, unslashed and sanitized;
+     * apply() and chosen() still check them against fixed lists.
+     *
+     * @return array{provemark_c2pa: ?string, orderby: ?string, order: ?string}
+     */
+    private static function request(): array
+    {
+        $values = [];
+        foreach ([self::PARAM, 'orderby', 'order'] as $key) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter and sort, as WordPress's own list screens
+            $raw = $_GET[$key] ?? null;
+            // sanitize_text_field keeps the case: `Trusted` must stay unknown (AC4).
+            $values[$key] = is_string($raw) ? sanitize_text_field(wp_unslash($raw)) : null;
+        }
+
+        return ['provemark_c2pa' => $values[self::PARAM], 'orderby' => $values['orderby'], 'order' => $values['order']];
     }
 
     /**
