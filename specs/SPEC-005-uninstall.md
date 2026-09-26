@@ -77,8 +77,12 @@ says how it is escaped.
   [`delete_option()`](https://developer.wordpress.org/reference/functions/delete_option/).
 - Oracle: the database as WP-CLI reads it (`wp post meta list`,
   `wp option get`) before and after, on WordPress 7.1.2 in wp-env.
-- Reasoned: that `wp plugin uninstall --deactivate` runs `uninstall.php`
-  the way the Plugins screen does; to be measured first.
+- Measured instead of reasoned: the tests call `uninstall_plugin()`, which
+  WordPress runs before deleting a plugin's files (read in
+  `wp-admin/includes/plugin.php`: it defines `WP_UNINSTALL_PLUGIN`,
+  includes `uninstall.php`, and deletes no files). `wp plugin uninstall`
+  is not used: without `--skip-delete` it removes the plugin folder, which
+  in wp-env is the working tree.
 
 ## API sketch
 
@@ -101,6 +105,6 @@ delete_option('provemark_c2pa_trust_failed');
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
+| AC1 | `tests/Integration/UninstallTest.php` :: AC1 | `uninstall.php` |
+| AC2 | `tests/Integration/UninstallTest.php` :: AC2 | (no deactivation hook) |
+| AC3 | `tests/Unit/UninstallFileTest.php` :: AC3 | `uninstall.php` (`WP_UNINSTALL_PLUGIN` guard) |

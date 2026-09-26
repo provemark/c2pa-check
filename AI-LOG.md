@@ -636,3 +636,23 @@ README are where the disclosure lives.
   PHP 8.3).
 - Measured: nothing.
 - Decided by Maurice: both approved. Not pushed.
+
+## 2026-09-26 — SPEC-005 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-005, tests first.
+- Produced: `uninstall.php` (guarded by `WP_UNINSTALL_PLUGIN`; deletes
+  every `_provemark_c2pa_result` entry and the three options), in
+  `phpstan.neon`'s paths; `tests/Integration/UninstallTest.php`,
+  `tests/Unit/UninstallFileTest.php`; SPEC-005 Traceability filled; the
+  status stays `approved` until Maurice marks it implemented.
+- Measured: WordPress's `uninstall_plugin()` defines the constant,
+  includes `uninstall.php` and deletes no files; the tests use it, never
+  `wp plugin uninstall` (which deletes the plugin folder, here the working
+  tree). Before the file: AC1 and AC3 **red**, AC2 green (nothing deletes
+  on deactivation). After: integration 68 passed, `composer check` green
+  (unit 38). Found on the way: `$wpdb->get_var()` returns null for an
+  existing empty value, so the first version of AC1 could not see a
+  leftover DigiCert row stored as ''; now read with `get_row()`. With the
+  DigiCert `delete_option` removed, AC1 is **red**; restored.
+- Decided by Maurice: SPEC-005 approved; not pushed.

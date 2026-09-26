@@ -5,6 +5,7 @@ parameters:
     level: max
     paths:
         - provemark-c2pa-check.php
+        - uninstall.php
         - src
         - tests
     # No ignoreErrors and no excludePaths. Every finding is fixed at the source
