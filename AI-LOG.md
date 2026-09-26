@@ -205,3 +205,34 @@ README are where the disclosure lives.
   Temporary measures in `NOTES.md`). Locally, with no `src/` present as in
   CI: `composer check` green, integration 2 passed.
 - Decided by Maurice: nothing new; a fix within M0.6.
+
+## 2026-09-26 — M1.0: which file is the original at upload
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: measure, before SPEC-001, which hook and function give the
+  untouched uploaded file on every upload route, including WordPress
+  7.1's client-side media processing.
+- Produced: `notes/m1-original-file.md` (method, results, conclusion, the
+  probe's source); `notes` added to the Plugin Check test's excluded
+  development directories (reasoned: notes never ship; not seen red).
+  The probe itself ran as a must-use plugin through an untracked
+  `.wp-env.override.json` and was removed afterwards, with the fixture
+  copies and the application password used for the REST route.
+- Measured: see the note. In short: at `add_attachment`,
+  `get_attached_file()` was the uploaded file, byte-identical, on all 23
+  uploads over WP-CLI, REST, Media → Add New and the block editor with
+  client-side processing on and off; later hooks see `-scaled`;
+  `wp_get_original_image_path()` returns `-scaled` in some intermediate
+  metadata hooks; `wp_handle_upload` fires for every image size the
+  browser sideloads. Client-side processing is on by default for HTTPS
+  sites in Chromium 137+ on block editor screens (read in core, and
+  `crossOriginIsolated` measured in Chrome 153). Verification took
+  12–40 ms and 6 MB peak memory in the container.
+  Also: CI run 36221904321 on `ac72565` (end of M0) was green on all
+  jobs.
+- Not measured: the `-rotated` case (no fixture with an EXIF
+  orientation); the Media Library modal inside the block editor; HEIC
+  (out of scope; converted in the browser before upload, read in core).
+- Browser: Chrome through the browser extension, logged in to the local
+  wp-env site with wp-env's default test account.
+- Decided by Maurice: the measurement as proposed.

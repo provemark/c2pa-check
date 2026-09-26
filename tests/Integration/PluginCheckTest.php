@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 // Development files that never ship. Plugin Check reads the working tree,
 // not the release; until M5 builds the zip, this list is the difference.
-const DEV_DIRECTORIES = ['node_modules', 'tests', 'specs', '.idea', '.github'];
+const DEV_DIRECTORIES = ['node_modules', 'tests', 'specs', 'notes', '.idea', '.github'];
 const DEV_FILES = ['.wp-env.json', '.gitignore', 'AI-LOG.md', 'NOTES.md'];
 
 /**
