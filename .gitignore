@@ -1,0 +1,28 @@
+# Local project brief for the assistant; never published
+CLAUDE.md
+
+# Dependencies (bundled into the release zip by a build step, not tracked)
+/vendor/
+/node_modules/
+
+# wp-env local overrides
+.wp-env.override.json
+
+# Tool caches
+.phpunit.cache/
+.phpunit.result.cache
+.phpstan.cache/
+.pint.cache
+*.cache
+
+# Build output
+/build/
+*.zip
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+
+# No private key belongs in this repository, test key or otherwise
+*.key
