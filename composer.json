@@ -44,6 +44,7 @@
         "test": "pest --testsuite=Unit",
         "test:integration": "pest --testsuite=Integration",
         "check": [
+            "@composer validate --strict",
             "@lint",
             "@analyse",
             "@test"

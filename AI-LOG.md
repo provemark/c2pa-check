@@ -1035,3 +1035,20 @@ README are where the disclosure lives.
   passed. The CI result (the release job downloads Strauss on a runner
   for the first time) goes in the next entry.
 - Decided by Maurice: SPEC-009 implemented; push.
+
+## 2026-09-26 — Stale lock hash fixed; validate in composer check
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: (Maurice) `composer check` fails in CI.
+- Measured: CI run 36249516135 on `582ea99`: integration and release green
+  (the release job downloaded Strauss on a runner and passed), but the
+  `composer check` jobs **red** at `composer validate --strict`: "The lock
+  file is not up to date with the latest changes in composer.json". The
+  `extra.strauss` block had been added to `composer.json` by hand without
+  refreshing the lock's content hash; locally only `composer check` ran,
+  which did not include `validate`.
+- Produced: `composer update --lock` (only the `content-hash` line of
+  `composer.lock` changes, no package versions); `composer check` now
+  starts with `composer validate --strict`, as CI does. `composer check`
+  green locally.
+- Decided by Maurice: fix it. Not pushed yet.
