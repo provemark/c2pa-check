@@ -236,3 +236,25 @@ README are where the disclosure lives.
 - Browser: Chrome through the browser extension, logged in to the local
   wp-env site with wp-env's default test account.
 - Decided by Maurice: the measurement as proposed.
+
+## 2026-09-26 — SPEC-001 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: write SPEC-001 (verify on upload, store the result) from the M1.0
+  measurement, status `draft`, for Maurice to approve.
+- Produced: `specs/SPEC-001-verify-on-upload.md`: `add_attachment` on
+  `get_attached_file()`, JPEG/PNG/WebP only, no trust settings until
+  SPEC-004; the stored entry's keys; nine acceptance criteria (four error
+  paths); an illustrative API (`Outcome`, `Checker`, `UploadHook`); three
+  non-blocking open questions (remote manifests, hook priority, codes for
+  `Valid`).
+- Measured, for the spec: with v0.2.3 an unsigned file reports
+  `hasManifest` false and state `Invalid` with no statuses; a 12-byte
+  truncated JPEG reports `hasManifest` true, `Invalid` with
+  `StatusCode::GeneralError`; `signatureInfo` holds `alg`, `issuer`,
+  `common_name`, `cert_serial_number` and `time` only when the timestamp
+  validated; the CLI prints `signature_info` inside the active manifest,
+  not at the top level; `InstalledVersions::getPrettyVersion()` gives
+  `v0.2.3`.
+- Decided by Maurice: pushing to the private repository without asking
+  for each commit within M1. The spec itself awaits approval.
