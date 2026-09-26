@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -118,12 +118,9 @@ says how it is escaped.
 
 ## Open questions
 
-- **The prefix (non-blocker).** Proposal: `Provemark\C2paCheck\Vendor\`,
-  the plugin's own namespace plus `Vendor`, as Strauss's documentation
-  suggests.
-- **Fetching Strauss in the build (non-blocker).** Proposal: download the
-  pinned phar once per machine and check its SHA-256, rather than
-  committing an 11.6 MB binary.
+None. Resolved by Maurice on 2026-09-26, as proposed: the prefix
+`Provemark\C2paCheck\Vendor\`; the build downloads the pinned phar once
+per machine and checks its SHA-256.
 
 ## Traceability
 

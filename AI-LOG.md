@@ -995,3 +995,12 @@ README are where the disclosure lives.
   four criteria (two error paths, including another copy of the verifier
   loaded first), SPEC-006 amendment 2; two non-blocking open questions.
 - Decided by Maurice: start with the prefix. Not pushed.
+
+## 2026-09-26 — SPEC-009 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-009 approved with both proposals.
+- Produced: SPEC-009 status `approved`.
+- Measured: nothing.
+- Decided by Maurice: prefix `Provemark\C2paCheck\Vendor\`; the pinned
+  phar downloaded once per machine and checked. Not pushed.
