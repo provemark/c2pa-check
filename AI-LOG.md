@@ -739,3 +739,17 @@ README are where the disclosure lives.
   result of the push is recorded in the next entry.
 - Decided by Maurice: both implemented; push the local commits to the
   private repository.
+
+## 2026-09-26 — Pushed; SPEC-007 preparation measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice cannot sort by Content Credentials yet; start SPEC-007.
+- Measured: CI run 36229356436 on the pushed commits: every job green,
+  including the new release job (120 s) and integration on PHP 8.3, 8.4
+  and 8.5 (205–226 s). For SPEC-007, see `notes/m6-sort-filter.md`: the
+  list screen id is `upload`, `restrict_manage_posts` fires above the
+  list, grid mode filters over AJAX; writing one meta value costs
+  0.23 ms per attachment (1 173 in 266 ms), a sorted page of 20 takes 3 ms.
+- Produced: `notes/m6-sort-filter.md`.
+- Decided by Maurice: SPEC-005 and SPEC-006 implemented; pushed; start
+  SPEC-007. This commit is not pushed.
