@@ -526,3 +526,18 @@ README are where the disclosure lives.
   OpenAI become Trusted; Amazon Titan and c2pa-rs `ocsp.jpg` become Valid
   only with DigiCert); the CLI agrees; about 10 ms to parse the settings.
 - Decided by Maurice: prepare M4; not pushed.
+
+## 2026-09-26 — SPEC-004 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: draft SPEC-004 (trust settings) from the M4.0 measurement.
+- Produced: `specs/SPEC-004-trust-settings.md` (status `draft`): bundled
+  lists in `trust/` (commit `99927ca`, 2026-08-14) with DigiCert, custom
+  JSON replacing them, `trust` recorded and shown per image, a settings
+  page, an admin notice when a check ran without settings, SPEC-003
+  amendment 1 in scope; nine criteria (two error paths); two
+  non-blocking open questions.
+- Measured: nothing new.
+- Decided by Maurice: SPEC-003 AC2 to run with DigiCert off; without
+  buildable settings, check without them and record it; record and show
+  the trust source; a settings page of its own. Not pushed.
