@@ -962,3 +962,17 @@ README are where the disclosure lives.
   attachments); 67 of 98 tests under a second; 15 attachments left after a
   run. `composer check` green. CI not measured yet (not pushed).
 - Decided by Maurice: make the suite faster.
+
+## 2026-09-26 — Faster suite in CI; wp-env start measured; no Docker cache
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: push the faster suite; then try caching Docker images in CI.
+- Measured: CI run 36247535962 green; integration tests 137 / 170 / 177 s
+  (PHP 8.3 / 8.4 / 8.5, from 190 s on 8.3), jobs 280–300 s (from
+  303–335 s), `test:start` still 94–111 s. On a temporary branch with
+  `--debug`, see `notes/ci-wp-env-start.md`: 52 of about 114 s go to
+  building wp-env's images, which a restored image cache would not skip.
+- Produced: `notes/ci-wp-env-start.md`. The branch `ci-measure-wp-env`
+  was deleted locally and on GitHub at Maurice's request.
+- Decided by Maurice: no Docker cache; start on prefixing the bundled
+  verifier's namespace.
