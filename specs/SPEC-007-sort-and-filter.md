@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -157,8 +157,8 @@ final class MediaSort
 
 ## Open questions
 
-- **Wording of the select (non-blocker).** Proposal: the headlines of
-  SPEC-002 as option labels, and "All Content Credentials" as the first.
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft: the
+select's options use SPEC-002's headlines, after "All Content Credentials".
 
 ## Traceability
 

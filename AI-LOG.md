@@ -766,3 +766,11 @@ README are where the disclosure lives.
 - Measured: nothing new.
 - Decided by Maurice: list mode only; automatic backfill in batches; sort
   order from good to nothing. Not pushed.
+
+## 2026-09-26 — SPEC-007 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-007 approved with the proposal for the select's wording.
+- Produced: SPEC-007 status `approved`.
+- Measured: nothing.
+- Decided by Maurice: SPEC-007 approved. Not pushed.
