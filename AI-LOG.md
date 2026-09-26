@@ -513,3 +513,16 @@ README are where the disclosure lives.
 - Produced: SPEC-003 status `implemented` (Traceability filled when built).
 - Measured: nothing new.
 - Decided by Maurice: SPEC-003 implemented; not pushed.
+
+## 2026-09-26 — M4.0: trust lists measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare M4 (trust settings).
+- Produced: `notes/m4-trust-settings.md`. The lists and the DigiCert root
+  were fetched into a scratch directory, not into the repository.
+- Measured: see the note: list sizes and commit (`99927ca`, 2026-08-14),
+  DigiCert fingerprint equal to the verifier's docs; verdicts without
+  settings, with the C2PA lists, and with DigiCert added (Pixel 10 and
+  OpenAI become Trusted; Amazon Titan and c2pa-rs `ocsp.jpg` become Valid
+  only with DigiCert); the CLI agrees; about 10 ms to parse the settings.
+- Decided by Maurice: prepare M4; not pushed.
