@@ -19,7 +19,7 @@ function wpCli(array $args): array
 
     // wp-env wraps WP-CLI's output in its own status lines (ℹ, ✔, ✖); when
     // the output does not end in a newline, the status is on the same line.
-    $lines = array_map(fn (string $line): string => (string) preg_replace('/(ℹ|✔|✖) (Starting|Ran|Command) .*$/u', '', $line), $lines);
+    $lines = array_map(fn (string $line): string => (string) preg_replace('/[ℹ✔✖] (Starting|Ran|Command) .*$/u', '', $line), $lines);
     $lines = array_filter($lines, fn (string $line): bool => $line !== '');
 
     return ['exit' => $exit, 'output' => trim(implode("\n", $lines))];
@@ -167,7 +167,7 @@ function attachmentWithEntry(mixed $entry): int
     $payload = base64_encode((string) json_encode($entry));
     $out = wpEval(<<<PHP
         \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
-        \$entry = json_decode(base64_decode('{$payload}'), true);
+        \$entry = json_decode(base64_decode('$payload'), true);
         if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); }
         echo 'ID:', \$id, "\n";
         PHP);
@@ -181,7 +181,7 @@ function attachmentWithEntry(mixed $entry): int
  */
 function columnHtml(int $id): string
 {
-    return wpEval("do_action('manage_media_custom_column', 'provemark_c2pa', {$id});");
+    return wpEval("do_action('manage_media_custom_column', 'provemark_c2pa', $id);");
 }
 
 /**
@@ -192,7 +192,7 @@ function detailsHtml(int $id, bool $inModal): string
 {
     $modal = $inModal ? 'true' : 'false';
 
-    return wpEval("require_once ABSPATH.'wp-admin/includes/media.php'; echo get_compat_media_markup({$id}, ['in_modal' => {$modal}])['item'];");
+    return wpEval("require_once ABSPATH.'wp-admin/includes/media.php'; echo get_compat_media_markup($id, ['in_modal' => $modal])['item'];");
 }
 
 /**

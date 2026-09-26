@@ -80,6 +80,7 @@ it('AC5: says why a file could not be checked', function (string $reason, string
     ['exception', 'the verifier failed'],
 ])->group('SPEC-002');
 
+// language=TEXT
 const HOSTILE = '<script>alert(1)</script>"><img src=x onerror=alert(1)>\'';
 
 it('AC6: escapes hostile text from the file everywhere', function (array $stored): void {

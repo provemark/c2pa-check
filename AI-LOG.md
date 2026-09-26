@@ -384,3 +384,22 @@ README are where the disclosure lives.
   there). Maurice to enable "Add packages as libraries" under Settings →
   PHP → Composer; `.idea/` is not edited by the assistant.
 - Decided by Maurice: nothing new in this step.
+
+## 2026-09-26 — IDE warnings in the tests
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: no yellow (undefined) functions in the test files in PhpStorm.
+- Produced: in the untracked `.idea/` (backups kept outside the repo): the
+  62 `vendor/` packages PhpStorm had excluded added to its PHP include path,
+  and `tests/` marked as a test source root. In the repository: `ext-dom`
+  and `ext-libxml` under `require-dev` (the tests use `DOMDocument`); a
+  character class instead of a one-character alternation in `wpCli()`;
+  needless braces in interpolated strings removed; the deliberately
+  hostile HTML constant in `DisplayTest` marked `// language=TEXT`.
+- Measured, through PhpStorm's own inspections: `UploadTest.php`,
+  `DisplayTest.php`, `OutcomeTest.php`, `src/Display.php`,
+  `src/MediaScreens.php` report nothing; `tests/Pest.php` reports only
+  "Can be replaced with 'array'" on four `array<mixed>` docblocks, kept
+  because PHPStan at level max requires the value type. `composer check`
+  green, integration 41 passed.
+- Decided by Maurice: no undefined functions shown in the IDE.

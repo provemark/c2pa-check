@@ -27,6 +27,8 @@
         }
     },
     "require-dev": {
+        "ext-dom": "*",
+        "ext-libxml": "*",
         "laravel/pint": "^1.32",
         "pestphp/pest": "^4.0",
         "phpstan/phpstan": "^2.2",

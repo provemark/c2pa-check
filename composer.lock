@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e7563c734b17b8c8fccfa4d0b79908d",
+    "content-hash": "81e166e6aac1504deea0770806cd60bc",
     "packages": [
         {
             "name": "provemark/c2pa-verifier",
@@ -4388,7 +4388,10 @@
     "platform": {
         "php": "^8.3"
     },
-    "platform-dev": {},
+    "platform-dev": {
+        "ext-dom": "*",
+        "ext-libxml": "*"
+    },
     "platform-overrides": {
         "php": "8.3.0"
     },
