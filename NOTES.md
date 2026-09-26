@@ -111,7 +111,14 @@ PHPUnit versions (reasoned; not measured).
   `false` rather than a GitHub URL: `github.com` is shared, and any plugin
   hooking `update_plugins_github.com` could answer for it. **Remove the
   header before submitting to wordpress.org**: its plugin team rejects it
-  there. Plugin Check 2.1.0 does not look at it (searched its source).
+  there. Plugin Check 2.1.0 reports it as an ERROR
+  (`plugin_updater_detected`: "Use of the Update URI header is not allowed
+  in plugins hosted on WordPress.org"; a first search of its source missed
+  this by leaving out its `vendor/`). While the header is here (Maurice,
+  2026-09-26) the release test requires that finding as the only one:
+  with `--ignore-codes` Plugin Check prints nothing at all, not even
+  "Checks complete", so ignoring it would hide whether the check ran.
+  Header and that expectation go together.
 
 ## Temporary measures (remove when their condition is met)
 

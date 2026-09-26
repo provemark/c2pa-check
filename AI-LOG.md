@@ -1065,9 +1065,11 @@ README are where the disclosure lives.
   2021-06-29) says the API then "will not return any result" for a plugin
   whose `Update URI` is not its wordpress.org URL, recommends `false` or a
   URI with a unique hostname, and says the plugin team keeps the header
-  out of wordpress.org-hosted plugins. Plugin Check 2.1.0's source does
-  not mention the header. The new test was **red** (`UpdateURI` empty)
-  before the header, green after.
+  out of wordpress.org-hosted plugins. The new test was **red**
+  (`UpdateURI` empty) before the header, green after. Wrong at first: a
+  search of Plugin Check's source (leaving out its `vendor/`) found no
+  mention of the header, but Plugin Check on the build reports it as an
+  ERROR, `plugin_updater_detected`; the release test caught it.
 - Produced: `Update URI: false` in the plugin header; a test in
   `tests/Integration/ActivationTest.php` that reads it through
   `get_plugin_data()`; the reason and "remove before submitting to
@@ -1075,3 +1077,11 @@ README are where the disclosure lives.
 - Decided by Maurice: add the header. The value `false` (not a GitHub URL,
   whose shared hostname other updaters hook) is the assistant's choice.
   Not pushed.
+- Decided afterwards by Maurice: keep the header while the plugin is only
+  on GitHub, with the release test adjusted for it. Measured then: with
+  `--ignore-codes=plugin_updater_detected` Plugin Check prints nothing at
+  all (not even "Checks complete", exit 0), so the test cannot see that
+  the check ran; instead it runs Plugin Check unfiltered and requires
+  exactly one finding, `ERROR,plugin_updater_detected`. SPEC-006
+  amendment 3 records it; header and expectation go before a
+  wordpress.org submission.
