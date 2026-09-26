@@ -541,3 +541,12 @@ README are where the disclosure lives.
 - Decided by Maurice: SPEC-003 AC2 to run with DigiCert off; without
   buildable settings, check without them and record it; record and show
   the trust source; a settings page of its own. Not pushed.
+
+## 2026-09-26 — SPEC-004 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: take the two proposals and mark SPEC-004 approved.
+- Produced: SPEC-004 status `approved`, open questions resolved as proposed.
+- Measured: nothing.
+- Decided by Maurice: SPEC-004 approved (183 days; warning on the
+  settings page only). Not pushed.

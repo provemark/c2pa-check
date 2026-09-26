@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -189,9 +189,10 @@ and stores `trust` with the entry.
 
 ## Open questions
 
-- **Age threshold (non-blocker).** Proposal: 183 days after the list date.
-- **Where the age warning shows (non-blocker).** Proposal: on the settings
-  page only, not on every admin screen.
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
+
+- Age threshold: 183 days after the list date.
+- The age warning shows on the settings page only.
 
 ## Traceability
 
