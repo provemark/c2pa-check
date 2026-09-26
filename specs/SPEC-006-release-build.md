@@ -149,7 +149,9 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    (`vendor-prefixed/provemark/c2pa-verifier/src`) follow the move; the
    WPCS baseline is unchanged (641 findings in 10 sniffs).
 
-3. **2026-09-26, approved by Maurice van Loon** with `Update URI: false`
+3. **Withdrawn 2026-09-26 by Maurice van Loon**, the same day: the header
+   was removed to keep the plugin wordpress.org-ready (decision 2), and
+   AC3 is "no errors or warnings" again. What it said: approved with `Update URI: false`
    (see `NOTES.md`). Plugin Check reports that header as an ERROR,
    `plugin_updater_detected`, because wordpress.org does not allow it.
    While the header is in the plugin, AC3 requires exactly that one

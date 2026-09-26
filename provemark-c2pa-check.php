@@ -10,7 +10,6 @@
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
  * Text Domain:       provemark-c2pa-check
- * Update URI:        false
  */
 
 declare(strict_types=1);

@@ -1085,3 +1085,24 @@ README are where the disclosure lives.
   exactly one finding, `ERROR,plugin_updater_detected`. SPEC-006
   amendment 3 records it; header and expectation go before a
   wordpress.org submission.
+
+## 2026-09-26 — Update URI header removed again; wordpress.org-ready
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: (Maurice) why generate a header that wordpress.org does not
+  allow; then: remove it and stay wordpress.org-ready.
+- Answered: WordPress core allows the header (it exists for plugins
+  outside wordpress.org); wordpress.org's directory does not. The
+  assistant proposed it for the GitHub-only situation, but should have put
+  its conflict with decision 2 ("built as if for wordpress.org") to
+  Maurice before adding it, and had wrongly concluded that Plugin Check
+  ignores it. With the repository private and no release, the risk it
+  guards against has no users to affect yet.
+- Produced: the header, its integration test and SPEC-006 amendment 3
+  removed (amendment 3 marked withdrawn); the release test's AC3 back to
+  "no errors or warnings, Checks complete"; `NOTES.md` keeps what was
+  found (core behaviour, the 5.8 dev note, Plugin Check's
+  `plugin_updater_detected`) for when a release outside wordpress.org is
+  decided. `composer check` green. The two earlier commits stay in the
+  history, unpushed until now.
+- Decided by Maurice: remove the header; stay wordpress.org-ready.

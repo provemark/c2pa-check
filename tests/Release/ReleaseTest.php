@@ -41,16 +41,11 @@ it('AC2: installs and works on a clean WordPress', function (string $fixture, st
     ['google-20250919-pixel10-npld-picnic-table.jpg', 'Trusted'],
 ])->group('SPEC-006');
 
-it('AC3: Plugin Check on the build finds nothing but the Update URI header', function (): void {
-    // Exactly one finding, and only this one: `Update URI: false` is kept
-    // while the plugin is not on wordpress.org, where the header is not
-    // allowed (NOTES.md). Nothing is ignored, so the check visibly ran;
-    // before submitting, the header goes and this becomes "no findings".
+it('AC3: passes Plugin Check on the build, with nothing excluded', function (): void {
     $result = wpCli(['plugin', 'check', 'provemark-c2pa-check', '--format=csv', '--fields=type,code,message'], 'release');
-    $findings = array_values(preg_grep('/^(ERROR|WARNING),/m', explode("\n", $result['output'])) ?: []);
 
-    expect(count($findings))->toBe(1, $result['output'])
-        ->and($findings[0] ?? '')->toStartWith('ERROR,plugin_updater_detected,');
+    expect(preg_grep('/^(ERROR|WARNING),/m', explode("\n", $result['output'])))->toBe([], $result['output'])
+        ->and($result['output'])->toContain('Checks complete');
 })->group('SPEC-006');
 
 it('AC4: keeps the shipped verifier within its reviewed WPCS baseline', function (): void {

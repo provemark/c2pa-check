@@ -101,24 +101,25 @@ PHPUnit versions (reasoned; not measured).
 - 2026-09-26, distribution: GitHub only for now (Maurice). No
   wordpress.org account yet, so `readme.txt` has no `Contributors` line.
 
-- 2026-09-26, `Update URI: false` in the plugin header (decided by
-  Maurice; value chosen by the assistant). WordPress sends every plugin to
+- 2026-09-26, `Update URI` header: **added, then removed the same day**
+  (Maurice), to stay wordpress.org-ready (decision 2). What was found, for
+  when the plugin is released outside wordpress.org: WordPress sends every plugin to
   api.wordpress.org for update checks; with an `Update URI` other than its
   own wordpress.org URL "the API will not return any result"
   (make.wordpress.org/core, 2021-06-29, WordPress 5.8). Without it, a
   plugin someone later registers as `provemark-c2pa-check` on
   wordpress.org would be offered as an update to this plugin's users.
   `false` rather than a GitHub URL: `github.com` is shared, and any plugin
-  hooking `update_plugins_github.com` could answer for it. **Remove the
-  header before submitting to wordpress.org**: its plugin team rejects it
-  there. Plugin Check 2.1.0 reports it as an ERROR
+  hooking `update_plugins_github.com` could answer for it. wordpress.org's
+  plugin team rejects the header there. Plugin Check 2.1.0 reports it as an ERROR
   (`plugin_updater_detected`: "Use of the Update URI header is not allowed
   in plugins hosted on WordPress.org"; a first search of its source missed
-  this by leaving out its `vendor/`). While the header is here (Maurice,
-  2026-09-26) the release test requires that finding as the only one:
-  with `--ignore-codes` Plugin Check prints nothing at all, not even
-  "Checks complete", so ignoring it would hide whether the check ran.
-  Header and that expectation go together.
+  this by leaving out its `vendor/`). With `--ignore-codes` Plugin Check
+  prints nothing at all, not even "Checks complete"; a test that allows
+  the header must therefore require that finding as the only one rather
+  than ignore it.
+  Reconsider the header only when a public release outside wordpress.org
+  is decided.
 
 ## Temporary measures (remove when their condition is met)
 
