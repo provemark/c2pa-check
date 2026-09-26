@@ -437,3 +437,13 @@ README are where the disclosure lives.
   `composer check` green.
 - Decided by Maurice: start with the backslash fix; commit locally, do not
   push until he says so.
+
+## 2026-09-26 — SPEC-002 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-002 implemented (Traceability was filled when it was
+  built).
+- Produced: SPEC-002 status `implemented`.
+- Measured: nothing new; the SPEC-002 build and CI results are in the
+  entries above.
+- Decided by Maurice: SPEC-002 implemented; not pushed yet.
