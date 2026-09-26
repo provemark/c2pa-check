@@ -93,6 +93,20 @@ function alteredSignedJpeg(): string
 }
 
 /**
+ * A copy of the remote-manifest fixture whose XMP manifest URL holds a
+ * backslash: one "/" replaced by "\\", same length. The file has no
+ * manifest of its own, so no signature is touched.
+ */
+function backslashRemoteManifestJpeg(): string
+{
+    $bytes = (string) file_get_contents(fixturePath('adobe-20260304-photoshop-remote-manifest.jpg'));
+    $path = tmpDir().'/backslash-remote-manifest.jpg';
+    file_put_contents($path, str_replace('adobe.com/manifests/', 'adobe.com/manifests\\', $bytes));
+
+    return $path;
+}
+
+/**
  * The oracle: what the verifier's CLI reports for a file, without settings.
  *
  * @return array<mixed>

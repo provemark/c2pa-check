@@ -421,3 +421,19 @@ README are where the disclosure lives.
 - Not in the commit that made the change (`Run WP-CLI in the tests through
   docker exec`): this entry, which needed the CI measurement; added here.
 - Decided by Maurice: the CI speed-up first.
+
+## 2026-09-26 — SPEC-001 amendment 2: backslashes kept
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: fix the lost backslashes in stored entries, with a test first.
+- Produced: `UploadHook` stores both the provisional and the final entry
+  through `wp_slash()`; SPEC-001 amendment 2 and AC11; a test file made at
+  run time (`backslashRemoteManifestJpeg()`: the remote-manifest fixture
+  with one `/` of its XMP URL replaced by `\`, same length, no signature
+  involved); AC11 in `tests/Integration/UploadTest.php`; Traceability row.
+- Measured: the verifier returns the URL with the backslash. Before the
+  fix AC11 **red**: stored `.../manifestsurn-c2pa-...` against
+  `.../manifests\urn-c2pa-...`. After: integration 42 passed,
+  `composer check` green.
+- Decided by Maurice: start with the backslash fix; commit locally, do not
+  push until he says so.

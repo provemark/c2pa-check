@@ -31,12 +31,14 @@ final class UploadHook
                 return;
             }
 
-            update_post_meta($attachmentId, self::META_KEY, $this->checker->interrupted());
+            // update_post_meta() unslashes its value; wp_slash() keeps
+            // backslashes in text from the file (SPEC-001 amendment 2).
+            update_post_meta($attachmentId, self::META_KEY, wp_slash($this->checker->interrupted()));
 
             $path = get_attached_file($attachmentId);
             $entry = $this->checker->check(is_string($path) ? $path : '');
 
-            update_post_meta($attachmentId, self::META_KEY, $entry);
+            update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
         } catch (Throwable) {
             // The upload always proceeds; whatever was stored last stays.
         }

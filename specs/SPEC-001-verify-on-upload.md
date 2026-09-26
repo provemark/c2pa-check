@@ -162,6 +162,13 @@ outputs them.
   - Then its entry has `state` `none` and `remote_manifest_url` equal to the
     verifier's `remoteManifestUrl`, and no request is made to that URL
 
+- **AC11 — text from the file is stored exactly** *(amendment 2)*
+  - Given a file whose text holds a backslash (the remote-manifest fixture
+    with one `/` of its XMP URL replaced by `\`)
+  - When it is uploaded
+  - Then the stored `remote_manifest_url` equals the verifier's
+    `remoteManifestUrl`, backslash included
+
 ## References
 
 - Specification: C2PA Technical Specification 2.4, §15 (validation, status
@@ -229,6 +236,12 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    compares with the CLI's `validation_status`, which holds failures only.
    The row now names that list. Found by AC3's unit test while building.
 
+2. **2026-09-26, approved by Maurice van Loon.** `update_post_meta()`
+   unslashes the value it stores, so a backslash in text from the file
+   (signer, time, URL) was lost. The entry is now stored through
+   `wp_slash()`, and AC11 checks it. Found by reasoning while building
+   SPEC-002, then seen red with a crafted file.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at
@@ -246,3 +259,4 @@ least one test; every source file maps back to this spec.
 | AC8 | `tests/Unit/CheckerTest.php` :: AC8; `tests/Integration/UploadTest.php` :: AC8 | `Checker::interrupted`, `UploadHook::onAddAttachment` |
 | AC9 | `tests/Unit/OutcomeTest.php` :: AC9 | `Outcome::fromReport` |
 | AC10 | `tests/Unit/OutcomeTest.php` :: AC10; `tests/Unit/NoNetworkTest.php` :: AC10; `tests/Integration/UploadTest.php` :: AC10 | `Outcome::fromReport` (`remote_manifest_url`) |
+| AC11 | `tests/Integration/UploadTest.php` :: AC11 | `UploadHook::onAddAttachment` (`wp_slash`) |

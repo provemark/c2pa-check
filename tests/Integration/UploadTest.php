@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Provemark\C2paVerifier\Verifier\Verifier;
 
 it('AC1: stores the CLI\'s verdict for a signed upload', function (string $name): void {
     $entry = storedEntry(importMedia(fixturePath($name)));
@@ -79,4 +80,14 @@ it('AC10: stores `none` and the manifest URL for a manifest referenced by URL', 
 
     expect($entry['state'] ?? null)->toBe('none')
         ->and($entry['remote_manifest_url'] ?? null)->toStartWith('https://cai-manifests.adobe.com/');
+})->group('SPEC-001');
+
+it('AC11: stores text from the file exactly, backslashes included', function (): void {
+    $path = backslashRemoteManifestJpeg();
+    $stream = fopen($path, 'rb');
+    assert(is_resource($stream));
+    $url = (new Verifier)->verify($stream)->remoteManifestUrl;
+
+    expect($url)->toContain('\\')
+        ->and(storedEntry(importMedia($path))['remote_manifest_url'] ?? null)->toBe($url);
 })->group('SPEC-001');
