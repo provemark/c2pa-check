@@ -1025,3 +1025,13 @@ README are where the disclosure lives.
   build with "SHA-256" and no zip), `composer check` green, the WPCS
   baseline unchanged.
 - Decided by Maurice: SPEC-009 approved earlier. Not pushed.
+
+## 2026-09-26 — SPEC-009 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-009 implemented and push.
+- Produced: SPEC-009 status `implemented`.
+- Measured: locally before this commit: `composer check` green, release 9
+  passed. The CI result (the release job downloads Strauss on a runner
+  for the first time) goes in the next entry.
+- Decided by Maurice: SPEC-009 implemented; push.
