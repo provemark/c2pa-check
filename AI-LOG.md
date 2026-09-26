@@ -876,3 +876,20 @@ README are where the disclosure lives.
   left.
 - Decided by Maurice: push; clean the development environment. This
   commit is not pushed yet.
+
+## 2026-09-26 — SPEC-008 drafted (WP-CLI re-check)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: start the WP-CLI command to check existing images again.
+- Measured: CI run 36233188792 on `e359787` green on every job. WP-CLI
+  2.12.0 in wp-env; for the Pixel photo in the development environment
+  `get_attached_file()` is the `-scaled` copy and
+  `wp_get_original_image_path()` the original; checks take 0–56 ms; with
+  `Checker` alone (no trust settings) the Pixel photo is `Invalid` and the
+  OpenAI image `Valid`, so a re-check must take the upload's path.
+- Produced: `specs/SPEC-008-wp-cli-recheck.md` (status `draft`): one
+  shared check-and-store path, `wp provemark-c2pa check` with an explicit
+  selection, `--dry-run`, table/JSON output; eight criteria (three error
+  paths); one non-blocking open question (the command name).
+- Decided by Maurice: images always chosen explicitly; a `--dry-run`; a
+  table and a summary. Not pushed.
