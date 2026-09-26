@@ -1,0 +1,26 @@
+{
+    "name": "provemark/c2pa-check",
+    "description": "WordPress plugin that verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maurice van Loon"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "provemark/c2pa-verifier": "^0.2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Provemark\\C2paCheck\\": "src/"
+        }
+    },
+    "config": {
+        "platform": {
+            "php": "8.3.0"
+        },
+        "sort-packages": true
+    }
+}

@@ -75,5 +75,14 @@ PHPUnit versions (reasoned; not measured).
   that file is byte-identical to the upload, including with Gutenberg's
   client-side media processing enabled (measured by hand in a browser).
 - Whether wordpress.org accepts the CC BY 4.0 trust lists as bundled data.
-- Whether `Requires PHP: 8.3` is allowed in the plugin header (the plugin
-  handbook).
+
+## Measured
+
+- 2026-09-26, plugin header: the handbook
+  ([Header Requirements](https://developer.wordpress.org/plugins/plugin-basics/header-requirements/))
+  sets no PHP minimum for plugins; `Requires PHP` is "the minimum required
+  PHP version", so `8.3` is allowed.
+- 2026-09-26, `Requires at least`: `wp_get_original_image_path()` exists
+  since WordPress 5.3.0 (code reference), and the current release is 7.1.2
+  (`api.wordpress.org/core/version-check/1.7`). The header says `7.1`: we
+  claim only what we test. Lowering it means adding that version to CI.

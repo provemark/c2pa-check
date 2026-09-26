@@ -38,3 +38,28 @@ README are where the disclosure lives.
   domain `provemark-c2pa-check`, namespace `Provemark\C2paCheck`, prefix
   `provemark_c2pa_`; (4) tests: Pest for units, wp-env for integration,
   driven through WP-CLI.
+
+## 2026-09-26 — M0.2: an empty plugin
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a plugin skeleton that loads the verifier and nothing else.
+- Produced: `composer.json` (`provemark/c2pa-check`, type `wordpress-plugin`,
+  MIT, `php ^8.3`, the only runtime dependency `provemark/c2pa-verifier
+  ^0.2.3`, PSR-4 `Provemark\C2paCheck\` from `src/`, `config.platform.php`
+  8.3.0 so the lock file resolves for the lowest supported PHP);
+  `composer.lock`; `provemark-c2pa-check.php` (plugin header, `ABSPATH`
+  guard, Composer autoloader; without `vendor/` one escaped admin notice and
+  no fatal error); `LICENSE` (MIT, copied from the verifier); `README.md`
+  with the disclosure sentence; `NOTES.md` updated.
+- Measured: `composer validate --strict` valid; `composer install` installs
+  `provemark/c2pa-verifier` v0.2.3; `php -l` clean. Outside WordPress, with
+  stubbed `add_action` / `esc_html__`: with `vendor/` the verifier class
+  loads; without it, requiring the file registers one `admin_notices`
+  callback that prints the notice, and nothing fatal; without `ABSPATH` the
+  file exits before doing anything. The handbook sets no PHP floor for
+  plugins; `wp_get_original_image_path()` since 5.3.0; current WordPress
+  7.1.2.
+- Not measured: activation in a real WordPress. Docker's daemon was not
+  running, so that proof moves to M0.3 (wp-env).
+- Decided by Maurice: M0.2 as proposed. `Requires at least: 7.1` (only what
+  is tested) is the assistant's choice within that approval, open to change.

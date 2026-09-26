@@ -1,0 +1,88 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3c4645fdab66c3348714315c850f3712",
+    "packages": [
+        {
+            "name": "provemark/c2pa-verifier",
+            "version": "v0.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/provemark/c2pa-verifier.git",
+                "reference": "bf41762627c7ab913ef02f184dfdd74dfb8df425"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/provemark/c2pa-verifier/zipball/bf41762627c7ab913ef02f184dfdd74dfb8df425",
+                "reference": "bf41762627c7ab913ef02f184dfdd74dfb8df425",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "deptrac/deptrac": "^4.7",
+                "ext-phar": "*",
+                "laravel/pint": "^1.32",
+                "pestphp/pest": "^4.0",
+                "phpstan/phpstan": "^2.2",
+                "provemark/content-credentials": "^0.15"
+            },
+            "suggest": {
+                "ext-sodium": "EdDSA (Ed25519) claim signatures: required on PHP 8.3, where ext-openssl cannot verify Ed25519; optional on PHP 8.4+ (SPEC-009 AC8, measured on CI 2026-09-21)"
+            },
+            "bin": [
+                "bin/c2pa-verify"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Provemark\\C2paVerifier\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maurice van Loon"
+                }
+            ],
+            "description": "Verifier for C2PA Content Credentials in pure PHP: JPEG, PNG, WebP and ISOBMFF, with c2patool's verdict. Read and verify only; no signing, no keys, no network.",
+            "keywords": [
+                "COSE",
+                "c2pa",
+                "cbor",
+                "content-credentials",
+                "jumbf",
+                "provenance",
+                "verifier"
+            ],
+            "support": {
+                "issues": "https://github.com/provemark/c2pa-verifier/issues",
+                "source": "https://github.com/provemark/c2pa-verifier/tree/v0.2.3"
+            },
+            "time": "2026-09-25T12:05:27+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^8.3"
+    },
+    "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.3.0"
+    },
+    "plugin-api-version": "2.9.0"
+}
