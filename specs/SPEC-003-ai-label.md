@@ -160,10 +160,10 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
+| AC1 | `tests/Unit/AiTest.php` :: AC1; `tests/Integration/AiLabelTest.php` :: AC1 | `src/Outcome.php` `Outcome::claimsTrainedAi`; `src/Display.php` `Display::showsAiLabel` |
+| AC2 | `tests/Unit/AiTest.php` :: AC2; `tests/Integration/AiLabelTest.php` :: AC2 | `Display::showsAiLabel` (state gate) |
+| AC3 | `tests/Unit/AiTest.php` :: AC3; `tests/Integration/AiLabelTest.php` :: AC3 | `Outcome::fromReport`, `Display::showsAiLabel` |
+| AC4 | `tests/Unit/AiTest.php` :: AC4 | `Outcome::claimsTrainedAi` (`TRAINED_ALGORITHMIC_MEDIA`, exact) |
+| AC5 | `tests/Integration/AiLabelTest.php` :: AC5 | `Display::showsAiLabel` |
+| AC6 | `tests/Integration/AiLabelTest.php` :: AC6 | `Display::read` (`ai` optional, bool only) |
+| AC7 | `tests/Unit/AiTest.php` :: AC7 | all of `src/` (reads `toArray()` only) |

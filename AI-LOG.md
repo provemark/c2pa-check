@@ -480,3 +480,28 @@ README are where the disclosure lives.
 - Measured: nothing.
 - Decided by Maurice: SPEC-003 approved (label wording and place; schema
   stays 1). Not pushed.
+
+## 2026-09-26 — SPEC-003 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: implement the approved SPEC-003, tests first and seen red.
+- Produced: `Outcome` stores `ai` (the exact IPTC trainedAlgorithmicMedia
+  URI in any action of the active manifest's `c2pa.actions` /
+  `c2pa.actions.v2`, read from `toArray()`); `Display` shows
+  "AI-generated (signed)" only for `Trusted` / `Valid` with `ai` true, and
+  treats a non-boolean `ai` as unreadable. Tests `tests/Unit/AiTest.php`,
+  `tests/Integration/AiLabelTest.php`; the oracle `expectedEntry()` now
+  derives `ai` from the CLI's output; `sampleEntry()` moved to
+  `tests/Pest.php` for both display test files; `tamperedOpenAiPng()`
+  (one IDAT byte changed, CRC recomputed); fixtures OpenAI PNG (MIT),
+  Amazon Titan PNG (Apache-2.0) and c2pa-rs `ocsp.jpg` (Apache-2.0 OR MIT)
+  with their licence files; fixture README updated. Traceability filled.
+- Measured: the tampered OpenAI PNG is `Invalid` at the CLI
+  (`assertion.dataHash.mismatch`). Before the code: unit 15 failed,
+  integration 13 failed (the new criteria, and SPEC-001's comparisons now
+  expecting `ai`); the "no label" cases and the `->store` scan were green,
+  as nothing was shown. After: `composer check` green (unit 29, also
+  parallel), integration 51 passed. Removing the state gate from
+  `showsAiLabel()` made AC2, AC3 and AC5 (Invalid, none, error) **red**;
+  a planted `$report->store` made AC7 **red**; both restored.
+- Decided by Maurice: SPEC-003 approved earlier; not pushed.

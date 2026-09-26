@@ -93,6 +93,26 @@ function alteredSignedJpeg(): string
 }
 
 /**
+ * A copy of the OpenAI PNG with one byte of image data changed: the first
+ * IDAT chunk's 100th data byte, with that chunk's CRC recomputed, so the
+ * PNG stays well formed and only the content differs from what was signed.
+ */
+function tamperedOpenAiPng(): string
+{
+    $bytes = (string) file_get_contents(fixturePath('openai-20260826-c2pa_2x.png'));
+    $chunk = strpos($bytes, 'IDAT') - 4;
+    $unpacked = unpack('N', substr($bytes, $chunk, 4));
+    $length = is_array($unpacked) && is_int($unpacked[1] ?? null) ? $unpacked[1] : throw new RuntimeException('no IDAT length');
+    $data = $chunk + 8;
+    $bytes[$data + 100] = chr(ord($bytes[$data + 100]) ^ 0x01);
+    $bytes = substr_replace($bytes, pack('N', crc32(substr($bytes, $chunk + 4, 4 + $length))), $data + $length, 4);
+    $path = tmpDir().'/tampered-openai.png';
+    file_put_contents($path, $bytes);
+
+    return $path;
+}
+
+/**
  * A copy of the remote-manifest fixture whose XMP manifest URL holds a
  * backslash: one "/" replaced by "\\", same length. The file has no
  * manifest of its own, so no signature is touched.
@@ -142,7 +162,54 @@ function expectedEntry(string $path): array
         'signer' => is_array($info) ? ['issuer' => $info['issuer'] ?? null, 'common_name' => $info['common_name']] : null,
         'signed_at' => is_array($info) ? ($info['time'] ?? null) : null,
         'codes' => $state === 'Invalid' ? array_column($failures, 'code') : [],
+        'ai' => claimsTrainedAi(is_array($active) ? $active : []),
         'reason' => null,
+    ];
+}
+
+/**
+ * The oracle's side of SPEC-003: does an action in this (CLI-printed)
+ * manifest's actions assertion carry the IPTC trainedAlgorithmicMedia URI?
+ *
+ * @param  array<mixed>  $manifest
+ */
+function claimsTrainedAi(array $manifest): bool
+{
+    foreach (is_array($manifest['assertions'] ?? null) ? $manifest['assertions'] : [] as $assertion) {
+        if (! is_array($assertion) || ! in_array($assertion['label'] ?? null, ['c2pa.actions', 'c2pa.actions.v2'], true)) {
+            continue;
+        }
+        $actions = is_array($assertion['data'] ?? null) && is_array($assertion['data']['actions'] ?? null) ? $assertion['data']['actions'] : [];
+        foreach ($actions as $action) {
+            if (is_array($action) && ($action['digitalSourceType'] ?? null) === 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia') {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * A SPEC-001 entry with the given fields replaced, for display tests.
+ *
+ * @param  array<string, mixed>  $fields
+ * @return array<string, mixed>
+ */
+function sampleEntry(array $fields): array
+{
+    return $fields + [
+        'schema' => 1,
+        'state' => 'Valid',
+        'format' => 'jpeg',
+        'signer' => ['issuer' => 'C2PA Test Signing Cert', 'common_name' => 'C2PA Signer'],
+        'signed_at' => null,
+        'codes' => [],
+        'ai' => false,
+        'remote_manifest_url' => null,
+        'reason' => null,
+        'verifier' => 'v0.2.3',
+        'checked_at' => '2026-09-26T12:00:00Z',
     ];
 }
 

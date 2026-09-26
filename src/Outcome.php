@@ -21,6 +21,12 @@ final class Outcome
     public const int SCHEMA = 1;
 
     /**
+     * The IPTC digital source type for generative-AI media (SPEC-003). Only
+     * this exact URI counts; compositeWithTrainedAlgorithmicMedia does not.
+     */
+    public const string TRAINED_ALGORITHMIC_MEDIA = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
+
+    /**
      * @return array<string, mixed>
      */
     public static function fromReport(VerificationReport $report, string $verifierVersion, DateTimeImmutable $at): array
@@ -37,6 +43,7 @@ final class Outcome
             'signer' => $info === null ? null : ['issuer' => $info['issuer'], 'common_name' => $info['common_name']],
             'signed_at' => $info['time'] ?? null,
             'codes' => $state === ValidationState::Invalid->value ? self::failureCodes($report) : [],
+            'ai' => self::claimsTrainedAi($report),
             'remote_manifest_url' => $report->remoteManifestUrl,
             'reason' => null,
             'verifier' => $verifierVersion,
@@ -57,6 +64,7 @@ final class Outcome
             'signer' => null,
             'signed_at' => null,
             'codes' => [],
+            'ai' => false,
             'remote_manifest_url' => null,
             'reason' => $reason,
             'verifier' => $verifierVersion,
@@ -83,6 +91,34 @@ final class Outcome
         }
 
         return $codes;
+    }
+
+    /**
+     * Whether an action in the active manifest's actions assertion
+     * (c2pa.actions or c2pa.actions.v2) carries the trained-AI source type.
+     * A claim only: whoever shows it checks the state first (SPEC-003).
+     */
+    private static function claimsTrainedAi(VerificationReport $report): bool
+    {
+        $report = $report->toArray();
+        $manifests = is_array($report['manifests'] ?? null) ? $report['manifests'] : [];
+        $active = $manifests[is_string($report['active_manifest'] ?? null) ? $report['active_manifest'] : ''] ?? null;
+        $assertions = is_array($active) && is_array($active['assertions'] ?? null) ? $active['assertions'] : [];
+
+        foreach ($assertions as $assertion) {
+            if (! is_array($assertion) || ! in_array($assertion['label'] ?? null, ['c2pa.actions', 'c2pa.actions.v2'], true)) {
+                continue;
+            }
+            $data = $assertion['data'] ?? null;
+            $actions = is_array($data) && is_array($data['actions'] ?? null) ? $data['actions'] : [];
+            foreach ($actions as $action) {
+                if (is_array($action) && ($action['digitalSourceType'] ?? null) === self::TRAINED_ALGORITHMIC_MEDIA) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private static function utc(DateTimeImmutable $at): string

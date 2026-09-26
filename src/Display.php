@@ -28,9 +28,13 @@ final class Display
      */
     public static function headline(mixed $entry): string
     {
-        [$class, $headline] = self::headlineOf(self::read($entry));
+        $read = self::read($entry);
+        [$class, $headline] = self::headlineOf($read);
+        $html = '<span class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'.esc_html($headline).'</span>';
 
-        return '<span class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'.esc_html($headline).'</span>';
+        return self::showsAiLabel($read)
+            ? $html.'<br><span class="provemark-c2pa-ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</span>'
+            : $html;
     }
 
     /**
@@ -46,6 +50,9 @@ final class Display
 
         $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">';
         $html .= '<p><strong>'.esc_html($headline).'</strong></p>';
+        if (self::showsAiLabel($read)) {
+            $html .= '<p class="provemark-c2pa-ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</p>';
+        }
         foreach ($lines as $line) {
             $html .= '<p>'.$line.'</p>';
         }
@@ -68,7 +75,7 @@ final class Display
     /**
      * A SPEC-001 entry, null for no entry, false for anything else.
      *
-     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
+     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
      */
     private static function read(mixed $entry): array|false|null
     {
@@ -103,6 +110,11 @@ final class Display
             $text[$key] = $value;
         }
 
+        $ai = $entry['ai'] ?? false;
+        if (! is_bool($ai)) {
+            return false;
+        }
+
         $reason = $entry['reason'] ?? null;
         if ($entry['state'] === 'error' ? ! in_array($reason, self::REASONS, true) : $reason !== null) {
             return false;
@@ -113,11 +125,23 @@ final class Display
             'signer' => $signer,
             'signed_at' => $text['signed_at'],
             'codes' => $codes,
+            'ai' => $ai,
             'remote_manifest_url' => $text['remote_manifest_url'],
             'reason' => $reason,
             'verifier' => $text['verifier'],
             'checked_at' => $text['checked_at'],
         ];
+    }
+
+    /**
+     * The AI label is a signed statement worth showing only when the
+     * manifest verifies (SPEC-003): never on Invalid, none or error.
+     *
+     * @param  array{state: string, ai: bool}|false|null  $read
+     */
+    private static function showsAiLabel(array|false|null $read): bool
+    {
+        return is_array($read) && $read['ai'] && in_array($read['state'], ['Trusted', 'Valid'], true);
     }
 
     /**
@@ -145,7 +169,7 @@ final class Display
     /**
      * The detail lines, each already safe HTML.
      *
-     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
+     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
      * @return list<string>
      */
     private static function lines(array $entry): array
