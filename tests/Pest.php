@@ -1,6 +1,11 @@
 <?php
 
 declare(strict_types=1);
+
+// The integration suite starts from an empty test environment (never the
+// development one): no attachments, no plugin data. Otherwise it grows with
+// every local run, and `--all` in RecheckTest checks everything left over.
+uses()->beforeAll(fn () => emptyTestEnvironment())->in('Integration');
 use Provemark\C2paCheck\TrustConfig;
 
 /**
@@ -542,4 +547,33 @@ function listedIds(array $ids, array $request): array
     $found = is_array($decoded) && is_array($decoded['ids'] ?? null) ? array_values(array_filter($decoded['ids'], is_int(...))) : [];
 
     return ['ids' => $found, 'sql' => is_array($decoded) && is_string($decoded['sql'] ?? null) ? $decoded['sql'] : $out];
+}
+
+/**
+ * Removes every attachment, its files, the plugin's meta and options from
+ * the test environment (.wp-env.test.json) in one request. Never runs
+ * against the development environment: wpEval() defaults to `test`.
+ */
+function emptyTestEnvironment(): void
+{
+    wpEval(<<<'PHP'
+        global $wpdb;
+        $ids = array_map('intval', $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_type = 'attachment'"));
+        if ($ids !== []) {
+            $in = implode(',', $ids);
+            $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($in)");
+            $wpdb->query("DELETE FROM {$wpdb->posts} WHERE ID IN ($in)");
+        }
+        $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '\_provemark\_c2pa\_%'");
+        foreach (['provemark_c2pa_digicert', 'provemark_c2pa_custom_trust', 'provemark_c2pa_trust_failed', 'provemark_c2pa_index_done'] as $option) {
+            delete_option($option);
+        }
+        $uploads = wp_get_upload_dir()['basedir'];
+        if (is_dir($uploads)) {
+            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($uploads, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+            foreach ($files as $file) {
+                $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
+            }
+        }
+        PHP);
 }

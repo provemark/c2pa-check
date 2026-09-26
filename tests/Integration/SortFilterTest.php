@@ -12,17 +12,40 @@ afterEach(fn () => resetTrustOptions());
  */
 function sevenGroups(): array
 {
-    $ids = [
-        'trusted' => attachmentWithEntry(sampleEntry(['state' => 'Trusted', 'ai' => true])),
-        'valid' => attachmentWithEntry(sampleEntry(['state' => 'Valid'])),
-        'invalid' => attachmentWithEntry(sampleEntry(['state' => 'Invalid', 'codes' => ['assertion.dataHash.mismatch'], 'ai' => true])),
-        'error' => attachmentWithEntry(sampleEntry(['state' => 'error', 'signer' => null, 'format' => null, 'reason' => 'exception'])),
-        'unreadable' => attachmentWithEntry('not an entry'),
-        'none' => attachmentWithEntry(sampleEntry(['state' => 'none', 'signer' => null])),
-        'unchecked' => attachmentWithEntry(null),
+    // One request for all eight: each WP-CLI call boots WordPress again.
+    $entries = [
+        'trusted' => sampleEntry(['state' => 'Trusted', 'ai' => true]),
+        'valid' => sampleEntry(['state' => 'Valid']),
+        'invalid' => sampleEntry(['state' => 'Invalid', 'codes' => ['assertion.dataHash.mismatch'], 'ai' => true]),
+        'error' => sampleEntry(['state' => 'error', 'signer' => null, 'format' => null, 'reason' => 'exception']),
+        'unreadable' => 'not an entry',
+        'none' => sampleEntry(['state' => 'none', 'signer' => null]),
+        'unchecked' => null,
     ];
-    $out = wpEval("echo wp_insert_attachment(['post_mime_type' => 'application/pdf', 'post_title' => 'a PDF', 'post_status' => 'inherit'], '/nonexistent.pdf');");
-    $ids['pdf'] = (int) $out;
+    $payload = base64_encode((string) json_encode($entries));
+    $out = wpEval(<<<PHP
+        \$ids = [];
+        foreach (json_decode(base64_decode('$payload'), true) as \$group => \$entry) {
+            \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
+            if (\$entry === null) {
+                delete_post_meta(\$id, '_provemark_c2pa_result');
+                Provemark\\C2paCheck\\Index::write(\$id, null);
+            } else {
+                update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry));
+                Provemark\\C2paCheck\\Index::write(\$id, \$entry);
+            }
+            \$ids[\$group] = \$id;
+        }
+        \$ids['pdf'] = wp_insert_attachment(['post_mime_type' => 'application/pdf', 'post_title' => 'a PDF', 'post_status' => 'inherit'], '/nonexistent.pdf');
+        echo json_encode(\$ids);
+        PHP);
+    $decoded = json_decode($out, true);
+    $ids = [];
+    foreach (is_array($decoded) ? $decoded : [] as $group => $id) {
+        if (is_string($group) && is_int($id)) {
+            $ids[$group] = $id;
+        }
+    }
 
     return $ids;
 }

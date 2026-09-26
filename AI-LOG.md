@@ -940,3 +940,25 @@ README are where the disclosure lives.
   changed nothing, and the command without a selection exited 1. The CI
   result of the push goes in the next entry.
 - Decided by Maurice: SPEC-008 implemented; push.
+
+## 2026-09-26 — Faster integration suite (1)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: make the integration suite faster.
+- Measured: CI run 36241861862 (SPEC-008, pushed) green on every job.
+  Integration job on PHP 8.3 there: `npm run test:start` 108 s, `composer
+  test:integration` 190 s. Locally: 134 s over 98 tests; RecheckTest AC3
+  took 17 s because `--all` checked the 732 attachments the test
+  environment had accumulated over local runs; the twelve SortFilterTest
+  cases took 2.4–2.8 s each, building eight attachments with eight WP-CLI
+  calls (each one boots WordPress).
+- Produced: `sevenGroups()` builds its eight attachments in one request;
+  every integration test file starts from an empty test environment
+  (`emptyTestEnvironment()` in a `beforeAll` for `tests/Integration`:
+  attachments, their files, the plugin's meta and options; the test
+  environment only, never the development one).
+- Measured after: 98 passed in 101 s and 104 s on two local runs in a row
+  (sum of test times 102 s); AC3 2.7 s; the slowest test 5.2 s (AC6, 1 200
+  attachments); 67 of 98 tests under a second; 15 attachments left after a
+  run. `composer check` green. CI not measured yet (not pushed).
+- Decided by Maurice: make the suite faster.
