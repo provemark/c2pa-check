@@ -135,7 +135,7 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
 
 ## Amendments
 
-1. **Proposed 2026-09-26, awaiting Maurice's approval.** AC1 listed
+1. **2026-09-26, approved by Maurice van Loon.** AC1 listed
    `composer.json` among what must not ship. Plugin Check 2.1.0 warns
    `missing_composer_json_file` on the build: a `vendor/` directory
    without `composer.json` (a wordpress.org review guideline, so reviewers
@@ -146,8 +146,9 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
+| AC1 | `tests/Release/ReleaseTest.php` :: AC1 | `.gitattributes`, `tools/build.sh` |
+| AC2 | `tests/Release/ReleaseTest.php` :: AC2 | the built zip; `.wp-env.release.json` |
+| AC3 | `tests/Release/ReleaseTest.php` :: AC3 | the built zip (Plugin Check 2.1.0, nothing excluded) |
+| AC4 | `tests/Release/ReleaseTest.php` :: AC4 | `tests/wpcs-verifier-baseline.json`; `wpcsFindings()`, `beyondBaseline()` in `tests/Pest.php` |
+| AC5 | `tests/Release/ReleaseTest.php` :: AC5 | `provemark-c2pa-check.php` (the missing-vendor notice) |
+| Screenshots | — (made by hand in Chrome on the clean environment) | `docs/screenshots/`, `README.md` |

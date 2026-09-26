@@ -708,3 +708,23 @@ README are where the disclosure lives.
   stored result in the development environment, so earlier uploads there
   show "Not checked" after a test run.
 - Decided by Maurice: badge and rows. Not pushed.
+
+## 2026-09-26 — SPEC-006 finished: screenshots, README, amendment 1
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: finish SPEC-006; Maurice approved amendment 1 (`composer.json`
+  ships, as Plugin Check requires next to `vendor/`).
+- Produced: three screenshots in `docs/screenshots/` (the Media Library
+  column, the attachment details of the OpenAI image in the media modal,
+  the settings page), made in Chrome on the clean release environment with
+  five fixtures uploaded under plain titles; `README.md` rewritten (what
+  the plugin does, the screenshots, how to build and test); SPEC-006
+  amendment 1 marked approved and Traceability filled. Earlier, in a
+  separate commit: `assets/admin.css` added to AC1's required files.
+- Measured: an empty fixed layer with the highest z-index covered part of
+  the list in the first screenshots; it disappeared on reload and was not
+  part of the plugin; the list was taken again with two WordPress columns
+  hidden for the release environment's test user. Release tests re-run on
+  a build of this commit (below, in the reply).
+- Decided by Maurice: finish SPEC-006 first; amendment 1 approved. Not
+  pushed.
