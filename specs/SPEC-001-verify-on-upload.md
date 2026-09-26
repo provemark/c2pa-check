@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -44,8 +44,9 @@ them, so no upload reaches `Trusted`.
 **In scope**
 
 - Verifying JPEG, PNG and WebP uploads (`image/jpeg`, `image/png`,
-  `image/webp` by the attachment's mime type) in `add_attachment`, on
-  `get_attached_file( $id )`, with `TrustSettings` `null`.
+  `image/webp` by the attachment's mime type) in `add_attachment` at the
+  default priority 10, on `get_attached_file( $id )`, with `TrustSettings`
+  `null`.
 - One post-meta entry per checked attachment, `_provemark_c2pa_result`,
   holding the compact result below; never the full report.
 - Fail closed: a provisional `error` entry before verifying, replaced by the
@@ -86,11 +87,12 @@ The stored entry is an array:
 | `signer` | `['issuer' => ?string, 'common_name' => string]` from `signatureInfo`, or `null` when the report has none |
 | `signed_at` | `signatureInfo['time']` when present, else `null` |
 | `codes` | for `Invalid`: the `code` of every status, in the report's order; otherwise `[]` |
+| `remote_manifest_url` | the report's `remoteManifestUrl` when present (never fetched), else `null` |
 | `reason` | for `error`: `interrupted`, `unreadable` or `exception`; otherwise `null` |
 | `verifier` | the installed `provemark/c2pa-verifier` version (`InstalledVersions::getPrettyVersion`) |
 | `checked_at` | UTC time of the check, ISO 8601 |
 
-`signer`, `signed_at` and `codes` come from the file and are stored as the
+`signer`, `signed_at`, `codes` and `remote_manifest_url` come from the file and are stored as the
 verifier gives them; SPEC-002 escapes them on output. Nothing in this spec
 outputs them.
 
@@ -153,6 +155,13 @@ outputs them.
     file, unchanged; the plugin derives only `none` (from `hasManifest`) and
     `error` (from its own failures)
 
+- **AC10 — manifest by URL only: `none`, URL kept, nothing fetched**
+  - Given `writers/adobe-20260304-photoshop-remote-manifest.jpg` (no manifest
+    in the file; its XMP points to a manifest URL)
+  - When it is uploaded
+  - Then its entry has `state` `none` and `remote_manifest_url` equal to the
+    verifier's `remoteManifestUrl`, and no request is made to that URL
+
 ## References
 
 - Specification: C2PA Technical Specification 2.4, §15 (validation, status
@@ -204,16 +213,13 @@ final class UploadHook
 
 ## Open questions
 
-- **Remote manifests (non-blocker).** A file may declare a manifest by URL
-  only (`remoteManifestUrl`, never fetched). Proposal: `state` `none`, plus
-  a `remote_manifest_url` key so SPEC-002 can say "refers to Content
-  Credentials elsewhere, not checked". Or leave it out of SPEC-001.
-- **Hook priority (non-blocker).** Default priority 10. An earlier priority
-  would run before other plugins' `add_attachment` handlers that might touch
-  the file; nothing measured shows one does.
-- **`codes` for `Valid` (non-blocker).** The brief asks codes for `Invalid`
-  only; a `Valid` file carries `signingCredential.untrusted`, which the state
-  already implies. Proposal: keep to the brief.
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
+
+- Remote manifests: `state` `none` plus `remote_manifest_url` (AC10), so
+  SPEC-002 can say the file refers to Content Credentials elsewhere, not
+  checked.
+- Hook priority: the default, 10; nothing measured calls for another.
+- `codes` for `Valid`: not stored; `codes` is filled for `Invalid` only.
 
 ## Traceability
 
@@ -231,3 +237,4 @@ least one test; every source file maps back to this spec.
 | AC7                  | —                           | —                    |
 | AC8                  | —                           | —                    |
 | AC9                  | —                           | —                    |
+| AC10                 | —                           | —                    |

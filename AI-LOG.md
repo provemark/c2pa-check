@@ -258,3 +258,16 @@ README are where the disclosure lives.
   `v0.2.3`.
 - Decided by Maurice: pushing to the private repository without asking
   for each commit within M1. The spec itself awaits approval.
+
+## 2026-09-26 — SPEC-001 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: take the three proposals and mark the spec approved.
+- Produced: SPEC-001 status `approved`; the three open questions resolved
+  as proposed (remote manifest: `none` plus `remote_manifest_url`; hook
+  priority 10; `codes` for `Invalid` only); a `remote_manifest_url` key and
+  AC10 for it.
+- Measured: `writers/adobe-20260304-photoshop-remote-manifest.jpg` gives
+  `has_manifest` false, state `Invalid`, no statuses, and a
+  `remoteManifestUrl` on `cai-manifests.adobe.com`, with v0.2.3.
+- Decided by Maurice: SPEC-001 approved, with the three proposals.
