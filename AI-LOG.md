@@ -115,3 +115,21 @@ README are where the disclosure lives.
 - Decided by Maurice: M0.3 as proposed; for the empty unit suite, the
   temporary `--do-not-fail-on-empty-test-suite` flag, to be removed in M1
   (recorded in `NOTES.md`).
+
+## 2026-09-26 — M0.4: spec template
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the verifier's spec template, adapted to this plugin.
+- Produced: `specs/TEMPLATE.md`, copied from the verifier with the same
+  structure (Problem, Scope, Behavior, References, API sketch, Open
+  questions, Traceability) and four changes: Problem points at `NOTES.md`
+  and the WordPress developer documentation as well as the C2PA
+  specification; Behavior says which test suite a criterion belongs in and
+  spells out this plugin's fail-closed and escaping rules; References gives
+  the verifier's `c2pa-verify` as the example oracle, with the WordPress and
+  PHP version measured on; the API sketch namespace is `Provemark\C2paCheck`.
+- Not taken over: the verifier's `bin/spec-check.php` (a traceability
+  checker with its own tests). Reasoned: with an estimated five or six specs
+  the Traceability table can be kept by hand; it can be added later.
+- Measured: nothing; documentation only.
+- Decided by Maurice: M0.4 as proposed, without `spec-check.php`.
