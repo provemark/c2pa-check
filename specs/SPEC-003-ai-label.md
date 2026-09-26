@@ -72,9 +72,10 @@ says how it is escaped.
   - Then its entry has `ai` `true`, and the column and the details show
     "AI-generated (signed)"
 
-- **AC2 — an invalid file that claims AI is not labelled** *(error path)*
+- **AC2 — an invalid file that claims AI is not labelled** *(error path; amendment 1)*
   - Given `amazon-20240925-titan-g1.png` (`Invalid`, `c2pa.created` with
-    `trainedAlgorithmicMedia`)
+    `trainedAlgorithmicMedia`), checked with the DigiCert option off
+    (SPEC-004; with it on, the file is `Valid` and rightly labelled)
   - When it is uploaded
   - Then its entry has `ai` `true` and state `Invalid`, and neither the
     column nor the details contain "AI-generated"
@@ -152,6 +153,15 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
   column cell and as the line right under the headline in the details.
 - Schema: `schema` stays 1; `ai` is an added key, and an entry without it
   shows no label (AC6).
+
+## Amendments
+
+1. **2026-09-26, approved by Maurice van Loon.** With SPEC-004's default
+   settings (bundled C2PA lists and DigiCert), Amazon Titan's expired
+   signer is vouched for by a DigiCert timestamp and the file is `Valid`,
+   so it carries the AI label. AC2 therefore runs with the DigiCert option
+   off, where the file is `Invalid`; AC3 (the tampered OpenAI image) is
+   `Invalid` under any settings.
 
 ## Traceability
 

@@ -14,6 +14,8 @@ name.
 | `openai-20260826-c2pa_2x.png` | `richardwooding/c2pa`, `testdata/c2pa_2x_openai.png` (3ad7258), via the verifier's `writers/` | MIT, see `LICENSE-richardwooding-c2pa` | OpenAI, `Valid`, `c2pa.created` with `trainedAlgorithmicMedia`: gets the AI label |
 | `amazon-20240925-titan-g1.png` | `TrustNXT/c2pa-ts`, `tests/fixtures/amazon-titan-g1.png` (14f8ad7), via the verifier's `writers/` | Apache-2.0, see `LICENSE-TrustNXT-c2pa-ts` | Amazon Titan, `Invalid`, claims `trainedAlgorithmicMedia`: must not get the label |
 | `c2pa-rs-ocsp.jpg` | `contentauth/c2pa-rs` `sdk/tests/fixtures/ocsp.jpg` (58eac79), via the verifier's `c2pa-rs/ocsp.jpg`, renamed | Apache-2.0 OR MIT, see `LICENSE-c2pa-rs-APACHE` / `-MIT`; © Adobe and the c2pa-rs contributors | `compositeWithTrainedAlgorithmicMedia` only: `ai` false |
+| `google-20250919-pixel10-npld-picnic-table.jpg` | Wikimedia Commons, `File:NPLD 25 WW new picnic table (55032713763).jpg`, uploaded by the US Bureau of Land Management, via the verifier's `writers/` | public domain (US federal work) | Google Pixel 10, 4000×3000: `Trusted` with the bundled C2PA lists |
+| `c2pa-rs-test-trust-anchors.pem` | the verifier's `trust/trust_anchors.pem`, byte-identical to `contentauth/c2patool` `sample/` | Apache-2.0 OR MIT (c2pa-rs / c2patool) | the public test roots the `fixture-signed.*` chain ends in; public certificates, no key |
 
 The tests make further files at run time in `tests/tmp/` (gitignored): an
 altered copy of `fixture-signed.jpg`, a tampered copy of the OpenAI PNG (one byte of image data, CRC recomputed), a copy of the remote-manifest file with a backslash in its URL, and a GIF and a PDF for the types the

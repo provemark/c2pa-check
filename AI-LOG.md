@@ -550,3 +550,40 @@ README are where the disclosure lives.
 - Measured: nothing.
 - Decided by Maurice: SPEC-004 approved (183 days; warning on the
   settings page only). Not pushed.
+
+## 2026-09-26 — SPEC-004 built (tests first); SPEC-003 amendment 1
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: implement the approved SPEC-004, tests first and seen red.
+- Produced: `trust/` (the two C2PA lists from commit `99927ca`,
+  2026-08-14, and the DigiCert Trusted Root G4, with `trust/README.md`:
+  source, commit, CC BY 4.0 attribution, fingerprint); `src/TrustConfig.php`
+  (custom settings replace everything, else the bundled lists with or
+  without DigiCert, by the verifier's recipe; `none` when nothing can be
+  built; `isStale()` at 183 days); `src/SettingsPage.php` (Settings → C2PA
+  Check, settings registered on `init` so validation also covers
+  `update_option()`, custom option created with autoload off, the notice
+  while checks run without settings); `Checker` and `Outcome` take the
+  settings and record `trust`; `UploadHook` writes the provisional entry
+  before reading the trust lists; `Display` names the trust source and
+  treats an unknown `trust` value as unreadable; `readme.txt` gains a
+  "Trust lists" section with the attribution and a current description.
+  Tests `tests/Unit/TrustConfigTest.php`, `tests/Integration/TrustTest.php`;
+  the integration oracle now runs the CLI with the default settings file;
+  SPEC-003 AC2 runs with DigiCert off (amendment 1). Fixtures: the Pixel 10
+  photo (public domain) and the c2pa-rs public test roots. Traceability
+  filled.
+- Measured: custom settings with only the test roots make
+  `fixture-signed.jpg` Trusted and leave the Pixel photo Invalid (CLI).
+  Before the code: unit 8 failed, integration 22 failed; AC7 without a
+  `trust` key, AC9 and SPEC-003 AC2 were green before the code. After:
+  `composer check` green (unit 37, also parallel), integration 66 passed,
+  Plugin Check clean. Mutations, each restored and checked with `cmp`:
+  `isStale()` always true made AC9 **red**; skipping validation made both
+  AC5 cases **red**; dropping `esc_textarea` made AC8 **red**.
+- Found on the way: registering the settings on `admin_init` would leave
+  `update_option()` outside the page unvalidated, and `wp eval` never runs
+  `admin_init`; the provisional entry was first written after reading the
+  trust lists, moved before them.
+- Decided by Maurice: SPEC-004 approved earlier, SPEC-003 amendment 1
+  chosen earlier; not pushed.

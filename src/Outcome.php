@@ -29,7 +29,7 @@ final class Outcome
     /**
      * @return array<string, mixed>
      */
-    public static function fromReport(VerificationReport $report, string $verifierVersion, DateTimeImmutable $at): array
+    public static function fromReport(VerificationReport $report, string $verifierVersion, DateTimeImmutable $at, string $trust = 'none'): array
     {
         // A file without a manifest comes back as Invalid with no statuses;
         // "no credential" is decided on hasManifest, never on the state.
@@ -48,6 +48,7 @@ final class Outcome
             'reason' => null,
             'verifier' => $verifierVersion,
             'checked_at' => self::utc($at),
+            'trust' => $trust,
         ];
     }
 
@@ -55,7 +56,7 @@ final class Outcome
      * @param  'interrupted'|'unreadable'|'exception'  $reason
      * @return array<string, mixed>
      */
-    public static function error(string $reason, string $verifierVersion, DateTimeImmutable $at): array
+    public static function error(string $reason, string $verifierVersion, DateTimeImmutable $at, string $trust = 'none'): array
     {
         return [
             'schema' => self::SCHEMA,
@@ -69,6 +70,7 @@ final class Outcome
             'reason' => $reason,
             'verifier' => $verifierVersion,
             'checked_at' => self::utc($at),
+            'trust' => $trust,
         ];
     }
 

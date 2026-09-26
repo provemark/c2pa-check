@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+use Closure;
 use Throwable;
 
 /**
@@ -17,7 +18,19 @@ final class UploadHook
 
     public const array MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-    public function __construct(private readonly Checker $checker) {}
+    /** Set while the last check had to run without trust settings (SPEC-004 AC6). */
+    public const string TRUST_FAILED_OPTION = 'provemark_c2pa_trust_failed';
+
+    /** @var Closure(): TrustConfig */
+    private readonly Closure $trustConfig;
+
+    /**
+     * @param  (Closure(): TrustConfig)|null  $trustConfig  the trust settings for a check; defaults to the saved options
+     */
+    public function __construct(private readonly Checker $checker, ?Closure $trustConfig = null)
+    {
+        $this->trustConfig = $trustConfig ?? SettingsPage::trustConfig(...);
+    }
 
     public function register(): void
     {
@@ -32,11 +45,20 @@ final class UploadHook
             }
 
             // update_post_meta() unslashes its value; wp_slash() keeps
-            // backslashes in text from the file (SPEC-001 amendment 2).
+            // backslashes in text from the file (SPEC-001 amendment 2). The
+            // provisional entry goes first, before anything that could stop
+            // the request, reading the trust lists included.
             update_post_meta($attachmentId, self::META_KEY, wp_slash($this->checker->interrupted()));
 
+            [$settings, $trust] = ($this->trustConfig)()->build();
+            if ($trust === 'none') {
+                update_option(self::TRUST_FAILED_OPTION, true, false);
+            } else {
+                delete_option(self::TRUST_FAILED_OPTION);
+            }
+
             $path = get_attached_file($attachmentId);
-            $entry = $this->checker->check(is_string($path) ? $path : '');
+            $entry = $this->checker->check(is_string($path) ? $path : '', $settings, $trust);
 
             update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
         } catch (Throwable) {

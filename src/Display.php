@@ -75,7 +75,7 @@ final class Display
     /**
      * A SPEC-001 entry, null for no entry, false for anything else.
      *
-     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
+     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
      */
     private static function read(mixed $entry): array|false|null
     {
@@ -110,6 +110,11 @@ final class Display
             $text[$key] = $value;
         }
 
+        $trust = $entry['trust'] ?? null;
+        if ($trust !== null && (! is_string($trust) || preg_match('/^(custom|none|c2pa-\d{4}-\d{2}-\d{2}(\+digicert)?)$/', $trust) !== 1)) {
+            return false;
+        }
+
         $ai = $entry['ai'] ?? false;
         if (! is_bool($ai)) {
             return false;
@@ -126,11 +131,42 @@ final class Display
             'signed_at' => $text['signed_at'],
             'codes' => $codes,
             'ai' => $ai,
+            'trust' => $trust,
             'remote_manifest_url' => $text['remote_manifest_url'],
             'reason' => $reason,
             'verifier' => $text['verifier'],
             'checked_at' => $text['checked_at'],
         ];
+    }
+
+    /**
+     * "Checked … with c2pa-verifier …", and against which trust (SPEC-004).
+     */
+    private static function checkedLine(string $checkedAt, string $verifier, ?string $trust): string
+    {
+        $at = self::text($checkedAt);
+        $version = self::text($verifier);
+
+        if ($trust === null) {
+            /* translators: 1: time of the check (UTC), 2: verifier version */
+            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s', 'provemark-c2pa-check'), $at, $version);
+        }
+        if ($trust === 'custom') {
+            /* translators: 1: time of the check (UTC), 2: verifier version */
+            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against custom trust settings', 'provemark-c2pa-check'), $at, $version);
+        }
+        if ($trust === 'none') {
+            /* translators: 1: time of the check (UTC), 2: verifier version */
+            return sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s without a trust list', 'provemark-c2pa-check'), $at, $version);
+        }
+
+        $date = self::text(substr($trust, 5, 10));
+
+        return str_ends_with($trust, '+digicert')
+            /* translators: 1: time of the check (UTC), 2: verifier version, 3: date of the trust list */
+            ? sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against the C2PA trust list of %3$s (with DigiCert timestamps)', 'provemark-c2pa-check'), $at, $version, $date)
+            /* translators: 1: time of the check (UTC), 2: verifier version, 3: date of the trust list */
+            : sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s against the C2PA trust list of %3$s', 'provemark-c2pa-check'), $at, $version, $date);
     }
 
     /**
@@ -169,7 +205,7 @@ final class Display
     /**
      * The detail lines, each already safe HTML.
      *
-     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
+     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
      * @return list<string>
      */
     private static function lines(array $entry): array
@@ -210,8 +246,7 @@ final class Display
         }
 
         if ($entry['checked_at'] !== null && $entry['verifier'] !== null) {
-            /* translators: 1: time of the check (UTC), 2: verifier version */
-            $lines[] = sprintf(esc_html__('Checked %1$s with c2pa-verifier %2$s', 'provemark-c2pa-check'), self::text($entry['checked_at']), self::text($entry['verifier']));
+            $lines[] = self::checkedLine($entry['checked_at'], $entry['verifier'], $entry['trust']);
         }
 
         return $lines;

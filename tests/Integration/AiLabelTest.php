@@ -13,7 +13,14 @@ it('AC1: labels a verifying AI upload in the column and the details', function (
 })->group('SPEC-003');
 
 it('AC2: does not label an invalid upload that claims AI', function (): void {
-    $id = importMedia(fixturePath('amazon-20240925-titan-g1.png'));
+    // Amendment 1: with DigiCert on (the default) Amazon Titan is Valid and
+    // rightly labelled; with it off, it is Invalid.
+    setOption('provemark_c2pa_digicert', false);
+    try {
+        $id = importMedia(fixturePath('amazon-20240925-titan-g1.png'));
+    } finally {
+        resetTrustOptions();
+    }
 
     expect(storedEntry($id)['ai'] ?? null)->toBeTrue()
         ->and(storedEntry($id)['state'] ?? null)->toBe('Invalid')
@@ -25,7 +32,7 @@ it('AC3: does not label a tampered AI upload', function (): void {
     $path = tamperedOpenAiPng();
     $id = importMedia($path);
 
-    expect(storedEntry($id)['state'] ?? null)->toBe(expectedEntry($path)['state'])
+    expect(storedEntry($id)['state'] ?? null)->toBe(expectedEntry($path, defaultSettingsFile())['state'])
         ->and(storedEntry($id)['state'] ?? null)->toBe('Invalid')
         ->and(columnHtml($id))->not->toContain('AI-generated')
         ->and(detailsHtml($id, true))->not->toContain('AI-generated');

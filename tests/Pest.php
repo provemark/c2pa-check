@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+use Provemark\C2paCheck\TrustConfig;
 
 /**
  * The name of this project's running wp-env "cli" container. wp-env names
@@ -131,9 +132,10 @@ function backslashRemoteManifestJpeg(): string
  *
  * @return array<mixed>
  */
-function cliReport(string $path): array
+function cliReport(string $path, ?string $settingsFile = null): array
 {
-    exec(escapeshellarg(dirname(__DIR__).'/vendor/bin/c2pa-verify').' '.escapeshellarg($path).' 2>/dev/null', $lines);
+    $settings = $settingsFile === null ? '' : '--settings '.escapeshellarg($settingsFile).' ';
+    exec(escapeshellarg(dirname(__DIR__).'/vendor/bin/c2pa-verify').' '.$settings.escapeshellarg($path).' 2>/dev/null', $lines);
     $report = json_decode(implode("\n", $lines), true);
 
     return is_array($report) ? $report : throw new RuntimeException('c2pa-verify gave no report for '.$path);
@@ -146,9 +148,9 @@ function cliReport(string $path): array
  *
  * @return array<string, mixed>
  */
-function expectedEntry(string $path): array
+function expectedEntry(string $path, ?string $settingsFile = null): array
 {
-    $report = cliReport($path);
+    $report = cliReport($path, $settingsFile);
     $manifests = is_array($report['manifests'] ?? null) ? $report['manifests'] : [];
     $active = $manifests[is_string($report['active_manifest'] ?? null) ? $report['active_manifest'] : ''] ?? [];
     $info = is_array($active) && is_array($active['signature_info'] ?? null) ? $active['signature_info'] : null;
@@ -165,6 +167,68 @@ function expectedEntry(string $path): array
         'ai' => claimsTrainedAi(is_array($active) ? $active : []),
         'reason' => null,
     ];
+}
+
+/**
+ * The settings the plugin uses by default (SPEC-004): the bundled lists,
+ * with or without DigiCert, as TrustConfig builds them, written to a file
+ * so the CLI reads the same bytes.
+ */
+function defaultSettingsFile(bool $digiCert = true): string
+{
+    $json = (new TrustConfig(dirname(__DIR__).'/trust', '', $digiCert))->settingsJson();
+    $path = tmpDir().'/default'.($digiCert ? '-digicert' : '').'.settings.json';
+    file_put_contents($path, (string) $json);
+
+    return $path;
+}
+
+/**
+ * Custom settings whose only anchor is the public c2pa-rs test root that
+ * the fixture-signed.* chain ends in.
+ */
+function customSettingsJson(): string
+{
+    return (string) json_encode([
+        'verify' => ['verify_trust' => true],
+        'trust' => ['anchors' => [[
+            'trust_anchors' => (string) file_get_contents(fixturePath('c2pa-rs-test-trust-anchors.pem')),
+            'trust_kind' => 'manifest',
+        ]]],
+    ], JSON_UNESCAPED_SLASHES);
+}
+
+function customSettingsFile(): string
+{
+    $path = tmpDir().'/custom.settings.json';
+    file_put_contents($path, customSettingsJson());
+
+    return $path;
+}
+
+/**
+ * Sets a WordPress option to exactly $value (through base64 JSON).
+ */
+function setOption(string $name, mixed $value): void
+{
+    $payload = base64_encode((string) json_encode($value));
+    wpEval("update_option('$name', json_decode(base64_decode('$payload'), true));");
+}
+
+/**
+ * Puts the plugin's options back to their defaults.
+ */
+function resetTrustOptions(): void
+{
+    wpEval("delete_option('provemark_c2pa_custom_trust'); delete_option('provemark_c2pa_digicert'); delete_option('provemark_c2pa_trust_failed');");
+}
+
+/**
+ * Runs PHP in WordPress as the given user.
+ */
+function wpEvalAs(string $user, string $php): string
+{
+    return wpCli(['eval', $php, '--user='.$user])['output'];
 }
 
 /**
@@ -221,7 +285,7 @@ function sampleEntry(array $fields): array
  */
 function stable(array $entry): array
 {
-    unset($entry['verifier'], $entry['checked_at'], $entry['remote_manifest_url']);
+    unset($entry['verifier'], $entry['checked_at'], $entry['remote_manifest_url'], $entry['trust']);
 
     return $entry;
 }

@@ -201,12 +201,12 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
+| AC1 | `tests/Integration/TrustTest.php` :: AC1 | `src/TrustConfig.php` `TrustConfig::build`, `settingsJson`; `src/UploadHook.php` `onAddAttachment`; `src/Checker.php` `check` |
+| AC2 | `tests/Integration/TrustTest.php` :: AC2 | as AC1; `Display::showsAiLabel` (SPEC-003) |
+| AC3 | `tests/Integration/TrustTest.php` :: AC3; `tests/Unit/TrustConfigTest.php` :: builds the bundled lists with / without DigiCert | `TrustConfig::settingsJson` (DigiCert anchor), `SettingsPage::trustConfig` |
+| AC4 | `tests/Integration/TrustTest.php` :: AC4; `tests/Unit/TrustConfigTest.php` :: AC4; :: checks with the settings it is given | `TrustConfig` (custom replaces), `Checker::check` |
+| AC5 | `tests/Integration/TrustTest.php` :: AC5 | `src/SettingsPage.php` `SettingsPage::sanitizeCustom` |
+| AC6 | `tests/Integration/TrustTest.php` :: AC6; `tests/Unit/TrustConfigTest.php` :: AC6 | `TrustConfig::build` (`none`), `UploadHook` (`TRUST_FAILED_OPTION`), `SettingsPage::trustNotice` |
+| AC7 | `tests/Integration/TrustTest.php` :: AC7 | `src/Display.php` `Display::checkedLine`, `Display::read` (`trust`) |
+| AC8 | `tests/Integration/TrustTest.php` :: AC8 | `SettingsPage::addPage`, `SettingsPage::render` (`esc_textarea`) |
+| AC9 | `tests/Unit/TrustConfigTest.php` :: AC9; `tests/Integration/TrustTest.php` :: AC9 | `TrustConfig::isStale`, `SettingsPage::render` |

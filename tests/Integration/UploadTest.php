@@ -7,21 +7,21 @@ it('AC1: stores the CLI\'s verdict for a signed upload', function (string $name)
     $entry = storedEntry(importMedia(fixturePath($name)));
 
     expect($entry)->not->toBeNull()
-        ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($name)));
+        ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($name), defaultSettingsFile()));
 })->with(['fixture-signed.jpg', 'fixture-signed.png', 'fixture-signed.webp'])->group('SPEC-001');
 
 it('AC2: stores `none` for an upload without a manifest', function (string $name): void {
     $entry = storedEntry(importMedia(fixturePath($name)));
 
     expect($entry['state'] ?? null)->toBe('none')
-        ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($name)));
+        ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($name), defaultSettingsFile()));
 })->with(['fixture-unsigned.jpg', 'fixture-unsigned.png', 'fixture-unsigned.webp'])->group('SPEC-001');
 
 it('AC3: stores Invalid with the CLI\'s codes for an altered upload', function (): void {
     $path = alteredSignedJpeg();
     $entry = storedEntry(importMedia($path));
 
-    expect(stable((array) $entry))->toBe(expectedEntry($path))
+    expect(stable((array) $entry))->toBe(expectedEntry($path, defaultSettingsFile()))
         ->and($entry['state'] ?? null)->toBe('Invalid');
 })->group('SPEC-001');
 
@@ -30,7 +30,7 @@ it('AC4: checks the original of a large image, not its -scaled copy', function (
     $id = importMedia($path);
 
     expect(wpEval("echo basename(get_attached_file($id));"))->toEndWith('-scaled.jpg')
-        ->and(stable((array) storedEntry($id)))->toBe(expectedEntry($path))
+        ->and(stable((array) storedEntry($id)))->toBe(expectedEntry($path, defaultSettingsFile()))
         ->and(storedEntry($id)['state'] ?? null)->toBe('Valid');
 })->group('SPEC-001');
 
