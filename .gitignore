@@ -26,3 +26,6 @@ CLAUDE.md
 
 # No private key belongs in this repository, test key or otherwise
 *.key
+
+# Files the tests make at run time
+/tests/tmp/

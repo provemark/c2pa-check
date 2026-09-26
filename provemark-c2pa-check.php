@@ -13,14 +13,14 @@
  */
 
 declare(strict_types=1);
+use Provemark\C2paCheck\Checker;
+use Provemark\C2paCheck\UploadHook;
 
 if (! defined('ABSPATH')) {
     exit;
 }
 
-$provemark_c2pa_autoload = __DIR__.'/vendor/autoload.php';
-
-if (! is_readable($provemark_c2pa_autoload)) {
+if (! is_readable(__DIR__.'/vendor/autoload.php')) {
     // Fail closed without breaking the site: no verifier, no checks, one notice.
     add_action('admin_notices', static function (): void {
         echo '<div class="notice notice-error"><p>'
@@ -31,5 +31,6 @@ if (! is_readable($provemark_c2pa_autoload)) {
     return;
 }
 
-require_once $provemark_c2pa_autoload;
-unset($provemark_c2pa_autoload);
+require_once __DIR__.'/vendor/autoload.php';
+
+(new UploadHook(new Checker))->register();

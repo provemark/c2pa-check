@@ -271,3 +271,40 @@ README are where the disclosure lives.
   `has_manifest` false, state `Invalid`, no statuses, and a
   `remoteManifestUrl` on `cai-manifests.adobe.com`, with v0.2.3.
 - Decided by Maurice: SPEC-001 approved, with the three proposals.
+
+## 2026-09-26 — SPEC-001 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: implement the approved SPEC-001, tests first and seen red.
+- Produced: `src/Outcome.php`, `src/Checker.php`, `src/UploadHook.php`;
+  the main plugin file registers the hook (and lost its global variable);
+  unit tests `OutcomeTest`, `CheckerTest`, `NoNetworkTest`; integration
+  test `UploadTest`; oracle helpers in `tests/Pest.php` (the CLI's report
+  turned into the expected entry); fixtures copied from the verifier with
+  a README naming source and licence (one CC BY-SA 4.0, one MIT with its
+  licence file); `tests/tmp/` gitignored. `src` back in `phpstan.neon` and
+  the empty-suite flag removed, as `NOTES.md` required. Traceability filled.
+- Measured: before any `src/` code, unit **red** (20 failed, "Class ... not
+  found") and integration **red** (12 failed); AC5 and the no-network check
+  were green before code, as a criterion about what must not happen cannot
+  fail when nothing happens. After: `composer check` green (21 unit tests,
+  also with `--parallel`), integration 16 passed, Plugin Check clean.
+- Found on the way, each fixed at the source:
+  - Pest defines `fixture()`; the helper is `fixturePath()`.
+  - wp-env wraps WP-CLI output in status lines; `wpCli()` drops them.
+  - `result->statuses` holds successes and informational codes too; the
+    CLI's `validation_status` (which AC3 compares with) holds failures
+    only, active manifest first. `codes` now comes from
+    `toArray()['validation_status']`. The spec's table row still says
+    "every status": an amendment is proposed to Maurice, not made.
+  - Plugin Check flagged `fopen`/`fclose` (WP_Filesystem has no stream API;
+    the verifier takes a stream): a `phpcs:ignore` on those two lines with
+    the reason. And the main file's global variable: removed.
+  - Pest's `arch()->not->toUse()` did not see a namespaced call to
+    `wp_remote_get` (a planted call left it green); replaced by a token scan,
+    seen red with the planted call and green without.
+  - PHPStan max: mixed values from JSON and `toArray()` narrowed with
+    checks; the verifier default is a typed static method, not an inline
+    `@var`.
+- Decided by Maurice: SPEC-001 approved earlier; the `codes` amendment and
+  the `phpcs:ignore` are put to him.

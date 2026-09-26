@@ -228,13 +228,13 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
-| AC10                 | —                           | —                    |
+| AC1 | `tests/Unit/OutcomeTest.php` :: AC1; `tests/Unit/CheckerTest.php` :: checks a file with the bundled verifier; `tests/Integration/UploadTest.php` :: AC1 | `src/Outcome.php` `Outcome::fromReport`; `src/Checker.php` `Checker::check`; `src/UploadHook.php` `UploadHook::onAddAttachment` |
+| AC2 | `tests/Unit/OutcomeTest.php` :: AC2; `tests/Integration/UploadTest.php` :: AC2 | `Outcome::fromReport` (`hasManifest`) |
+| AC3 | `tests/Unit/OutcomeTest.php` :: AC3; `tests/Integration/UploadTest.php` :: AC3 | `Outcome::failureCodes` |
+| AC4 | `tests/Integration/UploadTest.php` :: AC4 | `UploadHook::onAddAttachment` (`add_attachment`, `get_attached_file`) |
+| AC5 | `tests/Integration/UploadTest.php` :: AC5 | `UploadHook::MIME_TYPES` |
+| AC6 | `tests/Unit/CheckerTest.php` :: AC6; `tests/Integration/UploadTest.php` :: AC6 | `Checker::check`, `Outcome::error` |
+| AC7 | `tests/Unit/CheckerTest.php` :: AC7; `tests/Integration/UploadTest.php` :: AC7 | `Checker::check` (`catch Throwable`) |
+| AC8 | `tests/Unit/CheckerTest.php` :: AC8; `tests/Integration/UploadTest.php` :: AC8 | `Checker::interrupted`, `UploadHook::onAddAttachment` |
+| AC9 | `tests/Unit/OutcomeTest.php` :: AC9 | `Outcome::fromReport` |
+| AC10 | `tests/Unit/OutcomeTest.php` :: AC10; `tests/Unit/NoNetworkTest.php` :: AC10; `tests/Integration/UploadTest.php` :: AC10 | `Outcome::fromReport` (`remote_manifest_url`) |

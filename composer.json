@@ -36,7 +36,7 @@
         "format": "pint",
         "lint": "pint --test",
         "analyse": "phpstan analyse --memory-limit=512M",
-        "test": "pest --testsuite=Unit --do-not-fail-on-empty-test-suite",
+        "test": "pest --testsuite=Unit",
         "test:integration": "pest --testsuite=Integration",
         "check": [
             "@lint",
