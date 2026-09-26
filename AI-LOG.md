@@ -753,3 +753,16 @@ README are where the disclosure lives.
 - Produced: `notes/m6-sort-filter.md`.
 - Decided by Maurice: SPEC-005 and SPEC-006 implemented; pushed; start
   SPEC-007. This commit is not pushed.
+
+## 2026-09-26 — SPEC-007 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: draft SPEC-007 (sort and filter by Content Credentials).
+- Produced: `specs/SPEC-007-sort-and-filter.md` (status `draft`): two index
+  keys written with every entry, a sortable column (good to nothing), a
+  filter select in list mode, a batched backfill (500 per admin request),
+  SPEC-005 amendment 1 for uninstall; seven criteria (one error path); one
+  non-blocking open question.
+- Measured: nothing new.
+- Decided by Maurice: list mode only; automatic backfill in batches; sort
+  order from good to nothing. Not pushed.
