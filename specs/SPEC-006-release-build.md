@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -127,11 +127,11 @@ composer test:release   → pest --testsuite=Release (tests/Release/)
 
 ## Open questions
 
-- **WPCS as a dev dependency (non-blocker).** Proposal:
-  `wp-coding-standards/wpcs` ^3 under `require-dev`, run by the release
-  test on the build only.
-- **Which PHP version for the release job in CI (non-blocker).**
-  Proposal: 8.3, the lowest supported.
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
+
+- WPCS as a dev dependency: `wp-coding-standards/wpcs` ^3 under
+  `require-dev`, run by the release test on the build only.
+- The release job in CI runs on PHP 8.3, the lowest supported.
 
 ## Traceability
 

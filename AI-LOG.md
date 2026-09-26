@@ -626,3 +626,13 @@ README are where the disclosure lives.
   values; `wp-env start --config` exists.
 - Decided by Maurice: the zip carries only what runs; the shipped verifier
   is checked with the WPCS security sniffs directly. Not pushed.
+
+## 2026-09-26 — SPEC-005 and SPEC-006 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark both approved, with the two proposals of SPEC-006.
+- Produced: SPEC-005 and SPEC-006 status `approved`; SPEC-006's open
+  questions resolved as proposed (WPCS under `require-dev`; release job on
+  PHP 8.3).
+- Measured: nothing.
+- Decided by Maurice: both approved. Not pushed.
