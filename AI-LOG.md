@@ -133,3 +133,30 @@ README are where the disclosure lives.
   the Traceability table can be kept by hand; it can be added later.
 - Measured: nothing; documentation only.
 - Decided by Maurice: M0.4 as proposed, without `spec-check.php`.
+
+## 2026-09-26 — M0.5: Plugin Check and readme.txt
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: run WordPress's Plugin Check as a test, seen red first, and add a
+  `readme.txt` in wordpress.org format.
+- Produced: Plugin Check 2.1.0 pinned in `.wp-env.json` by download URL;
+  `tests/Integration/PluginCheckTest.php` (no ERROR or WARNING rows, and
+  "Checks complete" in the output), with development files excluded by
+  name; `readme.txt` (no `Contributors` line: no wordpress.org account);
+  `NOTES.md` updated.
+- Measured: Plugin Check on the working tree without `readme.txt`: it read
+  `README.md` as the readme and gave three errors (`missing_readme_header_tested`,
+  `no_license`, `no_stable_tag`) and one warning (short description over
+  150 characters); it also flagged `.wp-env.json`, `.gitignore`, `.idea/`
+  (hidden files) and `AI-LOG.md`, `NOTES.md` and a local gitignored file (unexpected
+  markdown). With the exclusions the test was **red** on the readme
+  findings only (1 failed); with `readme.txt` **green** (2 passed,
+  4 assertions), "Success: Checks complete. No errors found."; `License: MIT`
+  accepted. A probe file with an unescaped `echo $_GET[...]` gave one error
+  and four warnings in `src/` and nothing in `vendor/`: Plugin Check does
+  not scan `vendor/`, so the shipped verifier is not covered (open for M5).
+  `wp dist-archive` is not available in wp-env's WP-CLI. `composer check`
+  green.
+- Decided by Maurice: M0.5 as proposed; no wordpress.org account, GitHub
+  only for now; exclude development files in the test until M5 checks the
+  built release.

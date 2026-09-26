@@ -1,10 +1,12 @@
 {
-  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
-  "core": null,
-  "phpVersion": "8.3",
-  "plugins": [],
-  "mappings": {
-    "wp-content/plugins/provemark-c2pa-check": "."
-  },
-  "testsEnvironment": false
+    "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+    "core": null,
+    "phpVersion": "8.3",
+    "plugins": [
+        "https://downloads.wordpress.org/plugin/plugin-check.2.1.0.zip"
+    ],
+    "mappings": {
+        "wp-content/plugins/provemark-c2pa-check": "."
+    },
+    "testsEnvironment": false
 }

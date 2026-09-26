@@ -75,6 +75,9 @@ PHPUnit versions (reasoned; not measured).
   that file is byte-identical to the upload, including with Gutenberg's
   client-side media processing enabled (measured by hand in a browser).
 - Whether wordpress.org accepts the CC BY 4.0 trust lists as bundled data.
+- The verifier in `vendor/` is not covered by Plugin Check (see Measured).
+  Decide in M5 how the shipped verifier is checked, e.g. Plugin Check on
+  the built zip with the vendor exclusion lifted, if that is possible.
 
 ## Measured
 
@@ -90,9 +93,20 @@ PHPUnit versions (reasoned; not measured).
   WordPress 7.1.2 on PHP 8.3.35 (wp-env via Colima), loads the verifier, and
   without `vendor/` shows one admin notice instead of a fatal error.
 
+- 2026-09-26, Plugin Check 2.1.0: reads the working tree, not the
+  release, so it reports development files (hidden files, `AI-LOG.md`,
+  `NOTES.md`); the test excludes those. It does **not** scan `vendor/`: the
+  same unescaped `echo $_GET[...]` probe gave one error and four warnings in
+  `src/` and nothing in `vendor/`. `License: MIT` in `readme.txt` passes.
+- 2026-09-26, distribution: GitHub only for now (Maurice). No
+  wordpress.org account yet, so `readme.txt` has no `Contributors` line.
+
 ## Temporary measures (remove when their condition is met)
 
 - `composer test` runs Pest with `--do-not-fail-on-empty-test-suite`
   because `tests/Unit` is empty (decided 2026-09-26). **Remove the flag in
   M1**, in the commit that adds the first unit test; an empty suite must
   fail again from then on.
+- The Plugin Check test excludes development files by name
+  (`tests/Integration/PluginCheckTest.php`). **Replace in M5** by running
+  Plugin Check on the built release.
