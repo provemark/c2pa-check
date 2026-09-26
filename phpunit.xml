@@ -13,6 +13,10 @@
         <testsuite name="Integration">
             <directory>tests/Integration</directory>
         </testsuite>
+        <!-- The built zip in a clean second wp-env (.wp-env.release.json); composer test:release. -->
+        <testsuite name="Release">
+            <directory>tests/Release</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

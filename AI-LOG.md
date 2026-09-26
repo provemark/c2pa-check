@@ -656,3 +656,32 @@ README are where the disclosure lives.
   leftover DigiCert row stored as ''; now read with `get_row()`. With the
   DigiCert `delete_option` removed, AC1 is **red**; restored.
 - Decided by Maurice: SPEC-005 approved; not pushed.
+
+## 2026-09-26 — SPEC-006 in progress: build, clean environment, release tests
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-006, tests first.
+- Produced: `.gitattributes` (export-ignore for everything that does not
+  ship); `tools/build.sh` (`composer build`: `git archive` of HEAD with the
+  working tree's attributes, `composer install --no-dev` from the lock,
+  the verifier trimmed to `src/`, `LICENSE`, `composer.json`, `vendor/bin`
+  removed, zipped); `.wp-env.release.json` (a clean WordPress on port 8890
+  with Plugin Check, `build/` and `tests/Fixtures` mapped); `npm run
+  release:start`; a `Release` test suite (`tests/Release/ReleaseTest.php`,
+  `composer test:release`); `tests/wpcs-verifier-baseline.json`;
+  `wp-coding-standards/wpcs` 3.4.1 under `require-dev`; `cliContainer()`
+  and `wpCli()` take the environment variant; a `release` CI job (PHP 8.3)
+  that `all-green` waits for; the development Plugin Check test and its
+  exclusion list removed (Plugin Check now runs on the build); `NOTES.md`
+  temporary measures closed; SPEC-006 amendment 1 proposed.
+- Measured: wp-env names a `--config` variant's project
+  `wp-env-<folder>-<variant>-<hash>` (read in its `load-config.js`), and
+  the two environments run side by side. Release tests **red** before the
+  build existed (the zip could not be installed). The zip is 244 KB
+  (928 KB unpacked, against 4.0 MB for Packagist's verifier). Plugin Check
+  on the build warned `missing_composer_json_file`, so `composer.json`
+  ships (amendment 1, proposed). The WPCS baseline recorded from the build
+  is 641 findings in 10 sniffs, equal to the reviewed scan. All six release
+  tests green, including the planted `echo $_GET` breaking the baseline.
+- Still open in SPEC-006: screenshots; CI not yet run (not pushed).
+- Decided by Maurice: SPEC-006 approved; amendment 1 awaits his approval.

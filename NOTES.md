@@ -75,9 +75,9 @@ PHPUnit versions (reasoned; not measured).
   that file is byte-identical to the upload, including with Gutenberg's
   client-side media processing enabled (measured by hand in a browser).
 - Whether wordpress.org accepts the CC BY 4.0 trust lists as bundled data.
-- The verifier in `vendor/` is not covered by Plugin Check (see Measured).
-  Decide in M5 how the shipped verifier is checked, e.g. Plugin Check on
-  the built zip with the vendor exclusion lifted, if that is possible.
+- Resolved in M5 (SPEC-006): Plugin Check never scans `vendor/`; the
+  shipped verifier is checked with the WPCS security sniffs against a
+  reviewed baseline (`tests/wpcs-verifier-baseline.json`).
 
 ## Measured
 
@@ -103,6 +103,6 @@ PHPUnit versions (reasoned; not measured).
 
 ## Temporary measures (remove when their condition is met)
 
-- The Plugin Check test excludes development files by name
-  (`tests/Integration/PluginCheckTest.php`). **Replace in M5** by running
-  Plugin Check on the built release.
+- None open. (Resolved: the empty-suite flag and `src` in PHPStan in M1;
+  the Plugin Check exclusion list in M5, replaced by Plugin Check on the
+  built zip, SPEC-006.)

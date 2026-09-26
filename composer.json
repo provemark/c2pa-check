@@ -23,7 +23,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "require-dev": {
@@ -32,7 +33,8 @@
         "laravel/pint": "^1.32",
         "pestphp/pest": "^4.0",
         "phpstan/phpstan": "^2.2",
-        "szepeviktor/phpstan-wordpress": "^2.0"
+        "szepeviktor/phpstan-wordpress": "^2.0",
+        "wp-coding-standards/wpcs": "^3"
     },
     "scripts": {
         "format": "pint",
@@ -44,6 +46,11 @@
             "@lint",
             "@analyse",
             "@test"
+        ],
+        "build": "sh tools/build.sh",
+        "test:release": [
+            "@build",
+            "pest --testsuite=Release"
         ]
     }
 }

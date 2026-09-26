@@ -4,26 +4,29 @@ declare(strict_types=1);
 use Provemark\C2paCheck\TrustConfig;
 
 /**
- * The name of this project's running wp-env "cli" container. wp-env names
- * its Compose project "wp-env-<folder name, lowercased>-<hash>".
+ * The name of this project's running wp-env "cli" container: the
+ * development environment (.wp-env.json), or a variant such as `release`
+ * (.wp-env.release.json). wp-env names its Compose project
+ * "wp-env-<folder>[-<variant>]-<8 hex>" (read in its load-config.js).
  */
-function cliContainer(): string
+function cliContainer(string $variant = ''): string
 {
-    static $name = null;
-    if (is_string($name)) {
-        return $name;
+    /** @var array<string, string> $names */
+    static $names = [];
+    if (isset($names[$variant])) {
+        return $names[$variant];
     }
 
-    $prefix = 'wp-env-'.strtolower(basename(dirname(__DIR__))).'-';
+    $project = '/^wp-env-'.preg_quote(strtolower(basename(dirname(__DIR__))), '/').($variant === '' ? '' : '-'.preg_quote($variant, '/')).'-[0-9a-f]{8}$/';
     exec('docker ps --filter label=com.docker.compose.service=cli --format '.escapeshellarg('{{.Label "com.docker.compose.project"}} {{.Names}}'), $lines);
     foreach ($lines as $line) {
-        [$project, $container] = explode(' ', $line.' ', 2);
-        if (str_starts_with($project, $prefix)) {
-            return $name = trim($container);
+        [$name, $container] = explode(' ', $line.' ', 2);
+        if (preg_match($project, $name) === 1) {
+            return $names[$variant] = trim($container);
         }
     }
 
-    throw new RuntimeException("No running wp-env cli container for {$prefix}*; run `npm run env:start`.");
+    throw new RuntimeException('No running wp-env cli container matching '.$project.'; start it first.');
 }
 
 /**
@@ -34,11 +37,12 @@ function cliContainer(): string
  * (measured), because `wp-env run` starts Node first every time.
  *
  * @param  list<string>  $args  WP-CLI arguments, each passed as one shell argument
+ * @param  string  $variant  '' for the development environment, 'release' for the clean one
  * @return array{exit: int, output: string}
  */
-function wpCli(array $args): array
+function wpCli(array $args, string $variant = ''): array
 {
-    $command = 'docker exec '.escapeshellarg(cliContainer()).' wp '
+    $command = 'docker exec '.escapeshellarg(cliContainer($variant)).' wp '
         .implode(' ', array_map(escapeshellarg(...), $args))
         .' 2>&1';
 
@@ -391,4 +395,107 @@ function activeMarkup(string $html): array
     }
 
     return $found;
+}
+
+/**
+ * The built zip (composer build).
+ */
+function releaseZip(): string
+{
+    return dirname(__DIR__).'/build/provemark-c2pa-check.zip';
+}
+
+/**
+ * Installs and activates the built zip in the clean release environment,
+ * replacing whatever was there.
+ */
+function installReleaseZip(): void
+{
+    $result = wpCli(['plugin', 'install', '/var/www/html/release/provemark-c2pa-check.zip', '--force', '--activate'], 'release');
+    if ($result['exit'] !== 0) {
+        throw new RuntimeException('could not install the release zip: '.$result['output']);
+    }
+}
+
+/**
+ * Runs PHP in the release environment as its administrator.
+ */
+function releaseEval(string $php): string
+{
+    return wpCli(['eval', $php, '--user=admin'], 'release')['output'];
+}
+
+/**
+ * Uploads a fixture into the release environment (tests/Fixtures is
+ * mapped to /var/www/html/fixtures there) and returns the attachment ID.
+ */
+function releaseImport(string $fixture): int
+{
+    $result = wpCli(['media', 'import', '/var/www/html/fixtures/'.$fixture, '--porcelain'], 'release');
+    $id = (int) $result['output'];
+
+    return $id > 0 ? $id : throw new RuntimeException('import failed: '.$result['output']);
+}
+
+/**
+ * @return array<mixed>|null
+ */
+function releaseEntry(int $id): ?array
+{
+    $out = wpCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json'], 'release')['output'];
+    $entry = json_decode($out, true);
+
+    return is_array($entry) ? $entry : null;
+}
+
+/**
+ * The WordPress Coding Standards security sniffs run on the shipped
+ * verifier (SPEC-006 AC4; the set measured in notes/m5-packaging.md).
+ */
+const WPCS_SNIFFS = [
+    'WordPress.Security.EscapeOutput', 'WordPress.Security.ValidatedSanitizedInput',
+    'WordPress.Security.NonceVerification', 'WordPress.WP.AlternativeFunctions',
+    'WordPress.PHP.DiscouragedPHPFunctions', 'WordPress.PHP.DevelopmentFunctions',
+    'WordPress.DB.RestrictedFunctions', 'WordPress.WP.DiscouragedFunctions',
+];
+
+/**
+ * Findings per sniff code for the PHP files under $dir.
+ *
+ * @return array<string, int>
+ */
+function wpcsFindings(string $dir): array
+{
+    exec(escapeshellarg(dirname(__DIR__).'/vendor/bin/phpcs').' --standard=WordPress --sniffs='.implode(',', WPCS_SNIFFS).' --report=json -q '.escapeshellarg($dir).' 2>/dev/null', $lines);
+    $report = json_decode(implode("\n", $lines), true);
+    $counts = [];
+    foreach (is_array($report) && is_array($report['files'] ?? null) ? $report['files'] : [] as $file) {
+        foreach (is_array($file) && is_array($file['messages'] ?? null) ? $file['messages'] : [] as $message) {
+            $source = is_array($message) && is_string($message['source'] ?? null) ? $message['source'] : '?';
+            $counts[$source] = ($counts[$source] ?? 0) + 1;
+        }
+    }
+    ksort($counts);
+
+    return $counts;
+}
+
+/**
+ * Where $findings go beyond the reviewed baseline: a sniff the baseline
+ * does not have, or a higher count.
+ *
+ * @param  array<string, int>  $findings
+ * @param  array<string, int>  $baseline
+ * @return list<string>
+ */
+function beyondBaseline(array $findings, array $baseline): array
+{
+    $beyond = [];
+    foreach ($findings as $sniff => $count) {
+        if ($count > ($baseline[$sniff] ?? 0)) {
+            $beyond[] = $sniff.': '.$count.' (baseline '.($baseline[$sniff] ?? 0).')';
+        }
+    }
+
+    return $beyond;
 }

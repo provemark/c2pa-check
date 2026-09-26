@@ -73,8 +73,8 @@ says how it is escaped.
   - Given `composer build` on a clean checkout
   - When the zip's file list is read
   - Then it has one top folder `provemark-c2pa-check/` with the main file,
-    `uninstall.php`, `readme.txt`, `README.md`, `LICENSE`, `src/`, `trust/`
-    and `vendor/` (Composer's autoloader and the verifier's `src/`,
+    `uninstall.php`, `readme.txt`, `README.md`, `LICENSE`, `composer.json`
+    (amendment 1), `src/`, `trust/` and `vendor/` (Composer's autoloader and the verifier's `src/`,
     `LICENSE`, `composer.json`), and none of `tests/`, `specs/`, `notes/`,
     `.github/`, `AI-LOG.md`, `NOTES.md`, `package.json`, `composer.lock`,
     `.wp-env*.json`, `phpstan.neon`, `phpunit.xml`, `pint.json`, dotfiles,
@@ -132,6 +132,15 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
 - WPCS as a dev dependency: `wp-coding-standards/wpcs` ^3 under
   `require-dev`, run by the release test on the build only.
 - The release job in CI runs on PHP 8.3, the lowest supported.
+
+## Amendments
+
+1. **Proposed 2026-09-26, awaiting Maurice's approval.** AC1 listed
+   `composer.json` among what must not ship. Plugin Check 2.1.0 warns
+   `missing_composer_json_file` on the build: a `vendor/` directory
+   without `composer.json` (a wordpress.org review guideline, so reviewers
+   can see the dependencies). `composer.json` now ships; `composer.lock`
+   does not.
 
 ## Traceability
 
