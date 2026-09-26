@@ -126,7 +126,7 @@ per machine and checks its SHA-256.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
+| AC1 | `tests/Release/ReleaseTest.php` :: SPEC-009 AC1 | `tools/build.sh`, `composer.json` `extra.strauss` |
+| AC2 | `tests/Release/ReleaseTest.php` :: AC2 (SPEC-006) | the prefixed build |
+| AC3 | `tests/Release/ReleaseTest.php` :: SPEC-009 AC3 | the prefixed build (namespace `Provemark\C2paCheck\Vendor\`) |
+| AC4 | `tests/Release/ReleaseTest.php` :: SPEC-009 AC4 | `tools/build.sh` (`strauss_sha256`) |

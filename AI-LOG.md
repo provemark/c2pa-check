@@ -1004,3 +1004,24 @@ README are where the disclosure lives.
 - Measured: nothing.
 - Decided by Maurice: prefix `Provemark\C2paCheck\Vendor\`; the pinned
   phar downloaded once per machine and checked. Not pushed.
+
+## 2026-09-26 — SPEC-009 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-009.
+- Produced: `extra.strauss` in `composer.json`; `tools/build.sh` fetches
+  `strauss.phar` 0.30.0 once into `build/.tools/`, checks its SHA-256
+  and stops on a mismatch, runs it after `composer install --no-dev`, and
+  trims `vendor-prefixed/provemark/c2pa-verifier`; the release tests follow
+  the move (SPEC-006 amendment 2) and gain SPEC-009 AC1, AC3 and AC4.
+  Traceability filled; status stays `approved`.
+- Measured: before the build change, the release tests **red** on the new
+  paths and criteria; SPEC-009 AC3 red for the reason the spec gives: with
+  a must-use plugin defining the unprefixed `Verifier` (whose `verify()`
+  throws), the plugin's upload was `error` instead of `Valid`. A first
+  build still shipped `vendor/provemark/`: the build archives HEAD, where
+  `extra.strauss` was not yet committed; committed first, then rebuilt.
+  After: release 9 passed (collision case `Valid`; a fake phar stops the
+  build with "SHA-256" and no zip), `composer check` green, the WPCS
+  baseline unchanged.
+- Decided by Maurice: SPEC-009 approved earlier. Not pushed.

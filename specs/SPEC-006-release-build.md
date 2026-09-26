@@ -142,6 +142,13 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    can see the dependencies). `composer.json` now ships; `composer.lock`
    does not.
 
+2. **2026-09-26, approved by Maurice van Loon** with SPEC-009. The
+   verifier ships prefixed, in `vendor-prefixed/provemark/c2pa-verifier/`
+   (`src/`, `LICENSE`, `composer.json`), not in `vendor/provemark/`. AC1's
+   required and forbidden paths and AC4's scanned path
+   (`vendor-prefixed/provemark/c2pa-verifier/src`) follow the move; the
+   WPCS baseline is unchanged (641 findings in 10 sniffs).
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
