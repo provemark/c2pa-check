@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -150,8 +150,8 @@ final class Command // wp provemark-c2pa check [<id>...] [--all] [--unchecked] [
 
 ## Open questions
 
-- **Command name (non-blocker).** Proposal: `wp provemark-c2pa check`,
-  the plugin's prefix, with room for later subcommands.
+None. Resolved by Maurice on 2026-09-26, as proposed: `wp provemark-c2pa
+check`.
 
 ## Traceability
 

@@ -893,3 +893,12 @@ README are where the disclosure lives.
   paths); one non-blocking open question (the command name).
 - Decided by Maurice: images always chosen explicitly; a `--dry-run`; a
   table and a summary. Not pushed.
+
+## 2026-09-26 — SPEC-008 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-008 approved with the proposed command name.
+- Produced: SPEC-008 status `approved`.
+- Measured: nothing.
+- Decided by Maurice: SPEC-008 approved, `wp provemark-c2pa check`. Not
+  pushed.
