@@ -89,3 +89,10 @@ PHPUnit versions (reasoned; not measured).
 - 2026-09-26, activation: the empty plugin activates and deactivates in
   WordPress 7.1.2 on PHP 8.3.35 (wp-env via Colima), loads the verifier, and
   without `vendor/` shows one admin notice instead of a fatal error.
+
+## Temporary measures (remove when their condition is met)
+
+- `composer test` runs Pest with `--do-not-fail-on-empty-test-suite`
+  because `tests/Unit` is empty (decided 2026-09-26). **Remove the flag in
+  M1**, in the commit that adds the first unit test; an empty suite must
+  fail again from then on.

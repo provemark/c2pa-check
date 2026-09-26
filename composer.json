@@ -21,6 +21,27 @@
         "platform": {
             "php": "8.3.0"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "require-dev": {
+        "laravel/pint": "^1.32",
+        "pestphp/pest": "^4.0",
+        "phpstan/phpstan": "^2.2",
+        "szepeviktor/phpstan-wordpress": "^2.0"
+    },
+    "scripts": {
+        "format": "pint",
+        "lint": "pint --test",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "test": "pest --testsuite=Unit --do-not-fail-on-empty-test-suite",
+        "test:integration": "pest --testsuite=Integration",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
     }
 }

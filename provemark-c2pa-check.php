@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name:       Provemark C2PA Check
  * Description:       Verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.
@@ -17,14 +18,14 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-$provemark_c2pa_autoload = __DIR__ . '/vendor/autoload.php';
+$provemark_c2pa_autoload = __DIR__.'/vendor/autoload.php';
 
 if (! is_readable($provemark_c2pa_autoload)) {
     // Fail closed without breaking the site: no verifier, no checks, one notice.
     add_action('admin_notices', static function (): void {
         echo '<div class="notice notice-error"><p>'
-            . esc_html__('Provemark C2PA Check cannot run: its bundled libraries are missing. Reinstall the plugin.', 'provemark-c2pa-check')
-            . '</p></div>';
+            .esc_html__('Provemark C2PA Check cannot run: its bundled libraries are missing. Reinstall the plugin.', 'provemark-c2pa-check')
+            .'</p></div>';
     });
 
     return;

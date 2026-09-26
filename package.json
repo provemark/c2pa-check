@@ -1,0 +1,13 @@
+{
+  "name": "provemark-c2pa-check",
+  "private": true,
+  "description": "Development environment for Provemark C2PA Check; not shipped with the plugin.",
+  "license": "MIT",
+  "scripts": {
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop"
+  },
+  "devDependencies": {
+    "@wordpress/env": "11.16.0"
+  }
+}

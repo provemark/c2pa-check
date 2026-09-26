@@ -83,3 +83,35 @@ README are where the disclosure lives.
   to `provemark-c2pa-check`.
 - Decided by Maurice: Colima instead of Docker Desktop; the compose symlink;
   this measurement as its own commit.
+
+## 2026-09-26 — M0.3: test setup and code quality, local
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the verifier's tooling plus what WordPress needs, and a first
+  integration test, seen red before green. CI is M0.4.
+- Produced: dev dependencies `pestphp/pest` 4.7.8, `laravel/pint` 1.32.1,
+  `phpstan/phpstan` 2.2.16, `szepeviktor/phpstan-wordpress` 2.0.4 (with
+  `php-stubs/wordpress-stubs` 7.1.0, so PHPStan knows WordPress functions
+  without `ignoreErrors`); `pint.json` copied from the verifier;
+  `phpstan.neon` (level max, no ignoreErrors); `phpunit.xml` with suites
+  Unit and Integration; `tests/Pest.php` with a `wpCli()` helper that runs
+  WP-CLI through the local wp-env binary; `tests/Integration/ActivationTest.php`;
+  `package.json` pinning `@wordpress/env` 11.16.0; `.wp-env.json` (plugin
+  mapped as `provemark-c2pa-check`, PHP 8.3, no tests environment);
+  composer scripts `format`, `lint`, `analyse`, `test`, `test:integration`,
+  `check` (= lint, analyse, test). Pint reformatted the main plugin file
+  (spacing only; the header is unchanged).
+- Measured: the first version of the test only asserted `is-active`; with
+  `.wp-env.json` in place it stayed red because wp-env does not activate a
+  mapped plugin. The test now deactivates, activates and checks
+  `is-active`, which is the claim itself. That version: **red** without
+  `.wp-env.json` ("Warning: The 'provemark-c2pa-check' plugin could not be
+  found. Error: No plugins activated.", 1 failed); **green** with it (1
+  passed, 2 assertions), PHP 8.3.35 in the container. `composer check`:
+  lint clean, PHPStan max "No errors", unit suite "No tests found" with
+  exit 0 under the flag below. Without that flag Pest exits 1 on the empty
+  suite. npm 11 blocked the install script of `fs-ext-extra-prebuilt` (a
+  wp-env dependency); not approved, and wp-env works without it.
+- Decided by Maurice: M0.3 as proposed; for the empty unit suite, the
+  temporary `--do-not-fail-on-empty-test-suite` flag, to be removed in M1
+  (recorded in `NOTES.md`).

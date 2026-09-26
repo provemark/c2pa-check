@@ -1,0 +1,13 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - provemark-c2pa-check.php
+        - src
+        - tests
+    # No ignoreErrors and no excludePaths. Every finding is fixed at the source
+    # or discussed in the spec that introduces the code; nothing is waved
+    # through. If an exception ever becomes necessary it is added here with
+    # the spec ID and the reason, never as a bare pattern.
