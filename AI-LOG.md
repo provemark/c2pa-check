@@ -458,3 +458,16 @@ README are where the disclosure lives.
   PNG), `compositeWithTrainedAlgorithmicMedia` only in an `Invalid` c2pa-rs
   fixture; every IPTC URI in both fixture trees uses `http://cv.iptc.org/`.
 - Decided by Maurice: prepare M3; not pushed.
+
+## 2026-09-26 — SPEC-003 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: draft SPEC-003 (the AI label) from the M3.0 measurement.
+- Produced: `specs/SPEC-003-ai-label.md` (status `draft`): an `ai` key in
+  the stored entry from `toArray()`, the label gated on `Trusted` /
+  `Valid`, seven criteria (three error paths), two non-blocking open
+  questions (wording and place; keeping schema 1).
+- Measured: nothing new.
+- Decided by Maurice: only the exact `trainedAlgorithmicMedia` URI counts
+  (not composite); it counts in any action of the active manifest. Not
+  pushed.
