@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-26                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -146,11 +146,12 @@ final class Display
 
 ## Open questions
 
-- **Label wording and place (non-blocker).** Proposal: the brief's
-  "AI-generated (signed)", as a second line in the column cell and as the
-  line right under the headline in the details.
-- **Schema number (non-blocker).** Proposal: keep `schema` 1; `ai` is an
-  added key, and an entry without it simply shows no label (AC6).
+None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
+
+- Wording and place: "AI-generated (signed)", as a second line in the
+  column cell and as the line right under the headline in the details.
+- Schema: `schema` stays 1; `ai` is an added key, and an entry without it
+  shows no label (AC6).
 
 ## Traceability
 

@@ -471,3 +471,12 @@ README are where the disclosure lives.
 - Decided by Maurice: only the exact `trainedAlgorithmicMedia` URI counts
   (not composite); it counts in any action of the active manifest. Not
   pushed.
+
+## 2026-09-26 — SPEC-003 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: take the two proposals and mark SPEC-003 approved.
+- Produced: SPEC-003 status `approved`, open questions resolved as proposed.
+- Measured: nothing.
+- Decided by Maurice: SPEC-003 approved (label wording and place; schema
+  stays 1). Not pushed.
