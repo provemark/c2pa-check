@@ -728,3 +728,14 @@ README are where the disclosure lives.
   a build of this commit (below, in the reply).
 - Decided by Maurice: finish SPEC-006 first; amendment 1 approved. Not
   pushed.
+
+## 2026-09-26 — SPEC-005 and SPEC-006 implemented; M5 done
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-005 and SPEC-006 implemented, and push.
+- Produced: both specs `implemented` (Traceability filled when built).
+- Measured: before this commit, locally: `composer check` green (unit 38),
+  integration 69 passed, release 6 passed on a build of `14c9675`. The CI
+  result of the push is recorded in the next entry.
+- Decided by Maurice: both implemented; push the local commits to the
+  private repository.
