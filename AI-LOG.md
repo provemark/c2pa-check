@@ -447,3 +447,14 @@ README are where the disclosure lives.
 - Measured: nothing new; the SPEC-002 build and CI results are in the
   entries above.
 - Decided by Maurice: SPEC-002 implemented; not pushed yet.
+
+## 2026-09-26 — M3.0: AI source types measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare M3 (the AI label).
+- Produced: `notes/m3-ai-label.md`.
+- Measured: see the note: where `digitalSourceType` sits in `toArray()`;
+  one `Valid` AI fixture (OpenAI PNG), one `Invalid` one (Amazon Titan
+  PNG), `compositeWithTrainedAlgorithmicMedia` only in an `Invalid` c2pa-rs
+  fixture; every IPTC URI in both fixture trees uses `http://cv.iptc.org/`.
+- Decided by Maurice: prepare M3; not pushed.
