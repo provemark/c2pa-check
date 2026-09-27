@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-27                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -116,8 +116,7 @@ final class PrivacyPolicy
 
 ## Open questions
 
-- **The wording (non-blocker).** Proposal: as above; Maurice may change it
-  before approval.
+None. Resolved by Maurice on 2026-09-27: the wording as drafted.
 
 ## Traceability
 

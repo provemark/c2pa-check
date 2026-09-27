@@ -1123,3 +1123,11 @@ README are where the disclosure lives.
   (including "deleted when the image is deleted"); one non-blocking open
   question (the wording).
 - Decided by Maurice: the suggested text only. Not pushed.
+
+## 2026-09-27 — SPEC-010 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-010 approved with the drafted wording.
+- Produced: SPEC-010 status `approved`.
+- Measured: nothing.
+- Decided by Maurice: SPEC-010 approved, wording as drafted. Not pushed.
