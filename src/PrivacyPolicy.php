@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Suggested text for the site's privacy policy (SPEC-010), shown in
  * WordPress's Privacy Policy Guide. WordPress accepts it only from

@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+// The plugin's classes refuse to load without WordPress (SPEC-012); the unit
+// tests load them without it. Nothing is read from this path.
+if (! defined('ABSPATH')) {
+    define('ABSPATH', sys_get_temp_dir().'/provemark-c2pa-no-wordpress/');
+}
+
 // The integration suite starts from an empty test environment (never the
 // development one): no attachments, no plugin data. Otherwise it grows with
 // every local run, and `--all` in RecheckTest checks everything left over.
@@ -224,8 +230,35 @@ function customSettingsFile(): string
 function setOption(string $name, mixed $value): void
 {
     $payload = base64_encode((string) json_encode($value));
-    wpEval("update_option('$name', json_decode(base64_decode('$payload'), true));");
+    // Deleted and added, not updated: without the settings registered
+    // (they are on admin_init, SPEC-012) update_option() to false on a
+    // missing option stores nothing. The custom settings keep autoload off,
+    // as the plugin adds them.
+    $autoload = $name === 'provemark_c2pa_custom_trust' ? 'false' : 'null';
+    wpEval("delete_option('$name'); add_option('$name', json_decode(base64_decode('$payload'), true), '', $autoload);");
 }
+
+// Finds the plugin's registerSettings callback on a hook, so a test can run
+// it the way options.php does (through admin_init) without firing all of
+// core's admin_init callbacks in WP-CLI.
+const REGISTER_SETTINGS_ON = <<<'PHP'
+    $registerSettingsOn = static function (string $hook): ?Closure {
+        global $wp_filter;
+        foreach (isset($wp_filter[$hook]) ? $wp_filter[$hook]->callbacks : [] as $callbacks) {
+            foreach ($callbacks as $callback) {
+                $function = $callback['function'];
+                if ($function instanceof Closure) {
+                    $reflection = new ReflectionFunction($function);
+                    if ($reflection->getName() === 'registerSettings' && $reflection->getClosureScopeClass()?->getName() === Provemark\C2paCheck\SettingsPage::class) {
+                        return $function;
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+    PHP;
 
 /**
  * Puts the plugin's options back to their defaults.

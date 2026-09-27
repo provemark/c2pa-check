@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 use Closure;
 use Composer\InstalledVersions;
 use DateTimeImmutable;

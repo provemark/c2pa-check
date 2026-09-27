@@ -84,6 +84,28 @@ page. It is not error logging and does not stay active.
 WordPress. The plugin does not call either; it stores its own compact
 result as post meta.
 
+## Left as they are, with the reason
+
+From a read-through as a reviewer (2026-09-27, SPEC-012 fixed the rest):
+
+- **The stylesheet loads on every admin screen.** It styles the result in
+  the media modal, which can open on any admin screen (the block editor,
+  a post's featured image, widgets); it is 67 lines and versioned by its
+  file time.
+- **`@fopen` in `src/Checker.php`.** The file is checked with `is_file()`
+  and `is_readable()` first; the `@` keeps a race (the file removed in
+  between) from printing a warning into an upload response. The failure
+  is then stored as state `error`, reason `unreadable`.
+- **`provemark_c2pa_index_done` and `provemark_c2pa_trust_failed` are not
+  autoloaded.** Both are read only in the admin (`admin_init` and
+  `admin_notices`); one small query each there, none on the front end.
+- **No size limit on custom trust settings.** Only a user with
+  `manage_options` can save them, the verifier must accept them, and they
+  are never autoloaded.
+- **The verifier's files have no direct-access guard.** It is a
+  third-party library, loaded only through Composer's autoloader; its
+  files only declare classes.
+
 ## Licences of bundled data
 
 See `NOTES.md` (Measured, 2026-09-27): the C2PA trust lists are CC BY 4.0,

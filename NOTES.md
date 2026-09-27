@@ -147,6 +147,16 @@ deliberately not the C2PA "cr" mark, whose use has its own rules.
     curl): the plugin ships nothing here that core does not ship already.
   - Reasoned: the reviewer decides, but nothing here conflicts with
     guideline 1.
+- 2026-09-27, `update_option()` and a registered default (WordPress
+  7.1.2, `wp-includes/option.php`): when the stored value equals the
+  option's registered default, `update_option()` treats the option as
+  missing and calls `add_option()` without an autoload value, which gives
+  `auto`, i.e. autoloaded below 150 KB. With `'default' => ''` registered
+  for `provemark_c2pa_custom_trust`, the first save of custom settings
+  turned its autoload from `off` to `auto` (measured with WP-CLI; caught
+  by SPEC-012 AC2). Without the registered default it stays `off`,
+  measured through `options.php` as an administrator (HTTP 302, autoload
+  `off`).
 
 ## Temporary measures (remove when their condition is met)
 

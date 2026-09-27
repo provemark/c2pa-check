@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 use DateTimeImmutable;
 use Provemark\C2paVerifier\Trust\TrustSettings;
 use Throwable;
@@ -26,7 +30,9 @@ final class SettingsPage
     public function register(): void
     {
         add_action('admin_menu', $this->addPage(...));
-        add_action('init', $this->registerSettings(...));
+        // The Settings API on admin_init, as options.php runs it before it
+        // saves: nothing of this is read on the front end (SPEC-012).
+        add_action('admin_init', $this->registerSettings(...));
         add_action('admin_notices', $this->trustNotice(...));
     }
 
@@ -62,9 +68,12 @@ final class SettingsPage
             'default' => true,
             'sanitize_callback' => static fn (mixed $value): bool => (bool) $value,
         ]);
+        // No registered default: with one, update_option() takes a value equal
+        // to it for a missing option and re-adds the option with autoload
+        // `auto`, i.e. loaded on every request (WordPress 7.1.2, SPEC-012).
+        // Every get_option() here passes its own default.
         register_setting(self::GROUP, self::CUSTOM_OPTION, [
             'type' => 'string',
-            'default' => '',
             'sanitize_callback' => self::sanitizeCustom(...),
         ]);
 

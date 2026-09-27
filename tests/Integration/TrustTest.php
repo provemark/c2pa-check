@@ -52,7 +52,9 @@ it('AC4: lets custom settings replace the bundled lists', function (): void {
 it('AC5: refuses custom text that is not trust settings, and keeps the old value', function (string $bad): void {
     setOption('provemark_c2pa_custom_trust', customSettingsJson());
     $payload = base64_encode($bad);
-    $out = wpEval(<<<PHP
+    // Registered as options.php registers it, through admin_init (SPEC-012).
+    $out = wpEval(REGISTER_SETTINGS_ON.<<<PHP
+        (\$registerSettingsOn('admin_init'))();
         update_option('provemark_c2pa_custom_trust', base64_decode('$payload'));
         echo json_encode(['kept' => get_option('provemark_c2pa_custom_trust'), 'errors' => get_settings_errors('provemark_c2pa_custom_trust')]);
         PHP);

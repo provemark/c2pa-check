@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Provemark\C2paCheck;
 
+if (! defined('ABSPATH')) {
+    exit;
+}
+
 use cli\progress\Bar;
 use WP_CLI;
 use WP_Query;

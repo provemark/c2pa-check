@@ -1426,3 +1426,35 @@ README are where the disclosure lives.
   trademark question about "C2PA", changing only `Tested up to` without a
   release.
 - Decided by Maurice: the checklist. Not pushed.
+
+## 2026-09-27 — Review fixes (SPEC-012)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: read the whole plugin as a wordpress.org reviewer; then (Maurice)
+  SPEC-012 for what to fix.
+- Measured before: the custom trust settings (autoload off) were read on
+  every request outside the admin, as `registerSettings()` ran on `init`;
+  direct requests to three files in `src/` gave HTTP 200 and an empty
+  body.
+- Tests first, seen red: AC1 (option cached, registered on `init`), AC2
+  (no callback on `admin_init`), AC3 (no guard in any of the 11 files);
+  AC4 green before and after, as a guard. Two test mistakes fixed on the
+  way: AC3 counted 11 tokens instead of 12; `setOption()` used
+  `update_option()`, which stores nothing for `false` on a missing option
+  once the settings are not registered in WP-CLI, so it now deletes and
+  adds.
+- Found by AC2: saving custom settings turned their autoload from `off`
+  to `auto` (autoloaded), a SPEC-004 defect: WordPress re-adds an option
+  whose value equals its registered default. Fixed by registering no
+  default for that option; measured through `options.php` as an
+  administrator: autoload stays `off`. Recorded in `NOTES.md`.
+- Produced: `SettingsPage` on `admin_init` without the registered default,
+  the guard in every file in `src/`, `ABSPATH` for unit tests in
+  `tests/Pest.php`, `tests/Integration/ReviewFixesTest.php`,
+  `tests/Unit/DirectAccessTest.php`, SPEC-004 AC5's test registering
+  through `admin_init`, the points left as they are in
+  `notes/wporg-review.md`.
+- After: `composer check` 52 passed, integration 104, multisite 5,
+  release 9 (the release suite again after the commit, as it builds from
+  `HEAD`).
+- Decided by Maurice: SPEC-012 approved. Not pushed.
