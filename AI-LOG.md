@@ -1131,3 +1131,23 @@ README are where the disclosure lives.
 - Produced: SPEC-010 status `approved`.
 - Measured: nothing.
 - Decided by Maurice: SPEC-010 approved, wording as drafted. Not pushed.
+
+## 2026-09-27 — SPEC-010 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-010.
+- Produced: `src/PrivacyPolicy.php` (registered on `admin_init`, adds the
+  text only in the admin, guidance in a `privacy-policy-tutorial`
+  paragraph); `tests/Integration/PrivacyTest.php`. Traceability filled;
+  status stays `approved`.
+- Measured: before the code AC1 and AC2 **red**; AC3 ("deleted when the
+  image is deleted") green without any plugin code: WordPress's
+  `wp_delete_attachment()` removes the entry and both index keys, so the
+  claim holds. Test mistakes found and fixed: firing all of `admin_init`
+  outside the admin made core's own `wp_add_privacy_policy_content()` call
+  raise the notice, so AC2 calls only the plugin's callback;
+  `get_suggested_policy_text()` also lists texts of earlier requests
+  marked `removed`, so AC2 reads this request's
+  `$wp_privacy_policy_content`. Without the `is_admin()` guard AC2 is
+  **red**; restored. After: SPEC-010 3 passed, `composer check` green.
+- Decided by Maurice: SPEC-010 approved earlier. Not pushed.

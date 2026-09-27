@@ -16,6 +16,7 @@ declare(strict_types=1);
 use Provemark\C2paCheck\Checker;
 use Provemark\C2paCheck\MediaScreens;
 use Provemark\C2paCheck\MediaSort;
+use Provemark\C2paCheck\PrivacyPolicy;
 use Provemark\C2paCheck\RecheckCommand;
 use Provemark\C2paCheck\SettingsPage;
 use Provemark\C2paCheck\UploadHook;
@@ -44,6 +45,7 @@ require_once __DIR__.'/vendor/autoload.php';
     (new MediaScreens)->register();
     (new MediaSort)->register();
     (new SettingsPage)->register();
+    (new PrivacyPolicy)->register();
 
     if (defined('WP_CLI') && WP_CLI) {
         WP_CLI::add_command('provemark-c2pa', new RecheckCommand($hook));

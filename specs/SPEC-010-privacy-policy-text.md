@@ -122,7 +122,7 @@ None. Resolved by Maurice on 2026-09-27: the wording as drafted.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
+| AC1 | `tests/Integration/PrivacyTest.php` :: AC1 | `src/PrivacyPolicy.php` `PrivacyPolicy::register`, `addText`, `text` |
+| AC2 | `tests/Integration/PrivacyTest.php` :: AC2 | `PrivacyPolicy::addText` (`is_admin` guard) |
+| AC3 | `tests/Integration/PrivacyTest.php` :: AC3 | WordPress core (`wp_delete_attachment` removes post meta); nothing in the plugin |
+| AC4 | `tests/Unit/NoNetworkTest.php` :: AC10; `tests/Integration/UninstallTest.php` :: AC1 | — |
