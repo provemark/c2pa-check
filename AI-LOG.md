@@ -1232,3 +1232,13 @@ README are where the disclosure lives.
   After: 5 passed; with the multisite loop removed AC3 is **red**
   (restored); SPEC-005 tests and `composer check` green.
 - Decided by Maurice: SPEC-011 approved earlier. Not pushed.
+
+## 2026-09-27 — SPEC-011 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-011 implemented; do not push yet.
+- Produced: SPEC-011 status `implemented`.
+- Measured: locally before this commit: multisite 5 passed, SPEC-005 2
+  passed, `composer check` green, release 9 passed. The new `multisite`
+  CI job has not run yet (not pushed).
+- Decided by Maurice: SPEC-011 implemented; not pushed.
