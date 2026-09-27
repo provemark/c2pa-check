@@ -1537,3 +1537,10 @@ README are where the disclosure lives.
   multisite 6; the release suite after the commit (it builds from HEAD).
 - Decided by Maurice: SPEC-013 approved, option B, "Check pending". Not
   pushed.
+
+## 2026-09-27 — SPEC-013 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-013 implemented and push.
+- Produced: the status line; Traceability was filled in `e05b32f`.
+- Decided by Maurice: SPEC-013 implemented; push.
