@@ -1813,3 +1813,13 @@ README are where the disclosure lives.
 - Produced: the overview text and the zip's hash in
   `notes/wporg-submission.md`.
 - Decided by Maurice: record it and push. Submission is his.
+
+## 2026-09-27 — Two open points recorded
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: whether the plugin still has problems; then record two of the
+  risks named in `NOTES.md`.
+- Produced: open points 3 (media offloaded right after upload: the
+  background check finds no file) and 4 (the lower verifier findings of
+  its step 157, still open in v0.2.4). Both reasoned, not measured.
+- Decided by Maurice: record them. Not pushed.

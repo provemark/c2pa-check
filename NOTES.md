@@ -112,6 +112,29 @@ plugin's part.
    until then. The verifier's own limits fix the known files; this is
    about the next unknown one.
 
+3. **Media moved to external storage right after upload** (added
+   2026-09-27). Offload plugins (for example WP Offload Media) can delete
+   the local original once it is copied to S3 or similar. The background
+   check then finds no file and stores `error` / `unreadable` ("Could not
+   be checked"): fail closed, but the plugin is useless on such a site.
+   Reasoned from `UploadHook::fileOf()` and `Checker::check()`; not tested
+   with such a plugin. Options to weigh: check before the file leaves (in
+   the upload request after all, at the cost SPEC-013 removed; or on the
+   offload plugin's own hook), read the file through a stream wrapper the
+   offload plugin provides, or say in the readme that such sites are not
+   supported. The FAQ covers only the "Changed since its check" side.
+4. **Lower findings in the bundled verifier, still open in v0.2.4**
+   (added 2026-09-27; from the verifier's step 157, all reasoned there):
+   the chain walk does not enforce nameConstraints, policy constraints,
+   unknown critical extensions or intermediates' signature algorithms (a
+   name-constrained subordinate CA could issue a leaf showing any
+   organisation name and come out `Trusted`); `x5chain` is accepted from
+   the unprotected COSE header; a stapled OCSP response is not bound to
+   the leaf's verified issuer; the timestamp's ESSCertID(v2) is not
+   compared with the TSA certificate. For a verifier release; the plugin
+   takes it with `composer update` as below. To confirm against v0.2.4's
+   code and `c2patool` before a spec there.
+
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
 and every suite, the release suite included. **Done 2026-09-27 for
