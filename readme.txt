@@ -137,6 +137,14 @@ request; on a network of thousands of sites, prefer WP-CLI.
 
 The bundled verifier requires PHP 8.3 or later.
 
+== Development ==
+
+The source code, the tests and the build are public at
+https://github.com/provemark/c2pa-check. `composer build` makes the
+plugin's zip from it: it installs the bundled verifier and prefixes its
+namespace with Strauss, so it cannot collide with another copy. The
+verifier itself is developed at https://github.com/provemark/c2pa-verifier.
+
 == Screenshots ==
 
 1. The Content Credentials column in the Media Library list.

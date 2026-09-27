@@ -1910,3 +1910,21 @@ README are where the disclosure lives.
   hash is kept in `build/submitted/` next to the first submission.
 - Produced: the upload recorded in `notes/wporg-submission.md`.
 - Decided by Maurice: the upload (done by him). Not pushed.
+
+## 2026-09-27 — The Provemark sites, and a Development section (SPEC-019)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: after Maurice made the repository public, mention the plugin on
+  the general Provemark sites; then SPEC-019, a link to the development
+  location in `readme.txt` (guideline 4).
+- Produced, in the other repositories, pushed on Maurice's go: a
+  c2pa-check block in the organisation profile (`provemark/.github`
+  `03782d5`, and `f58156d`: c2pa-verifier's install line, as it is on
+  Packagist) and a c2pa-check card on provemark.github.io (`eed7244`), both
+  saying it is submitted and awaiting review. Here: SPEC-019 and a
+  `== Development ==` section naming this repository, `composer build` with
+  Strauss, and the verifier's repository.
+- Measured: both sites live with the plugin (GitHub Pages build green);
+  guideline 4's wording read again; SPEC-019 AC1 red first, then green;
+  `composer check` 63; the release suite after the commit.
+- Decided by Maurice: the site texts; SPEC-019 approved. Not pushed.

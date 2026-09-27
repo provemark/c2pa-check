@@ -69,3 +69,13 @@ it('SPEC-018 AC9: the FAQ explains a false "Changed since its check"', function 
     expect($faq)->toContain('modification times')
         ->and($faq)->toContain('external storage');
 })->group('SPEC-018');
+
+it('SPEC-019 AC1: links the development location', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $section = (string) preg_replace('/.*\n== Development ==\n(.*?)(\n== .*|$)/s', '$1', $readme);
+
+    expect($readme)->toContain("\n== Development ==\n")
+        ->and($section)->toContain('https://github.com/provemark/c2pa-check')
+        ->and($section)->toContain('https://github.com/provemark/c2pa-verifier')
+        ->and($section)->toContain('composer build');
+})->group('SPEC-019');
