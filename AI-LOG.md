@@ -1388,3 +1388,17 @@ README are where the disclosure lives.
   wording was narrowed.
 - Reasoned: whether a reviewer accepts these explanations.
 - Decided by Maurice: step B. Not pushed.
+
+## 2026-09-27 — Icon: a clearer photo
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: make the picture with the mountain and sun clearer.
+- Produced: `.wordpress-org/source/icon.svg` redrawn: two filled mountains
+  (the smaller one lighter, on the left) instead of a zigzag line, the sun
+  top right, a larger frame that clips the scene, and a slightly smaller
+  seal that covers only the foot of the big mountain. Re-rendered the two
+  icons and, as the banner uses the same SVG, the two banners.
+- Measured: each of the four PNGs looked at after rendering, sizes as
+  wordpress.org asks (128, 256, 772×250, 1544×500). A first redraw put the
+  second mountain behind the seal, leaving a grey sliver; moved left.
+- Decided by Maurice: still a proposal. Not pushed.

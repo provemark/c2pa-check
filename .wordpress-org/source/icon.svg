@@ -1,11 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-  <!-- Provemark C2PA Check: an image, checked. Not the C2PA "cr" mark. -->
+  <!-- Provemark C2PA Check: a photo (sun over mountains), checked. Not the C2PA "cr" mark. -->
+  <defs>
+    <clipPath id="photo">
+      <rect x="34" y="42" width="164" height="132" rx="10"/>
+    </clipPath>
+  </defs>
   <rect width="256" height="256" rx="48" fill="#131519"/>
-  <!-- the image -->
-  <rect x="44" y="56" width="148" height="120" rx="14" fill="none" stroke="#e9e9ec" stroke-width="12"/>
-  <circle cx="88" cy="96" r="14" fill="#e9e9ec"/>
-  <path d="M56 164 L98 122 L128 150 L148 132 L180 164" fill="none" stroke="#e9e9ec" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- the photo: sun and two mountains inside a frame -->
+  <g clip-path="url(#photo)" fill="#e9e9ec">
+    <circle cx="160" cy="82" r="16"/>
+    <path d="M22 180 L66 126 L110 180 Z" fill-opacity="0.6"/>
+    <path d="M52 180 L114 100 L176 180 Z"/>
+  </g>
+  <rect x="34" y="42" width="164" height="132" rx="10" fill="none" stroke="#e9e9ec" stroke-width="12"/>
   <!-- the seal -->
-  <circle cx="178" cy="178" r="50" fill="#2dd4bf" stroke="#131519" stroke-width="12"/>
-  <path d="M154 179 L171 196 L203 162" fill="none" stroke="#0b0c0e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="190" cy="186" r="44" fill="#2dd4bf" stroke="#131519" stroke-width="10"/>
+  <path d="M169 187 L184 202 L212 172" fill="none" stroke="#0b0c0e" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
