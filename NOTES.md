@@ -68,6 +68,13 @@ under its OpenSSL does not prove what a real host gives (reasoned). Why not
 `WP_UnitTestCase`: WordPress's test library and Pest 4 need different
 PHPUnit versions (reasoned; not measured).
 
+### 5. Icon and banner (2026-09-27)
+
+Accepted by Maurice: `.wordpress-org/icon-*.png` and `banner-*.png` as in
+commit `afd4b34`, rendered from `.wordpress-org/source/` with
+`render.sh`. A photo (sun over two mountains) with a turquoise check seal;
+deliberately not the C2PA "cr" mark, whose use has its own rules.
+
 ## To measure before a spec relies on it
 
 - Which hook gives the untouched original file (candidates: `add_attachment`

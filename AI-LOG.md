@@ -1402,3 +1402,10 @@ README are where the disclosure lives.
   wordpress.org asks (128, 256, 772×250, 1544×500). A first redraw put the
   second mountain behind the seal, leaving a grey sliver; moved left.
 - Decided by Maurice: still a proposal. Not pushed.
+
+## 2026-09-27 — Icon and banner accepted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: record that the icon and banner of `afd4b34` are accepted.
+- Produced: decision 5 in `NOTES.md`.
+- Decided by Maurice: icon and banner accepted. Not pushed.
