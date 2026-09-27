@@ -1409,3 +1409,20 @@ README are where the disclosure lives.
 - Asked: record that the icon and banner of `afd4b34` are accepted.
 - Produced: decision 5 in `NOTES.md`.
 - Decided by Maurice: icon and banner accepted. Not pushed.
+
+## 2026-09-27 — Submission checklist
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a checklist for submitting to wordpress.org.
+- Produced: `notes/wporg-submission.md` (not shipped): before submitting,
+  preparing the release, submitting, the SVN repository after approval,
+  and later releases; who does each step.
+- Measured: read the handbook's pages on submitting, Subversion and plugin
+  assets (2026-09-27): the form URL, review within about 14 business
+  days, the slug cannot change, SVN layout and release steps, the separate
+  SVN password, asset names and size limits; our asset files all under
+  250 KB.
+- Reasoned (marked so in the note): the expected slug, a possible
+  trademark question about "C2PA", changing only `Tested up to` without a
+  release.
+- Decided by Maurice: the checklist. Not pushed.
