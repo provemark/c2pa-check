@@ -1801,3 +1801,15 @@ README are where the disclosure lives.
   second. The counts were right (1 `error`, 2 still pending). The test now
   sorts them first; the plugin is unchanged by it.
 - Decided by Maurice: amendment 1 approved. Not pushed.
+
+## 2026-09-27 — The submission overview, and the zip to submit
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the final zip after a green CI; the overview for wordpress.org's
+  submission form; record both.
+- Measured: CI of `d938e6c` green on every job; the zip built from it,
+  release suite green (Plugin Check clean), 279,526 bytes, SHA-256
+  `aa393b53…7a57b7d6`, version 0.1.0, verifier v0.2.4.
+- Produced: the overview text and the zip's hash in
+  `notes/wporg-submission.md`.
+- Decided by Maurice: record it and push. Submission is his.

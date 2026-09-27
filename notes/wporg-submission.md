@@ -50,6 +50,23 @@ Items marked *reasoned* are not stated on those pages; check them then.
       the bundled verifier's WPCS findings: `notes/wporg-review.md`. For
       the licences: `NOTES.md` (Measured, 2026-09-27).
 
+The zip prepared for submission (2026-09-27): built from `d938e6c`
+(CI green on every job), 279,526 bytes, SHA-256
+`aa393b532a3971bb3e8cadb609dc14cec7901be9128f96876fc0195b7a57b7d6`.
+Keep it unchanged after submitting.
+
+The overview for the form:
+
+```text
+Provemark C2PA Check verifies the Content Credentials (C2PA) of JPEG, PNG and WebP images uploaded to the Media Library, and shows the result in a Media Library column, a filter, and the attachment details: "Verified: trusted signer", "Intact: signer not trusted", "Does not verify", "No Content Credentials" or "Could not be checked", with the signer and, when a verified manifest says so, "AI-generated (signed)".
+
+Each upload is checked in the background through WP-Cron, on the original file, so a check can never break an upload. A WP-CLI command re-checks existing images.
+
+The plugin only reads: it never signs anything, holds no keys, blocks no uploads and makes no network calls. Verification is done by the bundled MIT-licensed library provemark/c2pa-verifier (same author), prefixed with Strauss. The default trust anchors are the C2PA conformance programme's public trust lists (CC BY 4.0, credited in readme.txt), bundled as plain-text certificates in trust/.
+
+"C2PA" is used descriptively; the plugin is not made or endorsed by the Coalition for Content Provenance and Authenticity.
+```
+
 ## 4. After approval: the SVN repository
 
 The approval email gives the SVN address. The SVN password is separate
