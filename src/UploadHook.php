@@ -49,7 +49,7 @@ final class UploadHook
     public function register(): void
     {
         add_action('add_attachment', $this->onAddAttachment(...));
-        add_action(self::EVENT, $this->runScheduled(...));
+        add_action(self::EVENT, $this->runScheduled(...), 10, 2);
     }
 
     /**
@@ -63,8 +63,15 @@ final class UploadHook
                 return;
             }
 
+            // Here get_attached_file() is still the uploaded original on every
+            // route (notes/m1-original-file.md); by the time the event runs it
+            // may point at -scaled with the metadata not yet naming the
+            // original (SPEC-013 amendment 1), so the path travels with it.
+            $path = get_attached_file($attachmentId);
+            $relative = is_string($path) ? _wp_relative_upload_path($path) : '';
+
             update_post_meta($attachmentId, self::PENDING_KEY, time());
-            wp_schedule_single_event(time(), self::EVENT, [$attachmentId]);
+            wp_schedule_single_event(time(), self::EVENT, [$attachmentId, $relative]);
         } catch (Throwable) {
             // The upload always proceeds.
         }
@@ -76,7 +83,7 @@ final class UploadHook
      * WordPress has usually made by now. An ID that is no longer a JPEG,
      * PNG or WebP attachment is skipped.
      */
-    public function runScheduled(mixed $attachmentId): void
+    public function runScheduled(mixed $attachmentId, mixed $originalPath = null): void
     {
         try {
             $id = is_int($attachmentId) || (is_string($attachmentId) && ctype_digit($attachmentId)) ? (int) $attachmentId : 0;
@@ -84,9 +91,23 @@ final class UploadHook
                 return;
             }
 
+            // wp-cron.php runs every due check in one request. When less than
+            // half of the host's time limit is left, this check waits for the
+            // next cron request rather than die halfway (SPEC-013 amendment 1).
+            $limit = (int) ini_get('max_execution_time');
+            if ($limit > 0 && timer_float() > $limit / 2) {
+                wp_schedule_single_event(time(), self::EVENT, [$id, $originalPath]);
+
+                return;
+            }
+
             wp_raise_memory_limit('admin');
-            $original = wp_get_original_image_path($id);
-            $path = is_string($original) && $original !== '' ? $original : get_attached_file($id);
+
+            $path = self::uploadedFile($originalPath);
+            if ($path === null) {
+                $original = wp_get_original_image_path($id);
+                $path = is_string($original) && $original !== '' ? $original : get_attached_file($id);
+            }
             $this->checkAndStore($id, is_string($path) ? $path : '');
         } catch (Throwable) {
             // Whatever was stored last stays.
@@ -107,6 +128,7 @@ final class UploadHook
         // provisional entry goes first, before anything that could stop
         // the request, reading the trust lists included.
         delete_post_meta($attachmentId, self::PENDING_KEY);
+        self::unscheduleCheck($attachmentId);
         $provisional = $this->checker->interrupted();
         update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
         Index::write($attachmentId, $provisional);
@@ -124,5 +146,36 @@ final class UploadHook
         Index::write($attachmentId, $entry);
 
         return $entry;
+    }
+
+    /**
+     * The file a path relative to the uploads folder names, when it is a
+     * file inside that folder; null otherwise.
+     */
+    private static function uploadedFile(mixed $relative): ?string
+    {
+        if (! is_string($relative) || $relative === '') {
+            return null;
+        }
+
+        $base = realpath(wp_get_upload_dir()['basedir']);
+        $file = $base === false ? false : realpath($base.'/'.$relative);
+
+        return $base !== false && $file !== false && str_starts_with($file, $base.DIRECTORY_SEPARATOR) && is_file($file) ? $file : null;
+    }
+
+    /**
+     * Removes a scheduled check of an attachment that a check just made
+     * unnecessary (SPEC-013 amendment 1).
+     */
+    private static function unscheduleCheck(int $attachmentId): void
+    {
+        foreach (_get_cron_array() as $timestamp => $hooks) {
+            foreach ($hooks[self::EVENT] ?? [] as $event) {
+                if (($event['args'][0] ?? null) === $attachmentId) {
+                    wp_unschedule_event($timestamp, self::EVENT, array_values($event['args']));
+                }
+            }
+        }
     }
 }

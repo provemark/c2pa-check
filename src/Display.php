@@ -34,9 +34,9 @@ final class Display
      * @param  mixed  $entry  the stored value, or null when there is none
      * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function headline(mixed $entry, ?int $pendingSince = null, int $now = 0): string
+    public static function headline(mixed $entry, ?int $pendingSince = null, ?int $now = null): string
     {
-        return self::badges(self::read($entry), self::pending($entry, $pendingSince, $now));
+        return self::badges(self::read($entry), self::pending($entry, $pendingSince, $now ?? time()));
     }
 
     /**
@@ -45,10 +45,10 @@ final class Display
      * @param  mixed  $entry  the stored value, or null when there is none
      * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function details(mixed $entry, ?int $pendingSince = null, int $now = 0): string
+    public static function details(mixed $entry, ?int $pendingSince = null, ?int $now = null): string
     {
         $read = self::read($entry);
-        $pending = self::pending($entry, $pendingSince, $now);
+        $pending = self::pending($entry, $pendingSince, $now ?? time());
         [$class] = self::headlineOf($read, $pending);
 
         $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'."\n".'<p class="provemark-c2pa-badges">'.self::badges($read, $pending).'</p>';

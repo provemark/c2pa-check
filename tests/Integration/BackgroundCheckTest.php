@@ -99,3 +99,58 @@ it('AC6: an image deleted before its check', function (): void {
         ->and(storedEntry($id))->toBeNull()
         ->and(wpEval("echo get_post_type($id) === false ? 'gone' : 'there';"))->toBe('gone');
 })->group('SPEC-013');
+
+it('AC9: the check reads the original even in the -scaled window', function (): void {
+    $id = importWithoutChecking(fixturePath(PIXEL_PHOTO));
+    // The state _wp_image_meta_replace_original() leaves between switching
+    // the attached file to -scaled and saving the metadata that names the
+    // original (SPEC-013 amendment 1).
+    wpEval("\$meta = wp_get_attachment_metadata($id); unset(\$meta['original_image']); update_post_meta($id, '_wp_attachment_metadata', \$meta);");
+
+    expect(wpEval("echo basename((string) wp_get_original_image_path($id));"))->toEndWith('-scaled.jpg')
+        ->and(runPendingChecks())->toBe(1)
+        ->and(stable((array) storedEntry($id)))->toBe(expectedEntry(fixturePath(PIXEL_PHOTO), defaultSettingsFile()));
+})->group('SPEC-013');
+
+it('AC10: a late check in a batch waits instead of dying', function (): void {
+    runPendingChecks(); // anything an earlier test left scheduled
+    wpEval(<<<'PHP'
+        file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-time-limit.php', '<?php if (defined("DOING_CRON") && DOING_CRON) { ini_set("max_execution_time", "3"); set_time_limit(3); } add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("provemark_c2pa_check")) { $end = microtime(true) + 2; while (microtime(true) < $end) { } } return $v; });');
+        PHP);
+    $cron = function (): void {
+        // wp-cron.php as spawn_cron() calls it: the lock set, and passed.
+        $key = wpEval('$key = sprintf("%.22F", microtime(true)); set_transient("doing_cron", $key); echo $key;');
+        exec('curl -s -o /dev/null --max-time 120 '.escapeshellarg(TEST_SITE.'/wp-cron.php?doing_wp_cron='.$key));
+    };
+    try {
+        $ids = [importWithoutChecking(fixturePath('fixture-signed.jpg')), importWithoutChecking(fixturePath('fixture-signed.jpg'))];
+        $cron();
+        $afterFirst = array_map(fn (int $id): ?string => is_string(storedEntry($id)['state'] ?? null) ? storedEntry($id)['state'] : null, $ids);
+        $waiting = array_values(array_filter($ids, fn (int $id): bool => storedEntry($id) === null));
+
+        expect($afterFirst)->toContain('Valid')
+            ->and($afterFirst)->not->toContain('error')
+            ->and(count($waiting))->toBe(1)
+            ->and(scheduledChecks($waiting[0] ?? 0))->toBe(1);
+
+        $cron();
+        foreach ($ids as $id) {
+            expect(storedEntry($id)['state'] ?? null)->toBe('Valid');
+        }
+    } finally {
+        wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-time-limit.php");');
+    }
+})->group('SPEC-013');
+
+it('AC11: the command removes the scheduled check it made unnecessary', function (): void {
+    $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));
+
+    expect(scheduledChecks($id))->toBe(1);
+    wpCli(['provemark-c2pa', 'check', (string) $id]);
+    expect(scheduledChecks($id))->toBe(0)
+        ->and(storedEntry($id)['state'] ?? null)->toBe('Valid');
+})->group('SPEC-013');
+
+it('AC12: without a time, the display uses the current one', function (): void {
+    expect(visibleText(wpEval('echo Provemark\\C2paCheck\\Display::headline(null, time() - 7200);')))->toBe('Not checked');
+})->group('SPEC-013');

@@ -1544,3 +1544,35 @@ README are where the disclosure lives.
 - Asked: mark SPEC-013 implemented and push.
 - Produced: the status line; Traceability was filled in `e05b32f`.
 - Decided by Maurice: SPEC-013 implemented; push.
+
+## 2026-09-27 — SPEC-013 amendment 1, from a review of its code
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a short review of the new code; then (Maurice) the four fixes
+  as amendment 1.
+- Measured: the path chosen at check time can be `-scaled`: core 7.1.2's
+  `_wp_image_meta_replace_original()` switches the attached file before
+  the metadata names the original; reproducing that state made the Pixel
+  10 photo `none`. The test environment's `max_execution_time` is 0, so
+  the batch time limit (a late check dying as `interrupted`) was reasoned,
+  then reproduced with a must-use plugin (limit 3 s, two checks of 2 s
+  CPU).
+- Tests first, seen red: AC9 (`none` instead of `Trusted`), AC10 (the
+  second check not `Valid`), AC11 (the event left), AC12 ("Check pending"
+  on a two-hour marker).
+- First built with `set_time_limit()` per check: Plugin Check 2.1.0 warned
+  (`Squiz.PHP.DiscouragedFunctions.Discouraged`), so the release suite was
+  red, and hosts can disable the function. Changed (Maurice) to deferral:
+  past half the host's limit a check waits for the next cron request.
+  AC10 now also asks that it waits; red on the `set_time_limit()` version,
+  green on the deferral.
+- Produced: the event carries the original's path relative to the
+  uploads folder, used only when it resolves inside it; a check deferred
+  to the next cron request past half the host's limit (`timer_float()`),
+  never with no limit; `checkAndStore()`
+  removes a scheduled check of that attachment; `$now` defaults to
+  `time()`. Test helpers match events on their first argument.
+- After: `composer check` 52 passed, integration 116, multisite 6; CI of
+  `91b41d2` green on every job, the HTTP upload tests included.
+- Decided by Maurice: amendment 1 approved; deferral instead of
+  `set_time_limit()`. Not pushed.

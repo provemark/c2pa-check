@@ -404,7 +404,7 @@ function runPendingChecks(string $variant = 'test', ?string $url = null): int
  */
 function scheduledChecks(int $id): int
 {
-    return (int) wpEval("\$n = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n += (\$event['args'] ?? []) === [$id] ? 1 : 0; } } echo \$n;");
+    return (int) wpEval("\$n = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n += (\$event['args'][0] ?? null) === $id ? 1 : 0; } } echo \$n;");
 }
 
 /**
@@ -527,7 +527,7 @@ function attachmentWithEntry(mixed $entry): int
         \$entry = json_decode(base64_decode('$payload'), true);
         // Made here, not uploaded: no pending marker, no scheduled check (SPEC-013).
         delete_post_meta(\$id, '_provemark_c2pa_pending');
-        wp_clear_scheduled_hook('provemark_c2pa_check', [\$id]);
+        foreach (_get_cron_array() ?: [] as \$ts => \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { if ((\$event['args'][0] ?? null) === \$id) { wp_unschedule_event(\$ts, 'provemark_c2pa_check', \$event['args']); } } }
         if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); delete_post_meta(\$id, '_provemark_c2pa_state'); delete_post_meta(\$id, '_provemark_c2pa_ai'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); if (class_exists('Provemark\\C2paCheck\\Index')) { Provemark\\C2paCheck\\Index::write(\$id, \$entry); } }
         echo 'ID:', \$id, "\n";
         PHP);

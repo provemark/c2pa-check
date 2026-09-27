@@ -198,6 +198,64 @@ due checks after it in the same request wait for the next one (as
 spawns WP-Cron when a check is due; `wp-cron.php` called as `spawn_cron()`
 calls it (lock set, `doing_wp_cron` passed) runs the check.
 
+## Amendments
+
+1. **2026-09-27, approved by Maurice van Loon.** From a review of the
+   built code:
+   - *The original's path is fixed at upload.* `runScheduled()` chose the
+     file when the check ran. `_wp_image_meta_replace_original()` (core
+     7.1.2) points the attachment at `-scaled` before the metadata names
+     the original, and a check that runs in that window (a request that
+     spawns WP-Cron while another upload is still making image sizes, as
+     parallel uploads in the block editor can) read the copy: measured by
+     reproducing the window, the Pixel 10 photo became `none`. Now the
+     event carries the original's path relative to the uploads folder, as
+     `get_attached_file()` gives it in `add_attachment` (measured on every
+     route, `notes/m1-original-file.md`); it is used only when it resolves
+     to a file inside the uploads folder, else the check falls back to
+     `wp_get_original_image_path()`.
+   - *A late check in a batch waits instead of dying.* `wp-cron.php` runs
+     every due check in one request, so on a host with a
+     `max_execution_time` a late check in a large batch died and was
+     stored `interrupted` though its file was fine (reasoned; the test
+     environment's limit is 0). When less than half of the host's limit
+     is left (`timer_float()`), the check is scheduled again for the next
+     cron request instead of started; with no limit (0) it always runs.
+     (First built with `set_time_limit()`, which Plugin Check 2.1.0 warns
+     about, `Squiz.PHP.DiscouragedFunctions.Discouraged`, and which hosts
+     can disable; changed by Maurice on 2026-09-27 before the commit was
+     pushed.)
+   - *A re-check made by the command removes the scheduled one.*
+   - *`Display::headline()` / `details()` default `$now` to `time()`*, so
+     a caller that passes a marker but no time does not show "Check
+     pending" forever.
+
+   Added criteria:
+
+   - **AC9 — the check reads the original even in the `-scaled` window**
+     *(error path)*
+     - Given the Pixel 10 photo uploaded, and its attachment then put in
+       the state `_wp_image_meta_replace_original()` leaves it in before
+       the metadata is saved (attached file `-scaled`, no `original_image`)
+     - When the due event runs
+     - Then its entry is `Trusted`, equal to the CLI on the original
+   - **AC10 — a late check in a batch waits instead of dying**
+     *(error path)*
+     - Given `max_execution_time` 3 in the cron request and two due checks
+       that each use 2 s of CPU (a must-use plugin)
+     - When `wp-cron.php` runs, and then runs again
+     - Then after the first run one is `Valid` and the other has no entry
+       and is still scheduled (not `interrupted`); after the second both
+       are `Valid`
+   - **AC11 — `wp provemark-c2pa check <id>` removes the scheduled check**
+     - Given an upload whose check is scheduled
+     - When the command checks it
+     - Then no `provemark_c2pa_check` event for it remains
+   - **AC12 — without a time, the display uses the current one**
+     - Given no entry and a marker two hours old
+     - When `Display::headline()` is called with the marker and no time
+     - Then it shows "Not checked"
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
@@ -210,3 +268,7 @@ calls it (lock set, `doing_wp_cron` passed) runs the check.
 | AC6 | `tests/Integration/BackgroundCheckTest.php` :: AC6 | `UploadHook::runScheduled` (skips a missing attachment) |
 | AC7 | `tests/Integration/SortFilterTest.php` :: SPEC-013 AC7 | `MediaSort::options`, `MediaSort::apply` |
 | AC8 | `tests/Multisite/MultisiteTest.php` :: SPEC-013 AC8 | `uninstall.php` (`_provemark_c2pa_pending`, `wp_unschedule_hook`) |
+| AC9 | `tests/Integration/BackgroundCheckTest.php` :: AC9 | `UploadHook::onAddAttachment` (the original's relative path in the event), `UploadHook::uploadedFile` |
+| AC10 | `tests/Integration/BackgroundCheckTest.php` :: AC10 | `UploadHook::runScheduled` (deferred past half the host's limit, `timer_float()`) |
+| AC11 | `tests/Integration/BackgroundCheckTest.php` :: AC11 | `UploadHook::checkAndStore` → `unscheduleCheck` |
+| AC12 | `tests/Integration/BackgroundCheckTest.php` :: AC12 | `Display::headline` / `details` (`$now ?? time()`) |
