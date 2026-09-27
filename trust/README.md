@@ -18,7 +18,9 @@ unchanged.
 
 The DigiCert root's SHA-256 fingerprint is
 `55:2F:7B:DC:F1:A7:AF:9E:6C:E6:72:01:7F:4F:12:AB:F7:72:40:C7:8E:76:1A:C2:03:D1:D9:D2:0A:C8:99:88`
-(checked when copied, 2026-09-26). It is not on the C2PA's TSA list;
+(checked when copied, 2026-09-26), the same certificate WordPress itself
+ships in `wp-includes/certificates/ca-bundle.crt` (checked against
+WordPress 7.1.2, 2026-09-27). It is not on the C2PA's TSA list;
 Adobe Firefly, Microsoft Bing and Amazon Titan timestamp under it. With it,
 a file whose signing certificate has since expired verifies when a DigiCert
 timestamp authority vouches for the signing time; without it, such a file

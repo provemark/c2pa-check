@@ -1326,3 +1326,20 @@ README are where the disclosure lives.
   interrupted run (Ctrl-C) can still leave some behind.
 - Decided by Maurice: the cleanup; the choice to remove only the run's own
   uploads was mine. Not pushed.
+
+## 2026-09-27 — Licences of the bundled trust files settled
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: work out whether the bundled trust lists' licence stands in the
+  way of wordpress.org (an open item in `NOTES.md`).
+- Measured: guideline 1 of wordpress.org's Detailed Plugin Guidelines
+  (GPL or GPL-compatible for all code, data and images); the licence of
+  `c2pa-org/conformance-public` via the GitHub API (`CC-BY-4.0`); gnu.org's
+  licence list (CC BY 4.0 compatible with all GPL versions); the DigiCert
+  root's SHA-256 fingerprint equal to the one in WordPress 7.1.2's
+  `wp-includes/certificates/ca-bundle.crt`.
+- Produced: the finding under Measured in `NOTES.md` (the open item marked
+  resolved) and one sentence in `trust/README.md` on the DigiCert root.
+  Documentation only.
+- Reasoned: the wordpress.org reviewer decides; nothing found conflicts.
+- Decided by Maurice: the proposal as given. Not pushed.

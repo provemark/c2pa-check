@@ -74,7 +74,8 @@ PHPUnit versions (reasoned; not measured).
   with `get_attached_file()` / `wp_get_original_image_path()`), and whether
   that file is byte-identical to the upload, including with Gutenberg's
   client-side media processing enabled (measured by hand in a browser).
-- Whether wordpress.org accepts the CC BY 4.0 trust lists as bundled data.
+- Resolved 2026-09-27 (see Measured): whether wordpress.org accepts the
+  CC BY 4.0 trust lists as bundled data.
 - Resolved in M5 (SPEC-006): Plugin Check never scans `vendor/`; the
   shipped verifier is checked with the WPCS security sniffs against a
   reviewed baseline (`tests/wpcs-verifier-baseline.json`).
@@ -120,6 +121,25 @@ PHPUnit versions (reasoned; not measured).
   than ignore it.
   Reconsider the header only when a public release outside wordpress.org
   is decided.
+- 2026-09-27, licences of the bundled trust files:
+  - wordpress.org's [Detailed Plugin Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/),
+    guideline 1: all code, data and images in the plugin, third-party ones
+    included, must be under the GPL or a GPL-compatible licence, and it
+    points to gnu.org's list for which ones are.
+  - `c2pa-org/conformance-public` is `CC-BY-4.0` (GitHub licence API, file
+    `LICENSE` at the root, so `trust-list/` too). gnu.org's
+    [licence list](https://www.gnu.org/licenses/license-list.html#ccby)
+    calls CC BY 4.0 free and "compatible with all versions of the GNU
+    GPL"; its caution that CC licences should not be used on software does
+    not apply to certificate lists. CC BY's conditions (credit, a link to
+    the licence, a note of changes) are met in `readme.txt` and
+    `trust/README.md` ("included unchanged").
+  - `DigiCertTrustedRootG4.crt.pem` has the same SHA-256 fingerprint as the
+    "DigiCert Trusted Root G4" entry in WordPress 7.1.2's own
+    `wp-includes/certificates/ca-bundle.crt` (Mozilla's root store, via
+    curl): the plugin ships nothing here that core does not ship already.
+  - Reasoned: the reviewer decides, but nothing here conflicts with
+    guideline 1.
 
 ## Temporary measures (remove when their condition is met)
 
