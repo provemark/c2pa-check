@@ -41,7 +41,7 @@ final class Checker
     {
         // A read-only stream of the local upload, which the verifier needs;
         // WP_Filesystem has no stream API.
-        $stream = is_file($path) && is_readable($path) ? @fopen($path, 'rb') : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+        $stream = is_file($path) && is_readable($path) ? @fopen($path, 'rb') : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- the verifier reads a stream; WP_Filesystem has no stream API
         if ($stream === false) {
             return Outcome::error('unreadable', $this->version(), new DateTimeImmutable, $trust);
         }
@@ -52,7 +52,7 @@ final class Checker
             // The message may hold paths or file content; the reason is enough.
             return Outcome::error('exception', $this->version(), new DateTimeImmutable, $trust);
         } finally {
-            fclose($stream); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+            fclose($stream); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closes the stream opened above
         }
     }
 

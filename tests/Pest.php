@@ -464,6 +464,27 @@ function currentOriginal(int $id): string
 }
 
 /**
+ * The file an attachment's `_wp_attached_file` names, relative to uploads.
+ */
+function attachedFile(int $id): string
+{
+    return wpEval("echo get_post_meta($id, '_wp_attached_file', true);");
+}
+
+/**
+ * A host copy of a file in the test environment's uploads folder, for the
+ * verifier CLI.
+ */
+function hostCopyOfUpload(string $relative): string
+{
+    $copy = tmpDir().'/'.basename($relative);
+    $uploads = wpEval("echo wp_get_upload_dir()['basedir'];");
+    exec('docker cp '.escapeshellarg(cliContainer('test').':'.$uploads.'/'.$relative).' '.escapeshellarg($copy));
+
+    return $copy;
+}
+
+/**
  * A host copy of the attachment's current original, for the verifier CLI.
  */
 function hostCopyOfOriginal(int $id): string

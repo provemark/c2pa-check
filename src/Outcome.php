@@ -77,9 +77,15 @@ final class Outcome
      */
     public static function bounded(array $entry): array
     {
-        $cut = static fn (mixed $text): mixed => is_string($text) && mb_strlen($text) > self::MAX_TEXT
-            ? mb_substr($text, 0, self::MAX_TEXT - 1).'…'
-            : $text;
+        // Invalid UTF-8 scrubbed first: update_post_meta() would refuse it (SPEC-018).
+        $cut = static function (mixed $text): mixed {
+            if (! is_string($text)) {
+                return $text;
+            }
+            $text = mb_scrub($text, 'UTF-8');
+
+            return mb_strlen($text) > self::MAX_TEXT ? mb_substr($text, 0, self::MAX_TEXT - 1).'…' : $text;
+        };
 
         if (is_array($entry['signer'] ?? null)) {
             $entry['signer'] = array_map($cut, $entry['signer']);

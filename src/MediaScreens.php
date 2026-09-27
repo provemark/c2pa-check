@@ -97,8 +97,8 @@ final class MediaScreens
      */
     private static function currentOriginal(int $attachmentId): ?array
     {
-        $original = wp_get_original_image_path($attachmentId);
-        if (! is_string($original) || $original === '') {
+        $original = UploadHook::fileToCheck($attachmentId);
+        if ($original === '') {
             return null;
         }
         $exists = is_file($original);

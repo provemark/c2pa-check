@@ -103,10 +103,18 @@ final class UploadHook
             wp_schedule_single_event(time() + self::SAFETY_DELAY, self::EVENT);
 
             $limit = (int) ini_get('max_execution_time');
+            $checked = 0;
             foreach (self::pending(self::BATCH) as $id) {
-                if ($limit > 0 && timer_float() > $limit / 2) {
+                // At least one per run; after that, stop at half the limit.
+                if ($checked > 0 && $limit > 0 && timer_float() > $limit / 2) {
                     break;
                 }
+                // Claimed by removing its marker: a run that overlaps this
+                // one finds it gone and skips it (SPEC-018).
+                if (! delete_post_meta($id, self::PENDING_KEY)) {
+                    continue;
+                }
+                $checked++;
                 $this->runScheduled($id);
             }
 
@@ -177,7 +185,7 @@ final class UploadHook
             'post_status' => 'any',
             'post_mime_type' => implode(',', self::MIME_TYPES),
             // In batches, in the background: the marker is how pending images are found.
-            'meta_key' => self::PENDING_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            'meta_key' => self::PENDING_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- in the background, at most BATCH rows
             'orderby' => 'meta_value_num',
             'order' => 'ASC',
             'posts_per_page' => $limit,
@@ -207,10 +215,7 @@ final class UploadHook
             if (! is_string($attached) || $attached === '') {
                 return $data;
             }
-            $original = is_array($data) && is_string($data['original_image'] ?? null) && $data['original_image'] !== ''
-                ? dirname($attached).'/'.$data['original_image']
-                : $attached;
-            $relative = self::relativeToUploads($original);
+            $relative = self::relativeToUploads(self::shownFile($attached, is_array($data) ? ($data['original_image'] ?? null) : null));
             if ($relative === get_post_meta($id, self::SOURCE_KEY, true)) {
                 return $data;
             }
@@ -230,31 +235,75 @@ final class UploadHook
     }
 
     /**
-     * The file to check for an attachment: the kept original when it is a
-     * file inside the uploads folder, else the current original.
+     * The file to check for an attachment: the kept one when it is a file
+     * inside the uploads folder, else the one visitors see now.
      */
     public static function fileOf(int $attachmentId): string
     {
         $kept = self::uploadedFile(get_post_meta($attachmentId, self::SOURCE_KEY, true));
-        if ($kept !== null) {
-            return $kept;
+
+        return $kept ?? self::fileToCheck($attachmentId);
+    }
+
+    /**
+     * The file a verdict describes, from the attachment as it is now
+     * (SPEC-018, decision A): the file visitors see, except WordPress's own
+     * copy made at upload, whose original holds the Content Credentials.
+     */
+    public static function fileToCheck(int $attachmentId): string
+    {
+        $attached = get_attached_file($attachmentId);
+        if (! is_string($attached) || $attached === '') {
+            return '';
         }
+        $metadata = wp_get_attachment_metadata($attachmentId);
 
-        $original = wp_get_original_image_path($attachmentId);
-        $path = is_string($original) && $original !== '' ? $original : get_attached_file($attachmentId);
+        return self::shownFile($attached, is_array($metadata) ? ($metadata['original_image'] ?? null) : null);
+    }
 
-        return is_string($path) ? $path : '';
+    /**
+     * The attached file, or `original_image` next to it when the attached
+     * file is exactly the `-scaled` or `-rotated` copy WordPress made of it
+     * at upload. After an edit the attached file is a new one
+     * (`…-scaled-e<time>.jpg`), and that is what visitors see.
+     */
+    public static function shownFile(string $attached, mixed $originalImage): string
+    {
+        if (! is_string($originalImage) || $originalImage === '') {
+            return $attached;
+        }
+        $name = pathinfo($originalImage, PATHINFO_FILENAME);
+        $extension = pathinfo($originalImage, PATHINFO_EXTENSION);
+        $copies = [$name.'-scaled.'.$extension, $name.'-rotated.'.$extension];
+
+        return in_array(wp_basename($attached), $copies, true) ? dirname($attached).'/'.$originalImage : $attached;
     }
 
     /**
      * A path relative to the uploads folder, as WordPress keeps
-     * `_wp_attached_file`; the path itself when it lies outside.
+     * `_wp_attached_file`; the path itself when it lies outside. Compared
+     * as given and with symlinks resolved, so a symlinked uploads folder
+     * gives the same answer for either form (SPEC-018).
      */
     public static function relativeToUploads(string $path): string
     {
-        $base = trailingslashit(wp_get_upload_dir()['basedir']);
+        $normal = static fn (string $p): string => rtrim(str_replace('\\', '/', $p), '/');
+        $base = wp_get_upload_dir()['basedir'];
+        $realPath = realpath($path);
+        $realBase = realpath($base);
+        $pairs = [[$path, $base]];
+        if ($realPath !== false && $realBase !== false) {
+            $pairs[] = [$realPath, $realBase];
+        }
+        foreach ($pairs as [$file, $folder]) {
+            $prefix = $normal($folder).'/';
+            $file = $normal($file);
+            if (str_starts_with($file, $prefix)) {
+                return substr($file, strlen($prefix));
+            }
+        }
 
-        return str_starts_with($path, $base) ? substr($path, strlen($base)) : $path;
+        return $normal($path);
     }
 
     /**
@@ -271,6 +320,7 @@ final class UploadHook
         // provisional entry goes first, before anything that could stop
         // the request, reading the trust lists included.
         delete_post_meta($attachmentId, self::PENDING_KEY);
+        $source = get_post_meta($attachmentId, self::SOURCE_KEY, true);
         $provisional = $this->checker->interrupted();
         update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
         Index::write($attachmentId, $provisional);
@@ -290,6 +340,13 @@ final class UploadHook
         $size = $path !== '' && is_file($path) ? filesize($path) : false;
         $modified = $path !== '' && is_file($path) ? filemtime($path) : false;
         $entry += ['file' => $relative, 'size' => $size === false ? null : $size, 'modified' => $modified === false ? null : $modified];
+
+        // Changed while it was being checked (SPEC-018): the metadata filter
+        // has already queued the file it changed to; keep nothing of this.
+        if (get_post_meta($attachmentId, self::SOURCE_KEY, true) !== $source) {
+            return $entry;
+        }
+
         if ($relative !== null) {
             update_post_meta($attachmentId, self::SOURCE_KEY, $relative);
         }

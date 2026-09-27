@@ -61,3 +61,11 @@ it('SPEC-016 AC4: the review notes answer the .pem files, the slug and the callb
         ->and($notes)->toContain('## The name and slug')
         ->and($notes)->toContain('## Hook callbacks');
 })->group('SPEC-016');
+
+it('SPEC-018 AC9: the FAQ explains a false "Changed since its check"', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*= Why does an image say "Changed since its check"\? =(.*?)\n= .*/s', '$1', $readme));
+
+    expect($faq)->toContain('modification times')
+        ->and($faq)->toContain('external storage');
+})->group('SPEC-018');

@@ -111,7 +111,10 @@ Its file was replaced after the check by something WordPress did not
 report, such as another plugin or an upload over FTP. The old verdict no
 longer applies, so none is shown; check it again with
 `wp provemark-c2pa check <ID>`. An image edited in WordPress's own image
-editor, or restored to its original, is checked again automatically.
+editor, or restored to its original, is checked again automatically. After
+moving a site with a tool that does not keep file modification times, or
+with media moved to external storage, every image can show this; check
+them again with `wp provemark-c2pa check --all`.
 
 = Which formats are checked? =
 

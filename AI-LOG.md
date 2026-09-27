@@ -1741,3 +1741,31 @@ README are where the disclosure lives.
 - Asked: mark SPEC-017 implemented and push.
 - Produced: the status line; Traceability was filled in `e7eaf0d`.
 - Decided by Maurice: SPEC-017 implemented; push.
+
+## 2026-09-27 — Fixes from the review of SPEC-014 to SPEC-017 (SPEC-018)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: rebuild the final zip, check the screenshots, and a short review
+  of the code added since `3b29bea` (two review agents); then (Maurice)
+  SPEC-018, with decision A: a verdict describes the file visitors see.
+- Measured: the zip of `4dc346a` (release suite green; the screenshots
+  still true, no PDF rows). The review: a symlinked uploads folder made
+  every verdict "Changed since its check" and every metadata save re-check
+  (reproduced by the reviewer, confirmed in the code); an edited scaled
+  image kept `Trusted` (reproduced by the reviewer); a short invalid UTF-8
+  text was not stored; the main file used PHP 8.1 syntax before its PHP
+  guard.
+- Tests first, seen red: AC1–AC9 (AC1 an absolute path; AC3 the old
+  result stored; AC4 five checks for three images; AC5 none checked).
+- Produced: `UploadHook::shownFile()` / `fileToCheck()`, one rule for
+  which file a verdict describes, used by the filter, the display, the
+  queue and the command; `relativeToUploads()` compares as given and
+  resolved; `checkAndStore()` keeps nothing when the file changed during
+  the check; the queue claims an image by deleting its marker and checks
+  at least one per run; `mb_scrub()` in `Outcome::bounded()`;
+  `[UploadHook::class, 'deactivate']`; notices for `activate_plugins`
+  only; a reason on every `phpcs:ignore`; a FAQ sentence on migrations
+  and external storage.
+- After: `composer check` 62, integration 141, multisite 7; the release
+  suite after the commit.
+- Decided by Maurice: SPEC-018 approved, option A. Not pushed.

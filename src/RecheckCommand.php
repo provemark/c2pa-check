@@ -79,8 +79,7 @@ final class RecheckCommand
         $rows = [];
         $progress = $format === 'table' && ! $dryRun && count($ids) > 20 ? make_progress_bar('Checking', count($ids)) : null;
         foreach ($ids as $id) {
-            $original = wp_get_original_image_path($id);
-            $path = is_string($original) && $original !== '' ? $original : (string) get_attached_file($id);
+            $path = UploadHook::fileToCheck($id);
             $before = self::state($id);
 
             if ($dryRun) {
@@ -134,7 +133,7 @@ final class RecheckCommand
         $query = ['post_mime_type' => UploadHook::MIME_TYPES];
         if (isset($assocArgs['unchecked'])) {
             // On demand in WP-CLI, in pages of 500: no page request waits on it.
-            $query['meta_query'] = [['key' => UploadHook::META_KEY, 'compare' => 'NOT EXISTS']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $query['meta_query'] = [['key' => UploadHook::META_KEY, 'compare' => 'NOT EXISTS']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- WP-CLI on demand, in pages of 500
         }
         if (isset($assocArgs['state'])) {
             $states = array_map('trim', explode(',', is_string($assocArgs['state']) ? $assocArgs['state'] : ''));
@@ -143,7 +142,7 @@ final class RecheckCommand
                 WP_CLI::error('Unknown state: '.implode(', ', $unknown).'. Use --all, --unchecked or --state= with '.implode(', ', self::STATES).'.');
             }
             unset($query['post_mime_type']);
-            $query['meta_query'] = [['key' => Index::STATE_KEY, 'value' => $states, 'compare' => 'IN']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+            $query['meta_query'] = [['key' => Index::STATE_KEY, 'value' => $states, 'compare' => 'IN']]; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- WP-CLI on demand, in pages of 500
         }
 
         return $this->all($query);
