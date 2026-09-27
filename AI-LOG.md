@@ -1369,3 +1369,22 @@ README are where the disclosure lives.
   where it shows a message (`SettingsPage`, `Display::text()`). This
   replaces my earlier advice to fix them in the verifier.
 - Decided by Maurice: amendment 4 approved. Not pushed.
+
+## 2026-09-27 — Notes for a wordpress.org review
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: step B: an explanation per WPCS sniff in the shipped verifier,
+  ready to paste when a reviewer asks.
+- Produced: `notes/wporg-review.md` (not shipped): what is bundled and how
+  it is checked, then each of the 6 sniffs in the baseline with file and
+  line, and a pointer to the licence findings.
+- Measured, for the claims in it: a verifier exception's message is never
+  stored (`src/Checker.php` stores a fixed reason); the one message shown
+  is escaped (`src/SettingsPage.php`); every `set_error_handler` is undone
+  in a `finally` right after the call; no `eval` in the verifier; the
+  plugin opens the original read-only (`'rb'`) and does not call the
+  verifier's `toJson()`; `notes/` is export-ignored. First draft said the
+  plugin calls no `json_encode` at all; it does (`TrustConfig`), so the
+  wording was narrowed.
+- Reasoned: whether a reviewer accepts these explanations.
+- Decided by Maurice: step B. Not pushed.
