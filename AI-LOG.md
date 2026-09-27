@@ -1151,3 +1151,13 @@ README are where the disclosure lives.
   `$wp_privacy_policy_content`. Without the `is_admin()` guard AC2 is
   **red**; restored. After: SPEC-010 3 passed, `composer check` green.
 - Decided by Maurice: SPEC-010 approved earlier. Not pushed.
+
+## 2026-09-27 — SPEC-010 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-010 implemented and push.
+- Produced: SPEC-010 status `implemented`.
+- Measured: locally before this commit: `composer check` green,
+  integration 101 passed, release 9 passed. The CI result goes in the
+  next entry.
+- Decided by Maurice: SPEC-010 implemented; push.
