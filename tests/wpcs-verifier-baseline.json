@@ -1,16 +1,12 @@
 {
-    "about": "WPCS security findings on the shipped verifier's src/, reviewed by Maurice on 2026-09-26 (notes/m5-packaging.md). The release test fails on a new sniff or a higher count. Update only after a review, with the verifier version.",
+    "about": "WPCS security findings on the shipped verifier's src/, reviewed by Maurice on 2026-09-26 (notes/m5-packaging.md); src/Cli no longer ships since 2026-09-27 (SPEC-006 amendment 4). The release test fails on a new sniff or a higher count. Update only after a review, with the verifier version.",
     "verifier": "v0.2.3",
     "counts": {
-        "WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler": 6,
+        "WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler": 4,
         "WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode": 3,
         "WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode": 5,
         "WordPress.Security.EscapeOutput.ExceptionNotEscaped": 608,
-        "WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents": 1,
-        "WordPress.WP.AlternativeFunctions.file_system_operations_fclose": 2,
-        "WordPress.WP.AlternativeFunctions.file_system_operations_fopen": 1,
         "WordPress.WP.AlternativeFunctions.file_system_operations_fread": 6,
-        "WordPress.WP.AlternativeFunctions.file_system_operations_fwrite": 7,
         "WordPress.WP.AlternativeFunctions.json_encode_json_encode": 2
     }
 }

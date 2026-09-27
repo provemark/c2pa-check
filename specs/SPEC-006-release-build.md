@@ -78,7 +78,7 @@ says how it is escaped.
     `LICENSE`, `composer.json`), and none of `tests/`, `specs/`, `notes/`,
     `.github/`, `AI-LOG.md`, `NOTES.md`, `package.json`, `composer.lock`,
     `.wp-env*.json`, `phpstan.neon`, `phpunit.xml`, `pint.json`, dotfiles,
-    `*.key`
+    `*.key`, or the verifier's `src/Cli/` (amendment 4)
 
 - **AC2 — the zip installs and works on a clean WordPress**
   - Given the clean environment with the built zip installed and active
@@ -158,6 +158,22 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    finding and nothing else (ignoring it would make Plugin Check print
    nothing, not even "Checks complete"). Before a wordpress.org
    submission the header goes and AC3 is "no errors or warnings" again.
+
+4. **2026-09-27, approved by Maurice van Loon.** The
+   verifier's command-line tool (`src/Cli/`, one file, `Command.php`) no
+   longer ships. The plugin never uses it (measured: no reference in
+   `src/`, the main file or the rest of the verifier's `src/`), and it
+   holds 13 of the 641 WPCS findings (`fopen`/`fwrite`/`fclose`,
+   `file_get_contents`, two `set_error_handler`). The build removes it
+   from `vendor/provemark/c2pa-verifier/src/` after `composer install`
+   and regenerates the autoloader before Strauss runs, so no classmap or
+   alias refers to it (measured in a scratch build on 2026-09-27: no
+   autoload file mentions `Cli`; `fixture-signed.jpg` still `Valid`).
+   - AC1: `vendor-prefixed/provemark/c2pa-verifier/src/Cli/` is among what
+     must not ship.
+   - AC4: the baseline drops to 628 findings in 6 sniffs
+     (`ExceptionNotEscaped` 608, `base64_encode` 5, `base64_decode` 3,
+     `set_error_handler` 4, `fread` 6, `json_encode` 2); verifier v0.2.3.
 
 ## Traceability
 

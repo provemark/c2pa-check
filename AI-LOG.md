@@ -1343,3 +1343,29 @@ README are where the disclosure lives.
   Documentation only.
 - Reasoned: the wordpress.org reviewer decides; nothing found conflicts.
 - Decided by Maurice: the proposal as given. Not pushed.
+
+## 2026-09-27 — The verifier's command-line tool no longer ships (SPEC-006 amendment 4)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: look at the 641 WPCS findings in the shipped verifier; then
+  (Maurice) step A: stop shipping what the plugin does not use.
+- Measured: the findings per sniff and file: 608 `ExceptionNotEscaped`
+  (exception messages, in 29 files), 13 in `src/Cli/Command.php`, 20
+  elsewhere (`fread` on the image stream, `base64` for PEM/DER,
+  `set_error_handler` around OpenSSL, `json_encode`). No reference to
+  `Cli` outside `src/Cli/`. A scratch build that removes `src/Cli/` after
+  `composer install` and regenerates the autoloader before Strauss: no
+  autoload file mentions `Cli`, `fixture-signed.jpg` still `Valid`.
+- Tests first, seen red: AC1 (forbidding `src/Cli/`) failed listing
+  `src/Cli/Command.php`; AC4 with the lowered baseline failed on five
+  sniffs above it. After the change to `tools/build.sh`: release suite 9
+  passed, `composer check` green; the zip has no `Cli` file and no
+  autoload entry for it (275 KB).
+- Produced: SPEC-006 amendment 4 (AC1 and AC4), `tools/build.sh`,
+  `tests/Release/ReleaseTest.php`, `tests/wpcs-verifier-baseline.json`
+  (628 findings in 6 sniffs).
+- Reasoned: the 608 exception findings do not belong fixed in the
+  verifier, a plain PHP library without `esc_html()`; the plugin escapes
+  where it shows a message (`SettingsPage`, `Display::text()`). This
+  replaces my earlier advice to fix them in the verifier.
+- Decided by Maurice: amendment 4 approved. Not pushed.

@@ -28,7 +28,7 @@ it('AC1: holds what runs, and nothing else', function (): void {
         .'|^(AI-LOG\.md|NOTES\.md|package(-lock)?\.json|composer\.lock|\.wp-env.*\.json|phpstan\.neon|phpunit\.xml|pint\.json)$'
         .'|(^|/)\.[^/]+$|\.key$'
         .'|^vendor/bin/'
-        .'|^vendor-prefixed/provemark/c2pa-verifier/(docs|notes|specs|bin|tests)/'
+        .'|^vendor-prefixed/provemark/c2pa-verifier/(docs|notes|specs|bin|tests|src/Cli)/'
         .'|^vendor-prefixed/provemark/c2pa-verifier/(AI-LOG|NOTES|CHANGELOG|CONTRIBUTING|SECURITY|README)\.md$#';
     expect(array_values(array_filter($inside, fn (string $file): bool => preg_match($forbidden, $file) === 1)))->toBe([]);
 })->group('SPEC-006');

@@ -41,6 +41,11 @@ git -C "$root" archive --worktree-attributes HEAD | tar -x -C "$dir"
 cp "$root/composer.lock" "$dir/"
 
 composer install --working-dir="$dir" --no-dev --optimize-autoloader --no-interaction --no-progress --quiet
+# The verifier's command-line tool is not used by the plugin (SPEC-006
+# amendment 4). Removed before the autoloader is regenerated and Strauss
+# runs, so no classmap or alias refers to it.
+rm -rf "$dir/vendor/provemark/c2pa-verifier/src/Cli"
+composer dump-autoload --working-dir="$dir" --no-dev --optimize --no-interaction --quiet
 (cd "$dir" && php "$strauss" --no-interaction >/dev/null)
 
 verifier="$dir/vendor-prefixed/provemark/c2pa-verifier"
