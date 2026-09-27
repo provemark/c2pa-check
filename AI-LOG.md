@@ -1576,3 +1576,17 @@ README are where the disclosure lives.
   `91b41d2` green on every job, the HTTP upload tests included.
 - Decided by Maurice: amendment 1 approved; deferral instead of
   `set_time_limit()`. Not pushed.
+
+## 2026-09-27 — Contributors, and step 2 of the submission checklist
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice's wordpress.org username is `mauricevanloon`.
+- Produced: `Contributors: mauricevanloon` in `readme.txt`; `NOTES.md` and
+  the checklist's ticks.
+- Measured: `profiles.wordpress.org/mauricevanloon/` HTTP 200; the latest
+  WordPress 7.1.2 (api.wordpress.org), so `Tested up to: 7.1` stands;
+  every suite after the commit (release suite and Plugin Check on the
+  zip included).
+- Not done: the online readme validator (it sends the readme to
+  wordpress.org; asked first).
+- Decided by Maurice: the username. Not pushed.

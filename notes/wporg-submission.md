@@ -9,7 +9,7 @@ Items marked *reasoned* are not stated on those pages; check them then.
 
 ## 1. Before submitting (Maurice)
 
-- [ ] A wordpress.org account with an email address that is read
+- [x] A wordpress.org account with an email address that is read
       regularly; allow mail from `plugins@wordpress.org` (the review
       comes by email).
 - [ ] Decide the version for the first release (now `0.1.0`); if it
@@ -26,9 +26,10 @@ Items marked *reasoned* are not stated on those pages; check them then.
 
 ## 2. Prepare the release (Claude, on request)
 
-- [ ] `Contributors:` in `readme.txt` with Maurice's wordpress.org
+- [x] `Contributors:` in `readme.txt` with Maurice's wordpress.org
       username (case-sensitive).
-- [ ] `Tested up to` equals the current WordPress major version.
+- [x] `Tested up to` equals the current WordPress major version
+      (2026-09-27: 7.1; latest release 7.1.2 per api.wordpress.org).
 - [ ] `composer check`, `composer test:integration`,
       `composer test:multisite` green; then `composer test:release`,
       which builds `build/provemark-c2pa-check.zip` and runs Plugin Check

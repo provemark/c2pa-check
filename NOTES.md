@@ -151,6 +151,8 @@ bounds the known files, the background check the next unknown one.
   `src/` and nothing in `vendor/`. `License: MIT` in `readme.txt` passes.
 - 2026-09-26, distribution: GitHub only for now (Maurice). No
   wordpress.org account yet, so `readme.txt` has no `Contributors` line.
+  Since 2026-09-27: `Contributors: mauricevanloon` (profile checked,
+  HTTP 200).
 
 - 2026-09-26, `Update URI` header: **added, then removed the same day**
   (Maurice), to stay wordpress.org-ready (decision 2). What was found, for

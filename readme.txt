@@ -1,4 +1,5 @@
 === Provemark C2PA Check ===
+Contributors: mauricevanloon
 Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
