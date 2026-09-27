@@ -99,8 +99,8 @@ Settings → Privacy offers suggested text for your privacy policy.
 
 The check runs in the background through WP-Cron, on the next request to
 the site after the upload, usually within seconds. If WP-Cron is switched
-off (`DISABLE_WP_CRON`), the checks run when the site's own cron job runs
-it. After an hour without a result the image shows "Not checked"; check it
+off (`DISABLE_WP_CRON`), the checks run with the site's own cron job.
+After an hour without a result the image shows "Not checked"; check it
 with `wp provemark-c2pa check --unchecked`.
 
 = Which formats are checked? =

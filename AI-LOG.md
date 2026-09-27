@@ -1602,3 +1602,12 @@ README are where the disclosure lives.
   link was found".
 - Produced: the tick in `notes/wporg-submission.md`.
 - Decided by Maurice: run the validator. Not pushed.
+
+## 2026-09-27 — One readme sentence
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: fix "the checks run when the site's own cron job runs it" in the
+  FAQ on "Check pending".
+- Produced: "the checks run with the site's own cron job".
+- Measured: `composer check` (the readme test) before the commit.
+- Decided by Maurice: the wording; push.
