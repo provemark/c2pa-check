@@ -1850,3 +1850,25 @@ README are where the disclosure lives.
   `build/submitted/` (ignored by git, not cleared by `tools/build.sh`).
 - Produced: the submission ticked in `notes/wporg-submission.md`.
 - Decided by Maurice: the submission (done by him). Not pushed.
+
+## 2026-09-27 — A pre-public audit, and the README brought up to date
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: whether to make the repository public; a read-only audit first;
+  then (Maurice) update the README, and fix the open verifier point in the
+  verifier before going public.
+- Measured over all 110 commits: no private key (five header variants), no
+  assistant attribution in messages, authors or committers, no local paths
+  (`/Users/…`, `/private/tmp`) now or in history, no tokens; no GitHub
+  secrets, issues, pull requests or releases; the fixtures' sources and
+  licences listed in `tests/Fixtures/README.md`. Found: `NOTES.md` open
+  point 4 describes an unfixed verifier weakness (in history since
+  `50be222`); `README.md` still said "not released yet"; every commit
+  carries the maintainer's e-mail address as author (his decision).
+- Produced: `README.md`: the status (submitted, awaiting review), the
+  background check and which file it checks, re-checks on edits, sort and
+  filter, WP-CLI, multisite, a pointer to `readme.txt`, four wp-env
+  environments (it said three), how `composer build` and Strauss make the
+  zip.
+- Decided by Maurice: update the README; fix the verifier point there
+  first. Not pushed. README.md does not ship, so the submitted zip stands.
