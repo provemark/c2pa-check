@@ -1465,3 +1465,17 @@ README are where the disclosure lives.
 - Asked: mark SPEC-012 implemented and push.
 - Produced: the status line; Traceability was filled in `03269e1`.
 - Decided by Maurice: SPEC-012 implemented; push.
+
+## 2026-09-27 — Two open points from the verifier review
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: record the plugin's two points from the review of the bundled
+  verifier in `NOTES.md`.
+- Produced: "Open, each for a later spec" in `NOTES.md`: refuse the legacy
+  trust format in custom settings; keep a check that dies from breaking the
+  upload. Plus what to do when a fixed verifier is released.
+- Measured (in the verifier review): the legacy-format `Trusted` case, a
+  4 MB JSON assertion exhausting 256 MB, a minute-long check. Reasoned:
+  the effect on the upload, from the order in `media_handle_upload()`; not
+  yet measured with such a file.
+- Decided by Maurice: record both. Not pushed.

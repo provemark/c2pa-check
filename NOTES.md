@@ -75,6 +75,40 @@ commit `afd4b34`, rendered from `.wordpress-org/source/` with
 `render.sh`. A photo (sun over two mountains) with a turquoise check seal;
 deliberately not the C2PA "cr" mark, whose use has its own rules.
 
+## Open, each for a later spec (2026-09-27)
+
+From the review of the bundled verifier `v0.2.3` (the verifier's step 157,
+2026-09-27). The verifier's own fixes are made there; these two are the
+plugin's part.
+
+1. **Refuse the legacy trust format in custom settings.** Measured in that
+   review: with the legacy `trust.trust_anchors` field, anchors serve both
+   signers and timestamp authorities, and a certificate meant only for
+   time stamping can sign a manifest that comes out `Trusted` (as
+   `c2pa-rs` does). The plugin's own settings are kind-separated
+   (`trust.anchors` with `trust_kind`, `src/TrustConfig.php`) and not
+   affected; only an administrator's pasted settings can be.
+   `SettingsPage::sanitizeCustom()` could refuse the legacy field with a
+   settings error, and the description on the settings page say so.
+2. **Do not let a check that dies break the upload.** Measured in that
+   review: crafted files of a few MB make the verifier exhaust 256 MB of
+   memory or run for about a minute or more. Neither can be caught; the
+   plugin's provisional entry (`interrupted`) stays, as designed, but the
+   request that runs `add_attachment` ends with a fatal error, so the
+   upload reports a failure and WordPress generates no image sizes, which
+   breaks this plugin's rule that an upload always proceeds (reasoned from
+   the order in `media_handle_upload()`: `wp_insert_attachment()` fires
+   `add_attachment` before `wp_generate_attachment_metadata()`; to measure
+   with such a file). Options to weigh: check after the image sizes are
+   made (e.g. `wp_generate_attachment_metadata` or a later hook), or in a
+   separate request (WP-Cron or a loopback), showing "Not checked yet"
+   until then. The verifier's own limits fix the known files; this is
+   about the next unknown one.
+
+When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
+then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
+and every suite, the release suite included.
+
 ## To measure before a spec relies on it
 
 - Which hook gives the untouched original file (candidates: `add_attachment`
