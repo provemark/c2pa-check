@@ -1242,3 +1242,20 @@ README are where the disclosure lives.
   passed, `composer check` green, release 9 passed. The new `multisite`
   CI job has not run yet (not pushed).
 - Decided by Maurice: SPEC-011 implemented; not pushed.
+
+## 2026-09-27 — Accessibility measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: check the accessibility of the badges (and continue while the
+  SPEC-011 push ran in the background).
+- Measured: see `notes/accessibility.md`: every badge 5.67–10.03:1
+  (AA 4.5:1); the verdict is text, the icon `aria-hidden`; the filter
+  select has a screen-reader label; the column header and cells carry
+  their name; at 320 px (in an iframe, the window not resized) nothing
+  overflows, in the list or in the details. Not measured: a real screen
+  reader, high contrast mode.
+- Produced: `notes/accessibility.md`; `tests/Unit/ContrastTest.php`,
+  recomputing each badge's contrast from the CSS (a lighter blue for
+  Intact turns it **red**; restored). No change to the plugin was needed.
+- Decided by Maurice: push SPEC-011 in the background and continue.
+  Not pushed.
