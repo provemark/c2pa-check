@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 beforeAll(fn () => installReleaseZip());
 
+// Only what this run uploaded; anything else in the environment stays.
+afterAll(fn () => removeReleaseUploads());
+
 it('AC1: holds what runs, and nothing else', function (): void {
     exec('unzip -Z1 '.escapeshellarg(releaseZip()), $lines, $exit);
     $tops = [];

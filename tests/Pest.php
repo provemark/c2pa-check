@@ -442,8 +442,34 @@ function releaseImport(string $fixture): int
 {
     $result = wpCli(['media', 'import', '/var/www/html/fixtures/'.$fixture, '--porcelain'], 'release');
     $id = (int) $result['output'];
+    if ($id <= 0) {
+        throw new RuntimeException('import failed: '.$result['output']);
+    }
+    ReleaseUploads::$ids[] = $id;
 
-    return $id > 0 ? $id : throw new RuntimeException('import failed: '.$result['output']);
+    return $id;
+}
+
+/**
+ * The attachments the release tests uploaded in this run, so they can be
+ * removed afterwards (and nothing else in that environment).
+ */
+final class ReleaseUploads
+{
+    /** @var list<int> */
+    public static array $ids = [];
+}
+
+/**
+ * Deletes, with their files, the attachments this run uploaded to the
+ * release environment.
+ */
+function removeReleaseUploads(): void
+{
+    if (ReleaseUploads::$ids !== []) {
+        releaseEval('foreach (['.implode(',', ReleaseUploads::$ids).'] as $id) { wp_delete_attachment($id, true); }');
+    }
+    ReleaseUploads::$ids = [];
 }
 
 /**

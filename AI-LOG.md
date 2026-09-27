@@ -1308,3 +1308,21 @@ README are where the disclosure lives.
   had kept running and overwrote it with the deleted SVG banner; stopped,
   all four re-rendered and each looked at. Amended into the same commit.
 - Decided by Maurice: a proposal; not yet accepted. Not pushed.
+
+## 2026-09-27 — Release tests remove their uploads
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: make the release tests clean up their uploads.
+- Measured: before, every `composer test:release` left its attachments in
+  the release environment (58 had piled up). Now `releaseImport()` records
+  each attachment ID and an `afterAll` in `ReleaseTest.php` deletes those,
+  files included (`wp_delete_attachment( $id, true )`). Two runs: 5
+  attachments before, 5 after, 9 tests green; `composer check` green. The
+  first version (a static inside a function) failed PHPStan (`return.type`);
+  a small class with a typed property fixed it.
+- Reasoned: only what the run uploaded is removed, not everything, so the
+  five screenshot examples in that environment stay. An upload in a test
+  that fails half-way is still removed, as `afterAll` runs regardless; an
+  interrupted run (Ctrl-C) can still leave some behind.
+- Decided by Maurice: the cleanup; the choice to remove only the run's own
+  uploads was mine. Not pushed.
