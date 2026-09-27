@@ -1823,3 +1823,20 @@ README are where the disclosure lives.
   background check finds no file) and 4 (the lower verifier findings of
   its step 157, still open in v0.2.4). Both reasoned, not measured.
 - Decided by Maurice: record them. Not pushed.
+
+## 2026-09-27 — The submission form as it is
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: help fill in wordpress.org's submission form; then correct the
+  checklist.
+- Measured: the form, read in Chrome while logged in (nothing filled in,
+  nothing ticked, nothing uploaded): eight confirmations, each a statement
+  by the account owner, and a zip upload of at most 10 MB; no overview
+  field; 185 plugins awaiting a first review, "1 and 10 days"; ownership
+  of a brand name is verified through the account's e-mail address, which
+  is not on a Provemark domain.
+- Produced: `notes/wporg-submission.md` corrected (the form's contents,
+  the review time, the overview kept for later); the ownership decision.
+- Decided by Maurice: option B, submit as is and show the GitHub
+  organisation if asked. The confirmations and the submission are his.
+  Not pushed.

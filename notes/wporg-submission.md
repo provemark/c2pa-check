@@ -44,18 +44,31 @@ Items marked *reasoned* are not stated on those pages; check them then.
 
 ## 3. Submit (Maurice)
 
-- [ ] https://wordpress.org/plugins/developers/add/: a short overview and
-      `build/provemark-c2pa-check.zip`.
-- [ ] Review within about 14 business days, by email. For questions about
-      the bundled verifier's WPCS findings: `notes/wporg-review.md`. For
-      the licences: `NOTES.md` (Measured, 2026-09-27).
+- [ ] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
+      logged in): eight confirmations to tick, each a statement by the
+      account owner (the FAQ and the guidelines read; Plugin Check run; the
+      name not confusingly similar, searched for; permission and an account
+      that represents the owner; no trialware; the rejection rules
+      understood), and the zip (at most 10 MB). **There is no field for an
+      overview**; the reviewer reads `readme.txt`.
+- [ ] Ownership of the name: the form names the account's e-mail address
+      as how ownership is verified, and names starting with a brand may
+      only be submitted by its verified owner. The account's address is
+      not on a Provemark domain. Decided by Maurice (2026-09-27): submit
+      as is, and show the GitHub organisation `provemark` (which also
+      publishes `provemark/c2pa-verifier`) if the reviewer asks.
+- [ ] Review: the page said 185 plugins awaited a first review and gave
+      1 to 10 days (2026-09-27), by email. For questions about the bundled
+      verifier's WPCS findings: `notes/wporg-review.md`. For the licences:
+      `NOTES.md` (Measured, 2026-09-27).
 
 The zip prepared for submission (2026-09-27): built from `d938e6c`
 (CI green on every job), 279,526 bytes, SHA-256
 `aa393b532a3971bb3e8cadb609dc14cec7901be9128f96876fc0195b7a57b7d6`.
 Keep it unchanged after submitting.
 
-The overview for the form:
+An overview, not asked by the form; kept for the reviewer's e-mail or a
+later description:
 
 ```text
 Provemark C2PA Check verifies the Content Credentials (C2PA) of JPEG, PNG and WebP images uploaded to the Media Library, and shows the result in a Media Library column, a filter, and the attachment details: "Verified: trusted signer", "Intact: signer not trusted", "Does not verify", "No Content Credentials" or "Could not be checked", with the signer and, when a verified manifest says so, "AI-generated (signed)".
