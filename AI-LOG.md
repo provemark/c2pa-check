@@ -1872,3 +1872,29 @@ README are where the disclosure lives.
   zip.
 - Decided by Maurice: update the README; fix the verifier point there
   first. Not pushed. README.md does not ship, so the submitted zip stands.
+
+## 2026-09-27 — The bundled verifier to v0.2.5
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the verifier's "push en release 0.2.5", including the plugin's
+  update; after the review, "baseline 621 gereviewd, optie a".
+- Produced: `composer.json` requires `^0.2.5`, `composer.lock` at v0.2.5
+  (`0e1da23`); `tests/wpcs-verifier-baseline.json` (`ExceptionNotEscaped`
+  621, verifier v0.2.5); SPEC-006 amendment 7; SPEC-015 amendment 1 and
+  `bundledVerifierVersion()` in `tests/Integration/RobustnessTest.php`
+  (AC2 follows `vendor/composer/installed.php`); `notes/wporg-review.md`
+  (counts and line numbers); `NOTES.md` (open point 4 mostly closed, the
+  upgrade step done for v0.2.5).
+- Measured: `composer check` (62 passed); `composer test:multisite` (7
+  passed); `composer test:integration` twice: the first run had five
+  failures in `BackgroundCheckTest` and `DisplayTest` (a WebP's entry where
+  a JPEG's was expected), and the second run had none of them and one
+  failure, RobustnessTest AC2 on its pinned `v0.2.4`. The two files alone
+  passed 38 of 38. The order dependence is not explained.
+  `tests/Integration/RobustnessTest.php` after the change: 9 passed;
+  `composer test:release` first 10 passed and AC4 failed
+  (`ExceptionNotEscaped: 621 (baseline 616)`), then 11 passed. The five
+  findings were located by running the sniff over the verifier's `src/`
+  at `v0.2.4` and `v0.2.5`.
+- Decided by Maurice: baseline 621 reviewed and accepted; option a for
+  AC2. Not pushed.

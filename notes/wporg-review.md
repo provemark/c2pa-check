@@ -2,7 +2,7 @@
 
 Written 2026-09-27 for when a reviewer asks about the bundled verifier.
 Not shipped (`notes/` is export-ignored). Each section can be pasted as a
-reply. Line numbers are those of verifier v0.2.4 in the build
+reply. Line numbers are those of verifier v0.2.5 in the build
 (`vendor-prefixed/provemark/c2pa-verifier/src/`).
 
 ## What is bundled, and how it is checked
@@ -17,10 +17,10 @@ Plugin Check 2.1.0 passes on the built zip with no errors or warnings and
 nothing excluded. Plugin Check does not scan `vendor-prefixed/`, so the
 release tests run the WPCS security sniffs over the shipped verifier and
 compare them with a reviewed baseline (`tests/wpcs-verifier-baseline.json`):
-636 findings in 6 sniffs. A new sniff or a higher count fails the build.
+641 findings in 6 sniffs. A new sniff or a higher count fails the build.
 The sections below explain each sniff.
 
-## `WordPress.Security.EscapeOutput.ExceptionNotEscaped` (616)
+## `WordPress.Security.EscapeOutput.ExceptionNotEscaped` (621)
 
 The verifier is a plain PHP library, also used outside WordPress (a
 command line and JSON output). Its exceptions carry messages such as
@@ -54,11 +54,11 @@ writes a file.
 
 Certificate and key encoding, not obfuscation:
 
-- `Trust/Certificate.php` 266, `Cose/PublicKey.php` 47,
-  `Cose/CoseSign1.php` 271: a DER certificate from the image is wrapped as
+- `Trust/Certificate.php` 270, `Cose/PublicKey.php` 47,
+  `Cose/CoseSign1.php` 299: a DER certificate from the image is wrapped as
   PEM (`-----BEGIN CERTIFICATE-----` plus base64) for PHP's OpenSSL
   functions.
-- `Trust/Certificate.php` 310, `Cose/PublicKey.php` 56: the reverse, a PEM
+- `Trust/Certificate.php` 314, `Cose/PublicKey.php` 56: the reverse, a PEM
   public key back to DER, to compare keys.
 - `Trust/TrustSettings.php` 175: PEM trust anchors (the bundled C2PA lists
   or an administrator's own) to DER.
@@ -69,7 +69,7 @@ No base64 string in the code is decoded and executed; nothing is `eval`ed.
 
 ## `set_error_handler` (4)
 
-`Trust/Certificate.php` (99, 221), `Cose/CoseSign1.php` (230),
+`Trust/Certificate.php` (102, 225), `Cose/CoseSign1.php` (258),
 `Cose/OpenSsl.php` (26). Around calls to PHP's OpenSSL functions, which
 emit PHP warnings on malformed input (an image can hold anything). The
 handler is set immediately before the call and restored immediately

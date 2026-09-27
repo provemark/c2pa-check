@@ -31,6 +31,20 @@ it('AC1: an unknown format is an error, not "no credential"', function (): void 
         ->and(storedEntry($unsigned)['state'] ?? null)->toBe('none');
 })->group('SPEC-015');
 
+/** The bundled verifier's version as vendor/composer/installed.php records it (SPEC-015 amendment 1). */
+function bundledVerifierVersion(): string
+{
+    $installed = require dirname(__DIR__, 2).'/vendor/composer/installed.php';
+    $versions = is_array($installed) && is_array($installed['versions'] ?? null) ? $installed['versions'] : [];
+    $package = is_array($versions['provemark/c2pa-verifier'] ?? null) ? $versions['provemark/c2pa-verifier'] : [];
+    $version = $package['pretty_version'] ?? null;
+    if (! is_string($version)) {
+        throw new RuntimeException('vendor/composer/installed.php does not record provemark/c2pa-verifier');
+    }
+
+    return $version;
+}
+
 it('AC2: the version without the global class', function (): void {
     runPendingChecks(); // anything an earlier test left scheduled
     // Loaded before the plugin, as another plugin's older Composer could be;
@@ -42,7 +56,7 @@ it('AC2: the version without the global class', function (): void {
         exec('curl -s -o /dev/null --max-time 120 '.escapeshellarg(TEST_SITE.'/wp-cron.php?doing_wp_cron='.$key));
 
         expect(storedEntry($id)['state'] ?? null)->toBe('Valid')
-            ->and(storedEntry($id)['verifier'] ?? null)->toBe('v0.2.4');
+            ->and(storedEntry($id)['verifier'] ?? null)->toBe(bundledVerifierVersion());
     });
 })->group('SPEC-015');
 

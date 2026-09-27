@@ -1,11 +1,11 @@
 {
-    "about": "WPCS security findings on the shipped verifier's src/, reviewed by Maurice on 2026-09-26 (notes/m5-packaging.md); src/Cli no longer ships since 2026-09-27 (SPEC-006 amendment 4); reviewed again for v0.2.4 on 2026-09-27 (SPEC-006 amendment 5: eight ExceptionNotEscaped findings in two new exception messages). The release test fails on a new sniff or a higher count. Update only after a review, with the verifier version.",
-    "verifier": "v0.2.4",
+    "about": "WPCS security findings on the shipped verifier's src/, reviewed by Maurice on 2026-09-26 (notes/m5-packaging.md); src/Cli no longer ships since 2026-09-27 (SPEC-006 amendment 4); reviewed again for v0.2.4 on 2026-09-27 (SPEC-006 amendment 5: eight ExceptionNotEscaped findings in two new exception messages) and for v0.2.5 the same day (SPEC-006 amendment 7: five more, in four new exception messages). The release test fails on a new sniff or a higher count. Update only after a review, with the verifier version.",
+    "verifier": "v0.2.5",
     "counts": {
         "WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler": 4,
         "WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode": 3,
         "WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode": 5,
-        "WordPress.Security.EscapeOutput.ExceptionNotEscaped": 616,
+        "WordPress.Security.EscapeOutput.ExceptionNotEscaped": 621,
         "WordPress.WP.AlternativeFunctions.file_system_operations_fread": 6,
         "WordPress.WP.AlternativeFunctions.json_encode_json_encode": 2
     }

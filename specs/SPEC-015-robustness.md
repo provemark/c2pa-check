@@ -165,6 +165,16 @@ says how it is escaped.
 
 None.
 
+## Amendments
+
+1. **2026-09-27, approved by Maurice van Loon** (option a), with the bundled
+   verifier's move to v0.2.5. AC2 named the version it expects, `v0.2.4`,
+   and so failed on the first release after it. It now expects the version
+   `vendor/composer/installed.php` records for `provemark/c2pa-verifier`.
+   That is the file the plugin's fallback reads (Scope item 1), so the
+   criterion no longer changes with each release. The rule is unchanged:
+   without the global class, the entry still names the bundled version.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

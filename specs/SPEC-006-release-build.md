@@ -192,6 +192,21 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    what must ship to what must not; `readme.txt` is the plugin's
    documentation on wordpress.org.
 
+7. **2026-09-27, approved by Maurice van Loon after his review.** The
+   bundled verifier moves to v0.2.5, a security release. AC4's baseline
+   rises from 636 to 641 findings in the same 6 sniffs:
+   `ExceptionNotEscaped` 616 → 621, every other count unchanged, verifier
+   v0.2.5. Measured by running the sniff over the verifier's `src/` at
+   both tags:
+   - three findings in `Cose/CoseSign1.php`, the chain-placement
+     refusals of the verifier's SPEC-047 (a missing-chain message
+     replaced by a longer one);
+   - two in `Trust/CertificateExtensions.php`, a certificate whose
+     extensions cannot be read.
+
+   They are exception messages, not output. The plugin shows no verifier
+   exception message except `TrustException`'s, through `esc_html`.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

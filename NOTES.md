@@ -123,7 +123,13 @@ plugin's part.
    offload plugin's own hook), read the file through a stream wrapper the
    offload plugin provides, or say in the readme that such sites are not
    supported. The FAQ covers only the "Changed since its check" side.
-4. **Lower findings in the bundled verifier, still open in v0.2.4**
+4. **Mostly closed by verifier v0.2.5 (2026-09-27).** Measured there (its
+   steps 164 and 168): name constraints, unknown critical extensions and
+   the chain's placement gave wrong `Trusted` and are fixed; SHA-1 and MD5
+   in the path are now refused; policy constraints agree with `c2patool`.
+   Still open there, reasoned low: the stapled-OCSP binding and
+   ESSCertID(v2). Kept for the record: *Lower findings in the bundled
+   verifier, still open in v0.2.4*
    (added 2026-09-27; from the verifier's step 157, all reasoned there):
    the chain walk does not enforce nameConstraints, policy constraints,
    unknown critical extensions or intermediates' signature algorithms (a
@@ -138,7 +144,8 @@ plugin's part.
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
 and every suite, the release suite included. **Done 2026-09-27 for
-v0.2.4** (SPEC-006 amendment 5). Point 2 was resolved by SPEC-013: v0.2.4
+v0.2.4** (SPEC-006 amendment 5), **and for v0.2.5** (SPEC-006 amendment
+7; SPEC-015 amendment 1 made AC2 follow the bundled version). Point 2 was resolved by SPEC-013: v0.2.4
 bounds the known files, the background check the next unknown one.
 
 ## To measure before a spec relies on it
