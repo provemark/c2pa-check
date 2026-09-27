@@ -1161,3 +1161,28 @@ README are where the disclosure lives.
   integration 101 passed, release 9 passed. The CI result goes in the
   next entry.
 - Decided by Maurice: SPEC-010 implemented; push.
+
+## 2026-09-27 — A complete readme.txt
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: write the complete `readme.txt` for wordpress.org.
+- Measured: CI run 36296202033 on `3f067e0` (SPEC-010) green on every job.
+  Read in the plugin handbook ("How your readme.txt works", markdown
+  version): 1 to 5 tags, no competitors' names; a short description of at
+  most 150 characters without markup; a readme over 10 KB may cause
+  errors; `Stable tag` in SemVer; `Tested up to` ignores minor versions;
+  `Contributors` are wordpress.org user names (none yet, so left out);
+  custom sections in moderation.
+- Produced: `readme.txt` rewritten (5.8 KB): what the plugin does, the
+  five verdicts in words, what it does not do, installation, ten FAQs,
+  three screenshot captions, the "Trust lists" section with the CC BY 4.0
+  attribution, changelog and upgrade notice for 0.1.0;
+  `tests/Unit/ReadmeTest.php` for the hard limits (size, tags, short
+  description, `Stable tag` equal to the plugin's `Version`, required
+  sections). Before the new text the test was **red** on the old readme;
+  after, green; a sixth tag turns it **red** (restored).
+- Reasoned, not measured: that HEIC images arrive without their Content
+  Credentials (the browser converts them to JPEG, read in core's
+  `upload-media.js`); that most services strip Content Credentials when
+  sharing.
+- Decided by Maurice: write the complete readme. Not pushed.
