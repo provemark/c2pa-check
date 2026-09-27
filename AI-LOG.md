@@ -1702,3 +1702,10 @@ README are where the disclosure lives.
   AC3's test joins the readme's lines first ("Intact: signer" wraps).
 - After: `composer check` 57; the release suite after the commit.
 - Decided by Maurice: SPEC-016 approved. Not pushed.
+
+## 2026-09-27 — SPEC-016 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-016 implemented and push.
+- Produced: the status line; Traceability was filled in `4afb31e`.
+- Decided by Maurice: SPEC-016 implemented; push.
