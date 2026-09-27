@@ -23,3 +23,4 @@
 /specs                  export-ignore
 /tests                  export-ignore
 /tools                  export-ignore
+/README.md               export-ignore

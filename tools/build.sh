@@ -47,6 +47,10 @@ composer install --working-dir="$dir" --no-dev --optimize-autoloader --no-intera
 rm -rf "$dir/vendor/provemark/c2pa-verifier/src/Cli"
 composer dump-autoload --working-dir="$dir" --no-dev --optimize --no-interaction --quiet
 (cd "$dir" && php "$strauss" --no-interaction >/dev/null)
+# Strauss's alias autoloader writes PHP into the plugin folder and includes
+# it; nothing loads it, and it would alias the names prefixed away
+# (SPEC-016).
+rm -f "$dir/vendor/composer/autoload_aliases.php"
 
 verifier="$dir/vendor-prefixed/provemark/c2pa-verifier"
 find "$verifier" -mindepth 1 -maxdepth 1 ! -name src ! -name LICENSE ! -name composer.json -exec rm -rf {} +

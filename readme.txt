@@ -88,7 +88,9 @@ when an image is shared or downloaded.
 = Does "AI-generated (signed)" detect AI images? =
 
 No. It shows what a verified manifest in the file says about itself. An
-AI image without Content Credentials gets no label.
+AI image without Content Credentials gets no label. Next to "Intact: signer
+not trusted" the claim comes from a signer nobody on the trust list vouches
+for.
 
 = Does it change my images or send data anywhere? =
 
@@ -162,9 +164,3 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 * Bundled C2PA trust lists (2026-08-14), DigiCert timestamps, custom trust settings.
 * Sorting and filtering by verdict; `wp provemark-c2pa check` for existing images.
 * Suggested privacy policy text; data removed on uninstall.
-
-== Upgrade Notice ==
-
-= 0.1.0 =
-
-First version.

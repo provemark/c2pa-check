@@ -45,3 +45,19 @@ it('has one screenshot file for each screenshot caption', function (): void {
         expect(is_file($root.'/.wordpress-org/screenshot-'.$n.'.png'))->toBeTrue("screenshot-{$n}.png");
     }
 });
+
+it('SPEC-016 AC3: has no Upgrade Notice, and explains the AI claim of an untrusted signer', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/.*= Does "AI-generated \(signed\)" detect AI images\? =(.*?)\n= .*/s', '$1', $readme);
+
+    expect($readme)->not->toContain('== Upgrade Notice ==')
+        ->and((string) preg_replace('/\s+/', ' ', $faq))->toContain('Intact: signer not trusted');
+})->group('SPEC-016');
+
+it('SPEC-016 AC4: the review notes answer the .pem files, the slug and the callbacks', function (): void {
+    $notes = (string) file_get_contents(dirname(__DIR__, 2).'/notes/wporg-review.md');
+
+    expect($notes)->toContain('## The `.pem` files in `trust/`')
+        ->and($notes)->toContain('## The name and slug')
+        ->and($notes)->toContain('## Hook callbacks');
+})->group('SPEC-016');

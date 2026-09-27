@@ -20,12 +20,12 @@ it('AC1: holds what runs, and nothing else', function (): void {
 
     expect($exit)->toBe(0)
         ->and(array_keys($tops))->toBe(['provemark-c2pa-check']);
-    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'README.md', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor-prefixed/provemark/c2pa-verifier/LICENSE'] as $needed) {
+    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor-prefixed/provemark/c2pa-verifier/LICENSE'] as $needed) {
         expect($inside)->toContain($needed);
     }
 
     $forbidden = '#^(tests|specs|notes|docs|tools|build|\.wordpress-org|\.github)/'
-        .'|^(AI-LOG\.md|NOTES\.md|package(-lock)?\.json|composer\.lock|\.wp-env.*\.json|phpstan\.neon|phpunit\.xml|pint\.json)$'
+        .'|^(README\.md|AI-LOG\.md|NOTES\.md|package(-lock)?\.json|composer\.lock|\.wp-env.*\.json|phpstan\.neon|phpunit\.xml|pint\.json)$'
         .'|(^|/)\.[^/]+$|\.key$'
         .'|^vendor/bin/'
         .'|^vendor-prefixed/provemark/c2pa-verifier/(docs|notes|specs|bin|tests|src/Cli)/'
@@ -145,3 +145,28 @@ it('SPEC-009 AC4: stops the build when strauss.phar is not the pinned one', func
         installReleaseZip();
     }
 })->group('SPEC-009');
+
+it('SPEC-016 AC1: holds no code that writes PHP and includes it', function (): void {
+    exec('unzip -Z1 '.escapeshellarg(releaseZip()), $lines);
+    $writesAndRuns = [];
+    foreach ($lines as $file) {
+        if (! str_ends_with($file, '.php')) {
+            continue;
+        }
+        $code = [];
+        exec('unzip -p '.escapeshellarg(releaseZip()).' '.escapeshellarg($file), $code);
+        $text = implode("\n", $code);
+        if (str_contains($text, 'file_put_contents(') && preg_match('/\binclude\b/', $text) === 1) {
+            $writesAndRuns[] = $file;
+        }
+    }
+
+    expect($lines)->not->toContain('provemark-c2pa-check/vendor/composer/autoload_aliases.php')
+        ->and($writesAndRuns)->toBe([]);
+})->group('SPEC-016');
+
+it('SPEC-016 AC2: does not ship README.md', function (): void {
+    exec('unzip -Z1 '.escapeshellarg(releaseZip()), $lines);
+
+    expect($lines)->not->toContain('provemark-c2pa-check/README.md');
+})->group('SPEC-016');

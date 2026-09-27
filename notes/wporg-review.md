@@ -106,6 +106,36 @@ From a read-through as a reviewer (2026-09-27, SPEC-012 fixed the rest):
   third-party library, loaded only through Composer's autoloader; its
   files only declare classes.
 
+## The `.pem` files in `trust/`
+
+`trust/C2PA-TRUST-LIST.pem`, `trust/C2PA-TSA-TRUST-LIST.pem` and
+`trust/DigiCertTrustedRootG4.crt.pem` are plain-text X.509 certificates
+(`-----BEGIN CERTIFICATE-----` blocks and nothing else; no keys). They are
+the default trust anchors the verifier checks signers and timestamps
+against, read with `file_get_contents()` by `src/TrustConfig.php` and never
+executed or served. Their source, date and licence are in
+`trust/README.md` and `readme.txt`; the DigiCert root is the same
+certificate WordPress ships in `wp-includes/certificates/ca-bundle.crt`.
+
+## The name and slug
+
+The slug `provemark-c2pa-check` starts with the author's own brand,
+Provemark (the GitHub organisation `provemark`, which also publishes the
+bundled verifier `provemark/c2pa-verifier`), as guideline 17 asks.
+"C2PA" is used descriptively: the plugin checks C2PA Content Credentials;
+it is not made or endorsed by the Coalition for Content Provenance and
+Authenticity.
+
+## Hook callbacks
+
+The plugin registers its hooks with first-class callables
+(`$this->onAddAttachment(...)`), so another plugin cannot remove one with
+`remove_action()` by name. That is deliberate: the classes hold no global
+state and the plugin adds no global functions. A site that wants the
+plugin off a screen can deactivate it, or filter the Media Library column
+(`manage_media_columns`) and attachment fields
+(`attachment_fields_to_edit`) at a later priority.
+
 ## Licences of bundled data
 
 See `NOTES.md` (Measured, 2026-09-27): the C2PA trust lists are CC BY 4.0,

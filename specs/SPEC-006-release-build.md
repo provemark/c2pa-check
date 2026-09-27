@@ -186,6 +186,12 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    not output; the plugin shows no verifier exception message except
    `TrustException`'s, through `esc_html`.
 
+6. **2026-09-27, approved by Maurice van Loon** with SPEC-016. `README.md`
+   no longer ships: it is the GitHub page, and in the zip it said "not
+   released yet" and linked to folders that do not ship. AC1 moves it from
+   what must ship to what must not; `readme.txt` is the plugin's
+   documentation on wordpress.org.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

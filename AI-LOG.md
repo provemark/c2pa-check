@@ -1683,3 +1683,22 @@ README are where the disclosure lives.
 - Asked: mark SPEC-015 implemented and push.
 - Produced: the status line; Traceability was filled in `e755bd9`.
 - Decided by Maurice: SPEC-015 implemented; push.
+
+## 2026-09-27 — Packaging for review (SPEC-016)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: SPEC-016, the third of four specs from the final review.
+- Measured before, in the zip of `3b29bea`: Strauss's
+  `vendor/composer/autoload_aliases.php` writes PHP into the plugin folder
+  and includes it, and nothing loads it (`vendor/autoload.php`,
+  `autoload_real.php`, `autoload_static.php` do not name it); `README.md`
+  said "not released yet" and linked to folders that do not ship.
+- Tests first, seen red: SPEC-016 AC1–AC4, and SPEC-006 AC1 once
+  `README.md` moved to what must not ship.
+- Produced: `tools/build.sh` removes the alias autoloader; `README.md`
+  export-ignored (SPEC-006 amendment 6); `readme.txt` without the Upgrade
+  Notice and with a sentence on the AI claim of an untrusted signer;
+  `notes/wporg-review.md` on the `.pem` files, the slug and the callbacks.
+  AC3's test joins the readme's lines first ("Intact: signer" wraps).
+- After: `composer check` 57; the release suite after the commit.
+- Decided by Maurice: SPEC-016 approved. Not pushed.
