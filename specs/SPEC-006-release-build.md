@@ -175,6 +175,17 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
      (`ExceptionNotEscaped` 608, `base64_encode` 5, `base64_decode` 3,
      `set_error_handler` 4, `fread` 6, `json_encode` 2); verifier v0.2.3.
 
+5. **2026-09-27, approved by Maurice van Loon after his review.** The
+   bundled verifier moves to v0.2.4, a security release. AC4's baseline
+   rises from 628 to 636 findings in the same 6 sniffs:
+   `ExceptionNotEscaped` 608 → 616, every other count unchanged, verifier
+   v0.2.4. Measured by running the sniff over the verifier's `src/` at
+   both tags: all eight new findings are in `Manifest/Manifest.php`, four
+   on each of two new exception messages (a JSON assertion over the size
+   limit, and one over the item budget). They are exception messages,
+   not output; the plugin shows no verifier exception message except
+   `TrustException`'s, through `esc_html`.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

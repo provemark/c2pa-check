@@ -1479,3 +1479,25 @@ README are where the disclosure lives.
   the effect on the upload, from the order in `media_handle_upload()`; not
   yet measured with such a file.
 - Decided by Maurice: record both. Not pushed.
+
+## 2026-09-27 — The bundled verifier to v0.2.4
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "werk de plugin bij naar 0.2.4"; after the review of the new WPCS
+  findings, "akkoord, baseline 616 gereviewd, en markeer punt 1 als
+  vervallen".
+- Produced: `composer.json` requires `provemark/c2pa-verifier` `^0.2.4`
+  (was `^0.2.3`), `composer.lock` at v0.2.4 (`7740353`);
+  `tests/wpcs-verifier-baseline.json` (`ExceptionNotEscaped` 616, verifier
+  v0.2.4); SPEC-006 amendment 5; `notes/wporg-review.md` (counts and
+  the line numbers in `Manifest/ManifestStore.php`); `NOTES.md` (open
+  point 1 lapsed, the upgrade step done).
+- Measured: `composer check` (52 passed); `composer test:integration`
+  (104 passed) with `wp eval` showing `v0.2.4` inside wp-env;
+  `composer test:multisite` (5 passed); `composer test:release` first 8
+  passed and AC4 failed (`ExceptionNotEscaped: 616 (baseline 608)`), then,
+  after the reviewed baseline, 9 passed. The eight findings were located
+  by running the sniff over the verifier's `src/` at `v0.2.3` and
+  `v0.2.4`: all in `Manifest/Manifest.php`, lines 325 and 335.
+- Decided by Maurice: baseline 616 reviewed and accepted; open point 1
+  lapsed. Not pushed.

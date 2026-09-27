@@ -2,7 +2,7 @@
 
 Written 2026-09-27 for when a reviewer asks about the bundled verifier.
 Not shipped (`notes/` is export-ignored). Each section can be pasted as a
-reply. Line numbers are those of verifier v0.2.3 in the build
+reply. Line numbers are those of verifier v0.2.4 in the build
 (`vendor-prefixed/provemark/c2pa-verifier/src/`).
 
 ## What is bundled, and how it is checked
@@ -17,10 +17,10 @@ Plugin Check 2.1.0 passes on the built zip with no errors or warnings and
 nothing excluded. Plugin Check does not scan `vendor-prefixed/`, so the
 release tests run the WPCS security sniffs over the shipped verifier and
 compare them with a reviewed baseline (`tests/wpcs-verifier-baseline.json`):
-628 findings in 6 sniffs. A new sniff or a higher count fails the build.
+636 findings in 6 sniffs. A new sniff or a higher count fails the build.
 The sections below explain each sniff.
 
-## `WordPress.Security.EscapeOutput.ExceptionNotEscaped` (608)
+## `WordPress.Security.EscapeOutput.ExceptionNotEscaped` (616)
 
 The verifier is a plain PHP library, also used outside WordPress (a
 command line and JSON output). Its exceptions carry messages such as
@@ -62,7 +62,7 @@ Certificate and key encoding, not obfuscation:
   public key back to DER, to compare keys.
 - `Trust/TrustSettings.php` 175: PEM trust anchors (the bundled C2PA lists
   or an administrator's own) to DER.
-- `Manifest/ManifestStore.php` 219, 225: binary values in the report's
+- `Manifest/ManifestStore.php` 251, 257: binary values in the report's
   array form, as the C2PA reference tool `c2patool` writes them.
 
 No base64 string in the code is decoded and executed; nothing is `eval`ed.
@@ -79,7 +79,7 @@ page. It is not error logging and does not stay active.
 ## `json_encode` (2)
 
 `Verifier/VerificationReport.php` (68) and `Manifest/ManifestStore.php`
-(89): the library's `toJson()` methods, with `JSON_THROW_ON_ERROR`.
+(121): the library's `toJson()` methods, with `JSON_THROW_ON_ERROR`.
 `wp_json_encode()` is not available to a library that does not depend on
 WordPress. The plugin does not call either; it stores its own compact
 result as post meta.

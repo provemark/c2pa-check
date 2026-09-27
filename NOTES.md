@@ -81,7 +81,11 @@ From the review of the bundled verifier `v0.2.3` (the verifier's step 157,
 2026-09-27). The verifier's own fixes are made there; these two are the
 plugin's part.
 
-1. **Refuse the legacy trust format in custom settings.** Measured in that
+1. **Lapsed 2026-09-27 (Maurice van Loon): verifier v0.2.4 closes it
+   itself** (its SPEC-031 amendment 3: under the legacy field, a signer
+   whose only EKU is Time Stamping is `signingCredential.untrusted`).
+   Kept for the record: *Refuse the legacy trust format in custom
+   settings.* Measured in that
    review: with the legacy `trust.trust_anchors` field, anchors serve both
    signers and timestamp authorities, and a certificate meant only for
    time stamping can sign a manifest that comes out `Trusted` (as
@@ -107,7 +111,9 @@ plugin's part.
 
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
-and every suite, the release suite included.
+and every suite, the release suite included. **Done 2026-09-27 for
+v0.2.4** (SPEC-006 amendment 5). Point 2 stays open: v0.2.4 bounds the
+known files, not the next unknown one.
 
 ## To measure before a spec relies on it
 
