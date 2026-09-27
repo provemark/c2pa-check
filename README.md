@@ -26,13 +26,16 @@ and `ext-mbstring`.
   C2PA Check lets an administrator replace them.
 - Removes its data when the plugin is deleted.
 
-![The Content Credentials column in the Media Library](docs/screenshots/media-library-column.png)
+![The Content Credentials column in the Media Library](.wordpress-org/screenshot-1.png)
 
-![The attachment details of a verified, AI-generated image](docs/screenshots/attachment-details.png)
+![The attachment details of a verified, AI-generated image](.wordpress-org/screenshot-2.png)
 
-![Settings → C2PA Check](docs/screenshots/settings-page.png)
+![Settings → C2PA Check](.wordpress-org/screenshot-3.png)
 
-The images in the screenshots are the test fixtures in
+![The list filtered to AI-generated images](.wordpress-org/screenshot-4.png)
+
+The screenshots live in `.wordpress-org/`, named as wordpress.org's
+plugin directory expects them; the images in them are the test fixtures in
 [`tests/Fixtures`](tests/Fixtures/README.md), with their sources and
 licences.
 

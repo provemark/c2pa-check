@@ -21,7 +21,7 @@ it('AC1: holds what runs, and nothing else', function (): void {
         expect($inside)->toContain($needed);
     }
 
-    $forbidden = '#^(tests|specs|notes|docs|tools|build|\.github)/'
+    $forbidden = '#^(tests|specs|notes|docs|tools|build|\.wordpress-org|\.github)/'
         .'|^(AI-LOG\.md|NOTES\.md|package(-lock)?\.json|composer\.lock|\.wp-env.*\.json|phpstan\.neon|phpunit\.xml|pint\.json)$'
         .'|(^|/)\.[^/]+$|\.key$'
         .'|^vendor/bin/'

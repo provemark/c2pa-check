@@ -1259,3 +1259,26 @@ README are where the disclosure lives.
   Intact turns it **red**; restored). No change to the plugin was needed.
 - Decided by Maurice: push SPEC-011 in the background and continue.
   Not pushed.
+
+## 2026-09-27 — Screenshots for wordpress.org
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare the screenshots.
+- Produced: `.wordpress-org/screenshot-1.png` … `screenshot-4.png`, the
+  names wordpress.org's plugin directory expects (they belong in its SVN
+  `assets/`, never in the zip; `.wordpress-org` is export-ignored and in
+  the release test's forbidden paths). 1–3 are the earlier screenshots,
+  moved from `docs/screenshots/` (now gone; README.md points to the new
+  files); 4 is new: the Media Library list filtered to "AI-generated
+  (signed)", showing SPEC-007's select, taken in Chrome on the release
+  environment. `readme.txt` has a fourth caption; `tests/Unit/ReadmeTest.php`
+  checks that captions and files match (without `screenshot-4.png` it is
+  **red**; restored).
+- Measured: the five examples in the release environment had been checked
+  before SPEC-007 and had no index ("before" empty in
+  `wp provemark-c2pa check 13 14 15 16 17`), so the AI filter would have
+  shown nothing until the backfill ran; re-checked, the filter showed the
+  OpenAI image. The release environment held 58 attachments left by the
+  release tests (that suite does not clean up); deleted, the five kept.
+  `composer check` green (41 unit tests).
+- Decided by Maurice: the screenshots first. Not pushed.

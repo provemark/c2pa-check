@@ -118,6 +118,7 @@ The bundled verifier requires PHP 8.3 or later.
 1. The Content Credentials column in the Media Library list.
 2. The attachment details of a verified, AI-generated image.
 3. Settings → C2PA Check: the bundled trust list, DigiCert timestamps and custom trust settings.
+4. The Media Library list filtered to AI-generated images, with the verdict filter above the list.
 
 == Trust lists ==
 

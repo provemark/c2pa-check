@@ -29,3 +29,19 @@ it('keeps readme.txt within wordpress.org\'s limits', function (): void {
         ->toContain('== Changelog ==')
         ->toContain('= '.($version[1] ?? 'missing').' =');
 });
+
+it('has one screenshot file for each screenshot caption', function (): void {
+    $root = dirname(__DIR__, 2);
+    $readme = (string) file_get_contents($root.'/readme.txt');
+    $section = explode('== Screenshots ==', $readme)[1] ?? '';
+    $section = explode("\n== ", $section)[0];
+    preg_match_all('/^(\d+)\. /m', $section, $captions);
+    $files = glob($root.'/.wordpress-org/screenshot-*.png') ?: [];
+
+    expect($captions[1])->not->toBeEmpty()
+        ->and(array_map('intval', $captions[1]))->toBe(range(1, count($captions[1])))
+        ->and(count($files))->toBe(count($captions[1]));
+    foreach ($captions[1] as $n) {
+        expect(is_file($root.'/.wordpress-org/screenshot-'.$n.'.png'))->toBeTrue("screenshot-{$n}.png");
+    }
+});
