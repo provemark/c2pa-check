@@ -133,3 +133,37 @@ it('SPEC-013 AC8: uninstall removes the pending markers and the scheduled checks
     expect(count($sites))->toBeGreaterThanOrEqual(2)
         ->and(array_slice($sites, 0, 2))->each->toBe(['scheduled before' => true, 'markers' => 0, 'events' => 0, 'sources' => 0]);
 })->group('SPEC-013');
+
+it('SPEC-015 AC7: network deactivation cleans up on every site', function (): void {
+    foreach ([NETWORK_MAIN, NETWORK_SITE2] as $url) {
+        // Imported, and its background check left scheduled.
+        $id = (int) networkCli(['media', 'import', '/var/www/html/fixtures/fixture-signed.jpg', '--porcelain'], $url)['output'];
+        expect($id)->toBeGreaterThan(0);
+    }
+
+    try {
+        $counts = json_decode(networkEval(<<<'PHP'
+            require_once ABSPATH.'wp-admin/includes/plugin.php';
+            $before = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check'])));
+            deactivate_plugins('provemark-c2pa-check/provemark-c2pa-check.php', false, true);
+            global $wpdb;
+            $out = ['scheduled before' => $before > 0];
+            foreach (array_slice(get_sites(['fields' => 'ids', 'number' => 0]), 0, 2) as $site) {
+                switch_to_blog($site);
+                $out[$site] = [
+                    'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'"),
+                    'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check']))),
+                ];
+                restore_current_blog();
+            }
+            echo json_encode($out);
+            PHP), true);
+    } finally {
+        networkEval("require_once ABSPATH.'wp-admin/includes/plugin.php'; activate_plugin('provemark-c2pa-check/provemark-c2pa-check.php', '', true);");
+    }
+    $sites = is_array($counts) ? $counts : [];
+
+    expect($sites['scheduled before'] ?? null)->toBeTrue();
+    unset($sites['scheduled before']);
+    expect(array_values($sites))->each->toBe(['markers' => 0, 'events' => 0]);
+})->group('SPEC-015');

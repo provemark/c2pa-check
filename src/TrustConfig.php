@@ -78,7 +78,9 @@ final class TrustConfig
             $anchors[] = ['trust_anchors' => $pem, 'trust_kind' => $kind];
         }
 
-        $json = json_encode(['verify' => ['verify_trust' => true], 'trust' => ['anchors' => $anchors]], JSON_UNESCAPED_SLASHES);
+        // This class is WordPress-free: the tests build the verifier CLI's
+        // settings with it outside WordPress (SPEC-015 AC11).
+        $json = json_encode(['verify' => ['verify_trust' => true], 'trust' => ['anchors' => $anchors]], JSON_UNESCAPED_SLASHES); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- WordPress-free class, see above.
 
         return $json === false ? null : $json;
     }

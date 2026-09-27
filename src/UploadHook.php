@@ -221,10 +221,41 @@ final class UploadHook
             update_post_meta($attachmentId, self::SOURCE_KEY, $relative);
         }
 
+        // Deleted while it was being checked (SPEC-015): leave no rows behind.
+        if (get_post_type($attachmentId) !== 'attachment') {
+            foreach ([self::META_KEY, self::PENDING_KEY, self::SOURCE_KEY, Index::STATE_KEY, Index::AI_KEY] as $key) {
+                delete_post_meta($attachmentId, $key);
+            }
+
+            return $entry;
+        }
+
         update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
         Index::write($attachmentId, $entry);
 
         return $entry;
+    }
+
+    /**
+     * On deactivation (SPEC-015): no scheduled checks and no pending markers
+     * left, on every site when the plugin was network-deactivated.
+     */
+    public static function deactivate(mixed $networkWide = false): void
+    {
+        $clean = static function (): void {
+            wp_unschedule_hook(self::EVENT);
+            delete_post_meta_by_key(self::PENDING_KEY);
+        };
+
+        if ($networkWide === true && is_multisite()) {
+            foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
+                switch_to_blog((int) $site);
+                $clean();
+                restore_current_blog();
+            }
+        } else {
+            $clean();
+        }
     }
 
     /**

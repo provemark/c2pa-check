@@ -36,11 +36,16 @@ final class Outcome
     public static function fromReport(VerificationReport $report, string $verifierVersion, DateTimeImmutable $at, string $trust = 'none'): array
     {
         // A file without a manifest comes back as Invalid with no statuses;
-        // "no credential" is decided on hasManifest, never on the state.
+        // "no credential" is decided on hasManifest, never on the state, and
+        // only when the verifier reported no failure (SPEC-015): a file it
+        // could not read as an image at all is an error, not "none".
+        if (! $report->hasManifest && $report->result->statuses !== []) {
+            return self::error($report->format === 'unknown' ? 'unsupported' : 'unreadable', $verifierVersion, $at, $trust);
+        }
         $state = $report->hasManifest ? $report->result->state->value : 'none';
         $info = $report->signatureInfo;
 
-        return [
+        return self::bounded([
             'schema' => self::SCHEMA,
             'state' => $state,
             'format' => $report->format,
@@ -53,11 +58,50 @@ final class Outcome
             'verifier' => $verifierVersion,
             'checked_at' => self::utc($at),
             'trust' => $trust,
-        ];
+        ]);
+    }
+
+    /** The most characters kept of one text from the file (SPEC-015). */
+    public const int MAX_TEXT = 256;
+
+    /** The most status codes kept; the rest are counted in `codes_omitted`. */
+    public const int MAX_CODES = 50;
+
+    /**
+     * The entry with every text from the file cut to MAX_TEXT characters
+     * (ending in "…") and the codes to MAX_CODES, so a crafted file cannot
+     * make the stored entry or the page arbitrarily large.
+     *
+     * @param  array<string, mixed>  $entry
+     * @return array<string, mixed>
+     */
+    public static function bounded(array $entry): array
+    {
+        $cut = static fn (mixed $text): mixed => is_string($text) && mb_strlen($text) > self::MAX_TEXT
+            ? mb_substr($text, 0, self::MAX_TEXT - 1).'…'
+            : $text;
+
+        if (is_array($entry['signer'] ?? null)) {
+            $entry['signer'] = array_map($cut, $entry['signer']);
+        }
+        foreach (['signed_at', 'remote_manifest_url'] as $key) {
+            if (array_key_exists($key, $entry)) {
+                $entry[$key] = $cut($entry[$key]);
+            }
+        }
+        if (is_array($entry['codes'] ?? null) && count($entry['codes']) > self::MAX_CODES) {
+            $entry['codes_omitted'] = count($entry['codes']) - self::MAX_CODES;
+            $entry['codes'] = array_slice($entry['codes'], 0, self::MAX_CODES);
+        }
+        if (is_array($entry['codes'] ?? null)) {
+            $entry['codes'] = array_map($cut, $entry['codes']);
+        }
+
+        return $entry;
     }
 
     /**
-     * @param  'interrupted'|'unreadable'|'exception'  $reason
+     * @param  'interrupted'|'unreadable'|'exception'|'unsupported'  $reason
      * @return array<string, mixed>
      */
     public static function error(string $reason, string $verifierVersion, DateTimeImmutable $at, string $trust = 'none'): array

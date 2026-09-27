@@ -71,6 +71,7 @@ final class RecheckCommand
      */
     public function check(array $args, array $assocArgs): void
     {
+        wp_raise_memory_limit('admin');
         $ids = $this->select($args, $assocArgs);
         $dryRun = (bool) ($assocArgs['dry-run'] ?? false);
         $format = ($assocArgs['format'] ?? 'table') === 'json' ? 'json' : 'table';

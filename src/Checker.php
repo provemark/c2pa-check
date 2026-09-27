@@ -9,7 +9,6 @@ if (! defined('ABSPATH')) {
 }
 
 use Closure;
-use Composer\InstalledVersions;
 use DateTimeImmutable;
 use Provemark\C2paVerifier\Trust\TrustSettings;
 use Provemark\C2paVerifier\Verifier\VerificationReport;
@@ -21,6 +20,9 @@ use Throwable;
  */
 final class Checker
 {
+    /** The bundled verifier's version, read once per request. */
+    private static ?string $version = null;
+
     /** @var Closure(resource, ?TrustSettings): VerificationReport */
     private Closure $verify;
 
@@ -73,8 +75,26 @@ final class Checker
         return (new Verifier)->verify($stream, $settings);
     }
 
+    /**
+     * The bundled verifier's version, from this plugin's own Composer data
+     * (SPEC-015): not through Composer\InstalledVersions, a global class
+     * another plugin may define first. Never throws.
+     */
     private function version(): string
     {
-        return InstalledVersions::getPrettyVersion('provemark/c2pa-verifier') ?? 'unknown';
+        if (self::$version === null) {
+            self::$version = 'unknown';
+            try {
+                $installed = include dirname(__DIR__).'/vendor/composer/installed.php';
+                $pretty = is_array($installed) && is_array($installed['versions'] ?? null) && is_array($installed['versions']['provemark/c2pa-verifier'] ?? null)
+                    ? $installed['versions']['provemark/c2pa-verifier']['pretty_version'] ?? null
+                    : null;
+                self::$version = is_string($pretty) && $pretty !== '' ? $pretty : 'unknown';
+            } catch (Throwable) {
+                // 'unknown'
+            }
+        }
+
+        return self::$version;
     }
 }

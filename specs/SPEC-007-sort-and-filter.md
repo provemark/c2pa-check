@@ -173,6 +173,12 @@ select's options use SPEC-002's headlines, after "All Content Credentials".
    "Not checked" leaves those out. Sorting unchanged: pending images sort
    with the unchecked.
 
+3. **2026-09-27, approved by Maurice van Loon** with SPEC-015. AC6 (the
+   backfill of the index) is withdrawn with its code: only development
+   installs ever had entries without an index. "Not checked" and "Check
+   pending" list JPEG, PNG and WebP only; files the plugin never checks
+   have no state.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

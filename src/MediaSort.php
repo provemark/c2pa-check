@@ -13,13 +13,11 @@ use WP_Query;
 /**
  * Sorting and filtering the Media Library list by Content Credentials
  * (SPEC-007): a sortable column, a select above the list, the query change
- * behind both, and the backfill of the index for entries stored before.
+ * behind both.
  */
 final class MediaSort
 {
     public const string PARAM = 'provemark_c2pa';
-
-    public const int BACKFILL_BATCH = 500;
 
     /** Ascending sort order of the index states; no index sorts after all of them. */
     private const array ORDER = ['Trusted', 'Valid', 'Invalid', 'error', 'unreadable', 'none'];
@@ -30,7 +28,6 @@ final class MediaSort
         add_action('restrict_manage_posts', $this->renderSelect(...), 10, 2);
         add_action('pre_get_posts', $this->onPreGetPosts(...));
         add_filter('posts_clauses', self::orderClauses(...), 10, 2);
-        add_action('admin_init', $this->backfill(...));
     }
 
     /**
@@ -63,7 +60,7 @@ final class MediaSort
         ];
     }
 
-    public function renderSelect(string $postType, string $which = ''): void
+    public function renderSelect(mixed $postType = '', mixed $which = ''): void
     {
         if ($postType !== 'attachment') {
             return;
@@ -127,6 +124,12 @@ final class MediaSort
                     ],
                 ],
             };
+            // Only the formats the plugin checks can be pending or not
+            // checked (SPEC-015); the others have no Content Credentials
+            // state at all.
+            if ($filter === 'pending' || $filter === 'unchecked') {
+                $query->set('post_mime_type', UploadHook::MIME_TYPES);
+            }
             $existing = $query->get('meta_query');
             $query->set('meta_query', is_array($existing) && $existing !== [] ? ['relation' => 'AND', $existing, $clause] : [$clause]);
         }
@@ -164,21 +167,6 @@ final class MediaSort
         $clauses['orderby'] = 'CASE provemark_c2pa_sort.meta_value'.$cases.' ELSE '.count(self::ORDER).' END '.$order.", {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
 
         return $clauses;
-    }
-
-    /**
-     * On admin requests: index up to BACKFILL_BATCH entries stored before
-     * the index existed; once a batch comes up short, never again.
-     */
-    public function backfill(): void
-    {
-        if (get_option(Index::DONE_OPTION) || ! current_user_can('upload_files')) {
-            return;
-        }
-
-        if (Index::backfill(self::BACKFILL_BATCH) < self::BACKFILL_BATCH) {
-            update_option(Index::DONE_OPTION, true, false);
-        }
     }
 
     /**

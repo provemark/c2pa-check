@@ -55,7 +55,8 @@ final class MediaScreens
 
     public function renderColumn(string $column, int $attachmentId): void
     {
-        if ($column === self::COLUMN) {
+        // Only the formats the plugin checks get a verdict or a label (SPEC-015).
+        if ($column === self::COLUMN && self::isChecked($attachmentId)) {
             $entry = self::entryOf($attachmentId);
             echo wp_kses_post(Display::headline($entry, self::pendingSince($attachmentId), time(), Display::changed($entry, self::currentOriginal($attachmentId))));
         }
@@ -67,6 +68,9 @@ final class MediaScreens
      */
     public function addDetails(array $fields, WP_Post $post): array
     {
+        if (! self::isChecked($post->ID)) {
+            return $fields;
+        }
         $entry = self::entryOf($post->ID);
         $fields[self::COLUMN] = [
             'label' => esc_html__('Content Credentials', 'provemark-c2pa-check'),
@@ -75,6 +79,14 @@ final class MediaScreens
         ];
 
         return $fields;
+    }
+
+    /**
+     * Whether the plugin checks this attachment's format at all.
+     */
+    private static function isChecked(int $attachmentId): bool
+    {
+        return in_array(get_post_mime_type($attachmentId), UploadHook::MIME_TYPES, true);
     }
 
     /**

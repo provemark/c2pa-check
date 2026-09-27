@@ -91,7 +91,8 @@ it('AC3: filters by each option', function (string $option, array $groups): void
     ['ai', ['trusted']],
     ['error', ['error']],
     ['none', ['none']],
-    ['unchecked', ['unchecked', 'pdf']],
+    // SPEC-015: files the plugin never checks are not "Not checked".
+    ['unchecked', ['unchecked']],
 ])->group('SPEC-007');
 
 it('AC4: ignores anything else in the request', function (mixed $filter, mixed $order): void {
@@ -155,56 +156,6 @@ it('AC5: renders an escaped select that remembers the choice', function (string 
 
 it('AC5: renders no select on other post types', function (): void {
     expect(wpEval("do_action('restrict_manage_posts', 'post', 'top');"))->not->toContain('provemark_c2pa');
-})->group('SPEC-007');
-
-it('AC6: backfills unindexed entries in batches of 500', function (): void {
-    // Index whatever the environment already holds, then start clean.
-    wpEval('while (Provemark\\C2paCheck\\Index::backfill(500) === 500) {} delete_option("provemark_c2pa_index_done");');
-
-    $made = wpEval(<<<'PHP'
-        // Test data only: without the upload hook, which would check each one.
-        remove_all_actions('add_attachment');
-        $ids = [];
-        for ($i = 0; $i < 1200; $i++) {
-            // A unique post_name each: the same title would make WordPress
-            // search ever longer for a free slug.
-            $id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'backfill', 'post_name' => 'm7-backfill-'.$i.'-'.wp_generate_password(6, false), 'post_status' => 'inherit'], '/nonexistent.jpg');
-            update_post_meta($id, '_provemark_c2pa_result', $i === 0 ? 'not an entry' : ['schema' => 1, 'state' => 'none', 'format' => 'jpeg', 'signer' => null, 'signed_at' => null, 'codes' => [], 'ai' => false, 'remote_manifest_url' => null, 'reason' => null, 'verifier' => 'v0.2.3', 'checked_at' => '2026-09-26T12:00:00Z']);
-            delete_post_meta($id, '_provemark_c2pa_state');
-            delete_post_meta($id, '_provemark_c2pa_ai');
-            $ids[] = $id;
-        }
-        update_post_meta($ids[1199], '_provemark_c2pa_state', 'Valid'); // indexed already: must stay as it is
-        echo json_encode([$ids[0], $ids[1199]]);
-        PHP);
-    $cleanup = 'global $wpdb; $ids = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_type = \'attachment\' AND post_title = \'backfill\'"); if ($ids) { $in = implode(",", array_map("intval", $ids)); $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($in)"); $wpdb->query("DELETE FROM {$wpdb->posts} WHERE ID IN ($in)"); }';
-    $made = json_decode($made, true);
-    $first = is_array($made) && is_int($made[0] ?? null) ? $made[0] : 0;
-    $last = is_array($made) && is_int($made[1] ?? null) ? $made[1] : 0;
-    $unindexed = "global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} r LEFT JOIN {\$wpdb->postmeta} s ON s.post_id = r.post_id AND s.meta_key = '_provemark_c2pa_state' WHERE r.meta_key = '_provemark_c2pa_result' AND s.meta_id IS NULL\");";
-    $request = '(new Provemark\\C2paCheck\\MediaSort)->backfill(); echo get_option("provemark_c2pa_index_done") ? "done" : "busy";';
-
-    try {
-        expect((int) wpEval($unindexed))->toBe(1199)
-            ->and(wpEval($request))->toBe('busy')
-            ->and((int) wpEval($unindexed))->toBe(699)
-            ->and(indexOf($first)['state'])->toBe('unreadable')
-            ->and(wpEval($request))->toBe('busy')
-            ->and((int) wpEval($unindexed))->toBe(199)
-            ->and(wpEval($request))->toBe('done')
-            ->and((int) wpEval($unindexed))->toBe(0)
-            ->and(indexOf($last)['state'])->toBe('Valid');
-
-        // Done means done: a new unindexed entry is left alone.
-        // An entry stored without its index (the upload no longer stores one
-        // itself: its check runs in the background, SPEC-013).
-        wpEval("\$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'backfill', 'post_status' => 'inherit'], '/nonexistent.jpg'); update_post_meta(\$id, '_provemark_c2pa_result', ['schema' => 1, 'state' => 'none']); delete_post_meta(\$id, '_provemark_c2pa_state');");
-        expect(wpEval($request))->toBe('done')
-            ->and((int) wpEval($unindexed))->toBe(1);
-
-    } finally {
-        wpEval($cleanup.' delete_option("provemark_c2pa_index_done");');
-    }
 })->group('SPEC-007');
 
 it('SPEC-013 AC7: filters and sorts the images whose check is pending', function (): void {

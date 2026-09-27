@@ -21,7 +21,7 @@ final class Display
 {
     private const array STATES = ['Trusted', 'Valid', 'Invalid', 'none', 'error'];
 
-    private const array REASONS = ['interrupted', 'unreadable', 'exception'];
+    private const array REASONS = ['interrupted', 'unreadable', 'exception', 'unsupported'];
 
     /**
      * C0 and C1 controls and the Unicode direction controls (UAX #9).
@@ -134,13 +134,16 @@ final class Display
         $scrubbed = mb_scrub($untrusted, 'UTF-8');
         $visible = preg_replace(self::UNSAFE_CHARACTERS, "\u{FFFD}", $scrubbed);
 
-        return esc_html($visible ?? '');
+        // htmlspecialchars() with double encoding, not esc_html(): esc_html()
+        // keeps an existing entity such as &#x202E;, which the browser then
+        // turns into the very character removed above (SPEC-015).
+        return htmlspecialchars($visible ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', true);
     }
 
     /**
      * A SPEC-001 entry, null for no entry, false for anything else.
      *
-     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
+     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
      */
     private static function read(mixed $entry): array|false|null
     {
@@ -153,6 +156,10 @@ final class Display
 
         $codes = $entry['codes'] ?? [];
         if (! is_array($codes) || ! array_is_list($codes) || array_filter($codes, is_string(...)) !== $codes) {
+            return false;
+        }
+        $omitted = $entry['codes_omitted'] ?? 0;
+        if (! is_int($omitted) || $omitted < 0) {
             return false;
         }
 
@@ -195,6 +202,7 @@ final class Display
             'signer' => $signer,
             'signed_at' => $text['signed_at'],
             'codes' => $codes,
+            'codes_omitted' => $omitted,
             'ai' => $ai,
             'trust' => $trust,
             'remote_manifest_url' => $text['remote_manifest_url'],
@@ -299,7 +307,7 @@ final class Display
     /**
      * The facts under the badges: term and value, each already safe HTML.
      *
-     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
+     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
      * @return list<array{string, string}>
      */
     private static function rows(array $entry): array
@@ -320,7 +328,11 @@ final class Display
         if ($entry['state'] === 'Invalid' && $entry['codes'] !== []) {
             $rows[] = [
                 esc_html__('Codes', 'provemark-c2pa-check'),
-                implode("<br>\n", array_map(static fn (string $code): string => '<code>'.self::text($code).'</code>', $entry['codes'])),
+                implode("<br>\n", array_map(static fn (string $code): string => '<code>'.self::text($code).'</code>', $entry['codes']))
+                    .($entry['codes_omitted'] > 0
+                        /* translators: %d: how many more status codes the file has */
+                        ? "<br>\n".esc_html(sprintf(__('and %d more', 'provemark-c2pa-check'), $entry['codes_omitted']))
+                        : ''),
             ];
         }
 
@@ -333,6 +345,7 @@ final class Display
             $words = match ($entry['reason']) {
                 'interrupted' => __('the check did not finish', 'provemark-c2pa-check'),
                 'unreadable' => __('the file could not be read', 'provemark-c2pa-check'),
+                'unsupported' => __('not a JPEG, PNG or WebP file', 'provemark-c2pa-check'),
                 default => __('the verifier failed', 'provemark-c2pa-check'),
             };
             $rows[] = [esc_html__('Reason', 'provemark-c2pa-check'), esc_html($words)];

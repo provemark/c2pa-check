@@ -25,6 +25,18 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+if (version_compare(PHP_VERSION, '8.3.0', '<')) {
+    // The bundled verifier needs PHP 8.3: without it, stay out of the way
+    // rather than let Composer's platform check stop every request.
+    add_action('admin_notices', static function (): void {
+        echo '<div class="notice notice-error"><p>'
+            .esc_html__('Provemark C2PA Check needs PHP 8.3 or later and is not running.', 'provemark-c2pa-check')
+            .'</p></div>';
+    });
+
+    return;
+}
+
 if (! is_readable(__DIR__.'/vendor/autoload.php')) {
     // Fail closed without breaking the site: no verifier, no checks, one notice.
     add_action('admin_notices', static function (): void {
@@ -37,6 +49,8 @@ if (! is_readable(__DIR__.'/vendor/autoload.php')) {
 }
 
 require_once __DIR__.'/vendor/autoload.php';
+
+register_deactivation_hook(__FILE__, UploadHook::deactivate(...));
 
 // In a function, so the plugin adds no global variables.
 (static function (): void {

@@ -1644,3 +1644,35 @@ README are where the disclosure lives.
 - Asked: mark SPEC-014 implemented and push.
 - Produced: the status line; Traceability was filled in `775790a`.
 - Decided by Maurice: SPEC-014 implemented; push.
+
+## 2026-09-27 — Robustness fixes from the final review (SPEC-015)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: SPEC-015, the second of four specs from the final review.
+- Measured before: a GIF's bytes gave `none` ("No Content Credentials"),
+  though the verifier reported `general.error`, unsupported file type;
+  `Display::text('Reuters&#x202E;gnp.exe')` returned the entity unchanged;
+  a PDF's column said "Not checked"; the verifier's version sits in the
+  plugin's own `vendor/composer/installed.php` (repository and zip).
+- Tests first, seen red: AC1–AC11 except AC6, which was green: without
+  arguments `do_action()` passes `''`, so the reviewed fatal error did not
+  exist; with `null` it did, and the test covers both.
+- Produced: `Outcome` (`error` / `unsupported` or `unreadable` when the
+  verifier failed without a manifest; `bounded()`: 256 characters per
+  text, 50 codes plus `codes_omitted`); `Checker::version()` from
+  `installed.php`; `htmlspecialchars()` in `Display::text()`; "and N more";
+  nothing shown or filtered for other formats; a PHP 8.3 guard in the main
+  file (`version_compare()`, as PHPStan calls `PHP_VERSION_ID < 80300`
+  always false); optional `renderSelect()` parameters; a deactivation hook
+  (every site when network-deactivated); no rows for an attachment deleted
+  during its check; `wp_raise_memory_limit()` in the command; the index
+  backfill removed; SPEC-007 amendment 3.
+- Changed while building: `wp_json_encode()` in `TrustConfig` broke 21
+  integration and 2 unit tests, as the tests build the CLI's settings with
+  that class outside WordPress; `json_encode()` stays there with a
+  reasoned `phpcs:ignore`, and AC11 says so. AC10's test lowers the limit
+  in WP-CLI's `before_invoke`, as WP-CLI resets `--exec` and
+  `plugins_loaded` settings to -1.
+- After: `composer check` 55, integration 131, multisite 7; the release
+  suite after the commit.
+- Decided by Maurice: SPEC-015 approved. Not pushed.
