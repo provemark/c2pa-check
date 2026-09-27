@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-09-27                      |
 | Supersedes | SPEC-007 AC6 (the index backfill) and SPEC-007 AC3's "unchecked" row for non-images |
