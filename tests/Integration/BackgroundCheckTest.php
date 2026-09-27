@@ -78,7 +78,9 @@ it('AC4: the check runs with the raised memory limit', function (): void {
 it('AC5: a lost event does not say "pending" forever', function (): void {
     $lost = attachmentWithEntry(null);
     $fresh = attachmentWithEntry(null);
-    wpEval("update_post_meta($lost, '_provemark_c2pa_pending', time() - 3601); update_post_meta($fresh, '_provemark_c2pa_pending', time());");
+    // A lost event: no queue scheduled (SPEC-017 keeps a marker pending
+    // while the queue is, AC6 there).
+    wpEval("update_post_meta($lost, '_provemark_c2pa_pending', time() - 3601); update_post_meta($fresh, '_provemark_c2pa_pending', time()); wp_unschedule_hook('provemark_c2pa_check');");
     $unchecked = json_decode((string) preg_replace('/^[^\[]*/s', '', wpCli(['provemark-c2pa', 'check', '--unchecked', '--dry-run', '--format=json'])['output']), true);
     $listed = array_map(fn (mixed $row): mixed => is_array($row) ? ($row['id'] ?? null) : null, is_array($unchecked) ? $unchecked : []);
 
@@ -91,11 +93,14 @@ it('AC5: a lost event does not say "pending" forever', function (): void {
 })->group('SPEC-013');
 
 it('AC6: an image deleted before its check', function (): void {
-    runPendingChecks(); // anything an earlier test left scheduled
+    // Markers an earlier test left without a queue (AC5) would be counted.
+    wpEval("delete_post_meta_by_key('_provemark_c2pa_pending');");
     $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));
     wpEval("wp_delete_attachment($id, true);");
 
-    expect(runPendingChecksOutput())->toBe('RAN:1')
+    // Deleting it took its marker with it: the queue finds nothing to check
+    // for it, and stores nothing (SPEC-017 counts checks, not events).
+    expect(runPendingChecksOutput())->toBe('RAN:0')
         ->and(storedEntry($id))->toBeNull()
         ->and(wpEval("echo get_post_type($id) === false ? 'gone' : 'there';"))->toBe('gone');
 })->group('SPEC-013');
@@ -140,7 +145,7 @@ it('AC10: a late check in a batch waits instead of dying', function (): void {
     } finally {
         wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-time-limit.php");');
     }
-})->group('SPEC-013');
+})->group('SPEC-013', 'SPEC-017');
 
 it('AC11: the command removes the scheduled check it made unnecessary', function (): void {
     $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));

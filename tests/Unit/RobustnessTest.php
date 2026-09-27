@@ -68,3 +68,21 @@ it('AC11: json_encode() only with a stated reason, and no backfill left in src/'
     expect($plain)->toBe([])
         ->and($backfill)->toBe([]);
 })->group('SPEC-015');
+
+it('SPEC-017 AC7: calls no private core function', function (): void {
+    $calls = [];
+    foreach (glob(dirname(__DIR__, 2).'/src/*.php') ?: [] as $file) {
+        $tokens = array_values(array_filter(PhpToken::tokenize((string) file_get_contents($file)), fn (PhpToken $t): bool => ! $t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])));
+        foreach ($tokens as $i => $token) {
+            $previous = $tokens[$i - 1] ?? null;
+            // Core's translation functions start with an underscore and are public.
+            $translation = in_array($token->text, ['__', '_e', '_n', '_x', '_ex', '_nx', '_n_noop', '_nx_noop'], true);
+            if ($token->is(T_STRING) && str_starts_with($token->text, '_') && ! $translation && ($tokens[$i + 1] ?? null)?->text === '('
+                && ! ($previous !== null && $previous->is([T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION]))) {
+                $calls[] = basename($file).': '.$token->text;
+            }
+        }
+    }
+
+    expect($calls)->toBe([]);
+})->group('SPEC-017');

@@ -256,6 +256,12 @@ calls it (lock set, `doing_wp_cron` passed) runs the check.
      - When `Display::headline()` is called with the marker and no time
      - Then it shows "Not checked"
 
+2. **2026-09-27, approved by Maurice van Loon** with SPEC-017. The checks
+   run from one queue event without arguments instead of one event per
+   upload; a marker counts as pending however old while the queue is
+   scheduled. AC1, AC3, AC6 and AC11 keep their meaning with the test
+   helpers counting checks and pending markers instead of events.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

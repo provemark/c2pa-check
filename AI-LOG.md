@@ -1709,3 +1709,28 @@ README are where the disclosure lives.
 - Asked: mark SPEC-016 implemented and push.
 - Produced: the status line; Traceability was filled in `4afb31e`.
 - Decided by Maurice: SPEC-016 implemented; push.
+
+## 2026-09-27 — One queue for the background checks (SPEC-017)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: SPEC-017, the last of four specs from the final review.
+- Tests first, seen red: AC1–AC7 (AC7 first red on `__()` too, as the
+  test did not yet exclude core's translation functions; then on
+  `_get_cron_array` alone).
+- Produced: one event without arguments; `runQueue()` schedules a safety
+  run 60 s ahead, checks up to 20 pending images oldest first while half
+  of the time limit is left, and schedules itself again only while images
+  are pending; `scheduleQueue()`; "Check pending" and its filter count any
+  marker while the queue is scheduled; `unscheduleCheck()` and
+  `_get_cron_array()` removed. Test helpers: one queue run per call,
+  counting cleared markers; SPEC-013 amendment 2.
+- Found while building: scheduling the queue only when none was scheduled
+  let a new upload wait up to a minute behind a safety run; a later run is
+  now brought forward. `get_posts()`'s stub types `post_mime_type` as a
+  string, so the types go comma-separated. Plugin Check reported an
+  explicit `'suppress_filters' => true` as an ERROR
+  (`WordPressVIPMinimum.Performance.WPQueryParams`); `get_posts()` sets it
+  by default, so the line went and the query is the same.
+- After: `composer check` 58, integration 136, multisite 7; the release
+  suite after the commit.
+- Decided by Maurice: SPEC-017 approved. Not pushed.

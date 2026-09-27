@@ -28,8 +28,14 @@ final class UploadHook
     /** Set while the last check had to run without trust settings (SPEC-004 AC6). */
     public const string TRUST_FAILED_OPTION = 'provemark_c2pa_trust_failed';
 
-    /** The WP-Cron event that checks one attachment (SPEC-013). */
+    /** The WP-Cron event of the check queue, without arguments (SPEC-017). */
     public const string EVENT = 'provemark_c2pa_check';
+
+    /** The most images one run of the queue checks. */
+    public const int BATCH = 20;
+
+    /** When the safety run follows a run that may die, in seconds. */
+    public const int SAFETY_DELAY = 60;
 
     /** When the check of an attachment was scheduled (Unix time), until it runs. */
     public const string PENDING_KEY = '_provemark_c2pa_pending';
@@ -55,7 +61,7 @@ final class UploadHook
     {
         add_action('add_attachment', $this->onAddAttachment(...));
         add_filter('wp_update_attachment_metadata', $this->onMetadataUpdate(...), 10, 2);
-        add_action(self::EVENT, $this->runScheduled(...));
+        add_action(self::EVENT, $this->runQueue(...));
     }
 
     /**
@@ -77,17 +83,72 @@ final class UploadHook
             update_post_meta($attachmentId, self::SOURCE_KEY, is_string($path) ? self::relativeToUploads($path) : '');
 
             update_post_meta($attachmentId, self::PENDING_KEY, time());
-            wp_schedule_single_event(time(), self::EVENT, [$attachmentId]);
+            self::scheduleQueue();
         } catch (Throwable) {
             // The upload always proceeds.
         }
     }
 
     /**
-     * The scheduled check, in a request of its own (WP-Cron): with the
-     * admin memory limit, on the original file, not on `-scaled`, which
-     * WordPress has usually made by now. An ID that is no longer a JPEG,
-     * PNG or WebP attachment is skipped.
+     * The check queue (SPEC-017), in a request of its own (WP-Cron): a safety
+     * run is scheduled first, so a run that dies is followed a minute later;
+     * then up to BATCH pending images are checked, oldest first, while more
+     * than half of the host's time limit is left; at the end the queue is
+     * scheduled again only when images are still pending.
+     */
+    public function runQueue(): void
+    {
+        try {
+            wp_clear_scheduled_hook(self::EVENT);
+            wp_schedule_single_event(time() + self::SAFETY_DELAY, self::EVENT);
+
+            $limit = (int) ini_get('max_execution_time');
+            foreach (self::pending(self::BATCH) as $id) {
+                if ($limit > 0 && timer_float() > $limit / 2) {
+                    break;
+                }
+                $this->runScheduled($id);
+            }
+
+            wp_clear_scheduled_hook(self::EVENT);
+            if (self::pending(1) !== []) {
+                wp_schedule_single_event(time(), self::EVENT);
+            }
+        } catch (Throwable) {
+            // The safety run stays.
+        }
+    }
+
+    /**
+     * Schedules the check queue now, unless it is due already. A later run
+     * (the safety run after a run that died) is brought forward, so a new
+     * upload is not kept waiting for it.
+     */
+    public static function scheduleQueue(): void
+    {
+        $next = wp_next_scheduled(self::EVENT);
+        if ($next !== false && $next <= time()) {
+            return;
+        }
+        if ($next !== false) {
+            wp_clear_scheduled_hook(self::EVENT);
+        }
+        wp_schedule_single_event(time(), self::EVENT);
+    }
+
+    /**
+     * Whether the check queue is scheduled: then every pending image is
+     * still to be checked, however long it has waited (SPEC-017).
+     */
+    public static function queueIsScheduled(): bool
+    {
+        return wp_next_scheduled(self::EVENT) !== false;
+    }
+
+    /**
+     * Checks one attachment now: with the admin memory limit, on the kept
+     * original, not on `-scaled`. An ID that is no longer a JPEG, PNG or
+     * WebP attachment is skipped.
      */
     public function runScheduled(mixed $attachmentId): void
     {
@@ -97,21 +158,34 @@ final class UploadHook
                 return;
             }
 
-            // wp-cron.php runs every due check in one request. When less than
-            // half of the host's time limit is left, this check waits for the
-            // next cron request rather than die halfway (SPEC-013 amendment 1).
-            $limit = (int) ini_get('max_execution_time');
-            if ($limit > 0 && timer_float() > $limit / 2) {
-                wp_schedule_single_event(time(), self::EVENT, [$id]);
-
-                return;
-            }
-
             wp_raise_memory_limit('admin');
             $this->checkAndStore($id, self::fileOf($id));
         } catch (Throwable) {
             // Whatever was stored last stays.
         }
+    }
+
+    /**
+     * Up to $limit pending JPEG, PNG and WebP attachments, oldest marker first.
+     *
+     * @return list<int>
+     */
+    private static function pending(int $limit): array
+    {
+        $ids = get_posts([
+            'post_type' => 'attachment',
+            'post_status' => 'any',
+            'post_mime_type' => implode(',', self::MIME_TYPES),
+            // In batches, in the background: the marker is how pending images are found.
+            'meta_key' => self::PENDING_KEY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            'orderby' => 'meta_value_num',
+            'order' => 'ASC',
+            'posts_per_page' => $limit,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
+
+        return array_values(array_filter($ids, is_int(...)));
     }
 
     /**
@@ -146,7 +220,7 @@ final class UploadHook
                 delete_post_meta($id, self::META_KEY);
                 Index::write($id, null);
                 update_post_meta($id, self::PENDING_KEY, time());
-                wp_schedule_single_event(time(), self::EVENT, [$id]);
+                self::scheduleQueue();
             }
         } catch (Throwable) {
             // The edit always proceeds.
@@ -197,7 +271,6 @@ final class UploadHook
         // provisional entry goes first, before anything that could stop
         // the request, reading the trust lists included.
         delete_post_meta($attachmentId, self::PENDING_KEY);
-        self::unscheduleCheck($attachmentId);
         $provisional = $this->checker->interrupted();
         update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
         Index::write($attachmentId, $provisional);
@@ -272,20 +345,5 @@ final class UploadHook
         $file = $base === false ? false : realpath($base.'/'.$relative);
 
         return $base !== false && $file !== false && str_starts_with($file, $base.DIRECTORY_SEPARATOR) && is_file($file) ? $file : null;
-    }
-
-    /**
-     * Removes a scheduled check of an attachment that a check just made
-     * unnecessary (SPEC-013 amendment 1).
-     */
-    private static function unscheduleCheck(int $attachmentId): void
-    {
-        foreach (_get_cron_array() as $timestamp => $hooks) {
-            foreach ($hooks[self::EVENT] ?? [] as $event) {
-                if (($event['args'][0] ?? null) === $attachmentId) {
-                    wp_unschedule_event($timestamp, self::EVENT, array_values($event['args']));
-                }
-            }
-        }
     }
 }

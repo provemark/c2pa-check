@@ -361,25 +361,31 @@ function importWithoutChecking(string $hostPath): int
 }
 
 /**
- * Runs the plugin's due background checks (SPEC-013) as wp-cron.php runs an
+ * Runs the plugin's check queue once (SPEC-017), as wp-cron.php runs its
  * event: unscheduled first, then its action, in a request of its own.
- * Prints `RAN:<count>` when the request survives.
+ * Prints `RAN:<checks>`, the pending markers the run cleared, when the
+ * request survives.
  */
 const RUN_PENDING_CHECKS = <<<'PHP'
-    $ran = 0;
+    global $wpdb;
+    $pending = fn (): int => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'");
+    $before = $pending();
+    $queued = false;
     foreach (_get_cron_array() ?: [] as $timestamp => $hooks) {
         foreach ($hooks['provemark_c2pa_check'] ?? [] as $event) {
             wp_unschedule_event($timestamp, 'provemark_c2pa_check', $event['args']);
-            do_action_ref_array('provemark_c2pa_check', $event['args']);
-            $ran++;
+            $queued = true;
         }
     }
-    echo 'RAN:', $ran;
+    if ($queued) {
+        do_action('provemark_c2pa_check');
+    }
+    echo 'RAN:', $before - $pending();
     PHP;
 
 /**
- * Runs the due background checks in an environment (on the site at $url
- * for the multisite one) and returns what the request printed.
+ * Runs the check queue once in an environment (on the site at $url for the
+ * multisite one) and returns what the request printed.
  */
 function runPendingChecksOutput(string $variant = 'test', ?string $url = null): string
 {
@@ -392,7 +398,7 @@ function runPendingChecksOutput(string $variant = 'test', ?string $url = null): 
 }
 
 /**
- * How many due background checks ran; 0 when the request died.
+ * How many checks one run of the queue made; 0 when the request died.
  */
 function runPendingChecks(string $variant = 'test', ?string $url = null): int
 {
@@ -400,11 +406,25 @@ function runPendingChecks(string $variant = 'test', ?string $url = null): int
 }
 
 /**
- * The scheduled background checks for an attachment (SPEC-013).
+ * 1 when a check of the attachment is coming: it is marked pending and the
+ * queue is scheduled (SPEC-017); else 0.
  */
 function scheduledChecks(int $id): int
 {
-    return (int) wpEval("\$n = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n += (\$event['args'][0] ?? null) === $id ? 1 : 0; } } echo \$n;");
+    return (int) wpEval("echo get_post_meta($id, '_provemark_c2pa_pending', true) !== '' && wp_next_scheduled('provemark_c2pa_check') !== false ? 1 : 0;");
+}
+
+/**
+ * How many provemark_c2pa_check events are scheduled, and how many of them
+ * carry arguments.
+ *
+ * @return array{events: int, with_args: int}
+ */
+function queueEvents(): array
+{
+    $out = json_decode(wpEval("\$n = 0; \$a = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n++; \$a += (\$event['args'] ?? []) === [] ? 0 : 1; } } echo json_encode(['events' => \$n, 'with_args' => \$a]);"), true);
+
+    return ['events' => is_array($out) && is_int($out['events'] ?? null) ? $out['events'] : -1, 'with_args' => is_array($out) && is_int($out['with_args'] ?? null) ? $out['with_args'] : -1];
 }
 
 /**
@@ -569,7 +589,6 @@ function attachmentWithEntry(mixed $entry): int
         \$entry = json_decode(base64_decode('$payload'), true);
         // Made here, not uploaded: no pending marker, no scheduled check (SPEC-013).
         delete_post_meta(\$id, '_provemark_c2pa_pending');
-        foreach (_get_cron_array() ?: [] as \$ts => \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { if ((\$event['args'][0] ?? null) === \$id) { wp_unschedule_event(\$ts, 'provemark_c2pa_check', \$event['args']); } } }
         if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); delete_post_meta(\$id, '_provemark_c2pa_state'); delete_post_meta(\$id, '_provemark_c2pa_ai'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); if (class_exists('Provemark\\C2paCheck\\Index')) { Provemark\\C2paCheck\\Index::write(\$id, \$entry); } }
         echo 'ID:', \$id, "\n";
         PHP);

@@ -116,8 +116,13 @@ final class MediaScreens
     private static function pendingSince(int $attachmentId): ?int
     {
         $since = get_post_meta($attachmentId, UploadHook::PENDING_KEY, true);
+        if (! is_numeric($since)) {
+            return null;
+        }
 
-        return is_numeric($since) ? (int) $since : null;
+        // While the queue is scheduled, every marker is a check to come,
+        // however long it has waited (SPEC-017).
+        return UploadHook::queueIsScheduled() ? time() : (int) $since;
     }
 
     /**

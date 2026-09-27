@@ -101,7 +101,8 @@ final class MediaSort
         if ($filter !== null) {
             // A pending marker younger than this is "Check pending"; an older
             // one was lost and counts as not checked (SPEC-013).
-            $cutoff = time() - UploadHook::PENDING_FOR;
+            // While the queue is scheduled every marker counts (SPEC-017).
+            $cutoff = UploadHook::queueIsScheduled() ? 0 : time() - UploadHook::PENDING_FOR;
             $clause = match ($filter) {
                 'trusted' => ['key' => Index::STATE_KEY, 'value' => 'Trusted'],
                 'valid' => ['key' => Index::STATE_KEY, 'value' => 'Valid'],

@@ -29,7 +29,6 @@ function sevenGroups(): array
             \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
             // Made here, not uploaded: no pending check (SPEC-013).
             delete_post_meta(\$id, '_provemark_c2pa_pending');
-            foreach (_get_cron_array() ?: [] as \$ts => \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { if ((\$event['args'][0] ?? null) === \$id) { wp_unschedule_event(\$ts, 'provemark_c2pa_check', \$event['args']); } } }
             if (\$entry === null) {
                 delete_post_meta(\$id, '_provemark_c2pa_result');
                 Provemark\\C2paCheck\\Index::write(\$id, null);
