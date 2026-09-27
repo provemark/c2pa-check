@@ -9,7 +9,9 @@
     "release:start": "wp-env start --config .wp-env.release.json",
     "release:stop": "wp-env stop --config .wp-env.release.json",
     "test:start": "wp-env start --config .wp-env.test.json",
-    "test:stop": "wp-env stop --config .wp-env.test.json"
+    "test:stop": "wp-env stop --config .wp-env.test.json",
+    "multisite:start": "wp-env start --config .wp-env.multisite.json",
+    "multisite:stop": "wp-env stop --config .wp-env.multisite.json"
   },
   "devDependencies": {
     "@wordpress/env": "11.16.0"

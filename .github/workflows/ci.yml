@@ -136,12 +136,46 @@ jobs:
 
       - run: composer test:release
 
+  multisite:
+    name: multisite (WordPress network, PHP 8.3)
+    # SPEC-011: a multisite network in wp-env, the plugin network-activated.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: openssl, mbstring
+          coverage: none
+
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php8.3-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php8.3-
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - run: npm run multisite:start
+
+      - run: composer test:multisite
+
   # One job for a branch protection rule to hang on. It succeeds only when
   # every matrix leg of both jobs succeeded; skipped or cancelled is not
   # success.
   all-green:
     name: all green
-    needs: [check, integration, release]
+    needs: [check, integration, release, multisite]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -149,3 +183,4 @@ jobs:
           test "${{ needs.check.result }}" = "success" || { echo "check: ${{ needs.check.result }}"; exit 1; }
           test "${{ needs.integration.result }}" = "success" || { echo "integration: ${{ needs.integration.result }}"; exit 1; }
           test "${{ needs.release.result }}" = "success" || { echo "release: ${{ needs.release.result }}"; exit 1; }
+          test "${{ needs.multisite.result }}" = "success" || { echo "multisite: ${{ needs.multisite.result }}"; exit 1; }

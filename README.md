@@ -45,6 +45,7 @@ Three wp-env environments, each its own WordPress:
 |---|---|---|
 | `npm run env:start` | 8888 | development, by hand; no test touches it |
 | `npm run test:start` | 8892 | `composer test:integration` (uploads, uninstalls, thousands of test attachments) |
+| `npm run multisite:start` | 8894 | `composer test:multisite`: a multisite network with the plugin network-activated |
 | `npm run release:start` | 8890 | `composer test:release`: `composer build` makes `build/provemark-c2pa-check.zip`, which is installed and checked there |
 
 The specifications are in

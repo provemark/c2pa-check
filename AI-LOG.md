@@ -1211,3 +1211,24 @@ README are where the disclosure lives.
 - Produced: SPEC-011 status `approved`.
 - Measured: nothing.
 - Decided by Maurice: SPEC-011 approved. Not pushed.
+
+## 2026-09-27 — SPEC-011 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build the approved SPEC-011.
+- Produced: `uninstall.php` cleans every site (`get_sites()`,
+  `switch_to_blog()`), unchanged on a single site; a `Multisite` test suite
+  (`tests/Multisite/MultisiteTest.php`, `composer test:multisite`) against
+  `.wp-env.multisite.json` (network-activated by an `afterStart` script,
+  `npm run multisite:start`), with `networkCli()`/`networkEval()`/
+  `networkImport()`/`networkEntry()` helpers; a `multisite` CI job on
+  PHP 8.3 that `all-green` waits for; `readme.txt` and `README.md`
+  updated. Traceability filled; status stays `approved`.
+- Measured: before the change only AC3 **red** (the measured gap); AC1,
+  AC2, AC4 and AC5 describe behaviour that already worked. The first
+  version of AC3 still failed after the fix: counting in a second request
+  let the still-active plugin re-create its empty custom option on the
+  main site (as in SPEC-005); uninstall and count now run in one request.
+  After: 5 passed; with the multisite loop removed AC3 is **red**
+  (restored); SPEC-005 tests and `composer check` green.
+- Decided by Maurice: SPEC-011 approved earlier. Not pushed.

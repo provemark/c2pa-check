@@ -53,7 +53,8 @@
         "test:release": [
             "@build",
             "pest --testsuite=Release"
-        ]
+        ],
+        "test:multisite": "pest --testsuite=Multisite"
     },
     "extra": {
         "strauss": {

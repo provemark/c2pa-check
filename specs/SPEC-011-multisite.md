@@ -121,8 +121,8 @@ every site in one request; the readme says so.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
+| AC1 | `tests/Multisite/MultisiteTest.php` :: AC1 | `UploadHook` (per site, unchanged) |
+| AC2 | `tests/Multisite/MultisiteTest.php` :: AC2 | `SettingsPage::trustConfig` (options per site, unchanged) |
+| AC3 | `tests/Multisite/MultisiteTest.php` :: AC3 | `uninstall.php` (every site via `get_sites()` / `switch_to_blog()`) |
+| AC4 | `tests/Multisite/MultisiteTest.php` :: AC4 | network activation (unchanged) |
+| AC5 | `tests/Multisite/MultisiteTest.php` :: AC5 | `RecheckCommand` with `--url` (unchanged) |

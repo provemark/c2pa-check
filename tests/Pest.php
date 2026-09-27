@@ -577,3 +577,51 @@ function emptyTestEnvironment(): void
         }
         PHP);
 }
+
+const NETWORK_MAIN = 'http://localhost:8894/';
+
+const NETWORK_SITE2 = 'http://localhost:8894/site2/';
+
+/**
+ * WP-CLI in the multisite environment, on the site at $url.
+ *
+ * @param  list<string>  $args
+ * @return array{exit: int, output: string}
+ */
+function networkCli(array $args, string $url = NETWORK_MAIN): array
+{
+    return wpCli([...$args, '--url='.$url], 'multisite');
+}
+
+/**
+ * PHP in the multisite environment, as the network's administrator, on the
+ * site at $url.
+ */
+function networkEval(string $php, string $url = NETWORK_MAIN): string
+{
+    return networkCli(['eval', $php, '--user=admin'], $url)['output'];
+}
+
+/**
+ * Uploads a fixture on the site at $url (tests/Fixtures is mapped to
+ * /var/www/html/fixtures) and returns its attachment ID on that site.
+ */
+function networkImport(string $fixture, string $url = NETWORK_MAIN): int
+{
+    $result = networkCli(['media', 'import', '/var/www/html/fixtures/'.$fixture, '--porcelain'], $url);
+    $id = (int) $result['output'];
+
+    return $id > 0 ? $id : throw new RuntimeException('import failed: '.$result['output']);
+}
+
+/**
+ * The stored entry of an attachment on the site at $url.
+ *
+ * @return array<mixed>|null
+ */
+function networkEntry(int $id, string $url = NETWORK_MAIN): ?array
+{
+    $entry = json_decode(networkCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json'], $url)['output'], true);
+
+    return is_array($entry) ? $entry : null;
+}

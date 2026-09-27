@@ -105,7 +105,9 @@ or attachment IDs. Add `--dry-run` to see what would be checked.
 
 = Does it work on multisite? =
 
-It has not been tested on multisite.
+Yes. Each site checks its own uploads and has its own settings. Deleting
+the plugin removes its data from every site of the network, in one
+request; on a network of thousands of sites, prefer WP-CLI.
 
 = Why PHP 8.3? =
 
