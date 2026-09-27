@@ -56,7 +56,8 @@ final class MediaScreens
     public function renderColumn(string $column, int $attachmentId): void
     {
         if ($column === self::COLUMN) {
-            echo wp_kses_post(Display::headline(self::entryOf($attachmentId), self::pendingSince($attachmentId), time()));
+            $entry = self::entryOf($attachmentId);
+            echo wp_kses_post(Display::headline($entry, self::pendingSince($attachmentId), time(), Display::changed($entry, self::currentOriginal($attachmentId))));
         }
     }
 
@@ -66,13 +67,35 @@ final class MediaScreens
      */
     public function addDetails(array $fields, WP_Post $post): array
     {
+        $entry = self::entryOf($post->ID);
         $fields[self::COLUMN] = [
             'label' => esc_html__('Content Credentials', 'provemark-c2pa-check'),
             'input' => 'html',
-            'html' => wp_kses_post(Display::details(self::entryOf($post->ID), self::pendingSince($post->ID), time())),
+            'html' => wp_kses_post(Display::details($entry, self::pendingSince($post->ID), time(), Display::changed($entry, self::currentOriginal($post->ID)))),
         ];
 
         return $fields;
+    }
+
+    /**
+     * The attachment's current original, relative to the uploads folder,
+     * with its size and modification time (SPEC-014); null when unknown.
+     *
+     * @return array{path: string, size: int|false, modified: int|false}|null
+     */
+    private static function currentOriginal(int $attachmentId): ?array
+    {
+        $original = wp_get_original_image_path($attachmentId);
+        if (! is_string($original) || $original === '') {
+            return null;
+        }
+        $exists = is_file($original);
+
+        return [
+            'path' => UploadHook::relativeToUploads($original),
+            'size' => $exists ? filesize($original) : false,
+            'modified' => $exists ? filemtime($original) : false,
+        ];
     }
 
     /**

@@ -330,7 +330,7 @@ function sampleEntry(array $fields): array
  */
 function stable(array $entry): array
 {
-    unset($entry['verifier'], $entry['checked_at'], $entry['remote_manifest_url'], $entry['trust']);
+    unset($entry['verifier'], $entry['checked_at'], $entry['remote_manifest_url'], $entry['trust'], $entry['file'], $entry['size'], $entry['modified']);
 
     return $entry;
 }
@@ -416,6 +416,48 @@ function pendingMarker(int $id): ?int
 
     return is_numeric($value) ? (int) $value : null;
 }
+
+/**
+ * Edits an attachment's image the way WordPress's image editor saves it:
+ * rotated a quarter turn, applied to every size (SPEC-014).
+ */
+function editImage(int $id): void
+{
+    wpEval("require_once ABSPATH.'wp-admin/includes/image-edit.php'; require_once ABSPATH.'wp-admin/includes/image.php'; \$_REQUEST['history'] = wp_json_encode([['r' => 90]]); \$_REQUEST['target'] = 'all'; \$_REQUEST['context'] = ''; wp_save_image($id);");
+}
+
+/**
+ * "Restore original image" in WordPress's image editor (SPEC-014).
+ */
+function restoreImage(int $id): void
+{
+    wpEval("require_once ABSPATH.'wp-admin/includes/image-edit.php'; require_once ABSPATH.'wp-admin/includes/image.php'; wp_restore_image($id);");
+}
+
+/**
+ * The attachment's current original (wp_get_original_image_path()),
+ * relative to the uploads folder.
+ */
+function currentOriginal(int $id): string
+{
+    return wpEval("echo ltrim(substr((string) wp_get_original_image_path($id), strlen(wp_get_upload_dir()['basedir'])), '/');");
+}
+
+/**
+ * A host copy of the attachment's current original, for the verifier CLI.
+ */
+function hostCopyOfOriginal(int $id): string
+{
+    $relative = currentOriginal($id);
+    $copy = tmpDir().'/'.basename($relative);
+    $uploads = wpEval("echo wp_get_upload_dir()['basedir'];");
+    exec('docker cp '.escapeshellarg(cliContainer('test').':'.$uploads.'/'.$relative).' '.escapeshellarg($copy));
+
+    return $copy;
+}
+
+/** Runs the plugin's uninstall.php as deleting the plugin does. */
+const UNINSTALL_PLUGIN_PHP = "require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');";
 
 const TEST_SITE = 'http://localhost:8892';
 

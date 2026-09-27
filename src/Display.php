@@ -34,9 +34,11 @@ final class Display
      * @param  mixed  $entry  the stored value, or null when there is none
      * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function headline(mixed $entry, ?int $pendingSince = null, ?int $now = null): string
+    public static function headline(mixed $entry, ?int $pendingSince = null, ?int $now = null, bool $changed = false): string
     {
-        return self::badges(self::read($entry), self::pending($entry, $pendingSince, $now ?? time()));
+        $read = self::read($entry);
+
+        return is_array($read) && $changed ? self::changedBadge() : self::badges($read, self::pending($entry, $pendingSince, $now ?? time()));
     }
 
     /**
@@ -45,9 +47,14 @@ final class Display
      * @param  mixed  $entry  the stored value, or null when there is none
      * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function details(mixed $entry, ?int $pendingSince = null, ?int $now = null): string
+    public static function details(mixed $entry, ?int $pendingSince = null, ?int $now = null, bool $changed = false): string
     {
         $read = self::read($entry);
+        if (is_array($read) && $changed) {
+            // The verdict describes bytes that are no longer there (SPEC-014):
+            // no verdict, no signer, no AI label.
+            return '<div class="provemark-c2pa provemark-c2pa--changed">'."\n".'<p class="provemark-c2pa-badges">'.self::changedBadge().'</p>'."\n".'</div>';
+        }
         $pending = self::pending($entry, $pendingSince, $now ?? time());
         [$class] = self::headlineOf($read, $pending);
 
@@ -79,6 +86,33 @@ final class Display
         }
 
         return $read === false ? ['unreadable', false] : [$read['state'], self::showsAiLabel($read)];
+    }
+
+    /**
+     * Whether the entry describes another file than the one the attachment
+     * has now (SPEC-014): its recorded path, size or modification time
+     * differ. An entry that records no file is never "changed".
+     *
+     * @param  array{path: string, size: int|false, modified: int|false}|null  $current  the current original, relative to uploads
+     */
+    public static function changed(mixed $entry, ?array $current): bool
+    {
+        if (! is_array($entry) || ! is_string($entry['file'] ?? null) || $current === null) {
+            return false;
+        }
+
+        return $entry['file'] !== $current['path']
+            || (is_int($entry['size'] ?? null) && $entry['size'] !== $current['size'])
+            || (is_int($entry['modified'] ?? null) && $entry['modified'] !== $current['modified']);
+    }
+
+    /**
+     * The badge for an entry whose file has changed since its check.
+     */
+    private static function changedBadge(): string
+    {
+        return '<span class="provemark-c2pa-badge provemark-c2pa-badge--changed"><span class="dashicons dashicons-warning" aria-hidden="true"></span>'
+            .esc_html__('Changed since its check', 'provemark-c2pa-check').'</span>';
     }
 
     /**

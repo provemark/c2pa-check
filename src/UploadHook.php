@@ -15,7 +15,9 @@ use Throwable;
  * Checks an uploaded image in the background (SPEC-013): the upload only
  * marks it pending and schedules one WP-Cron event, so a check that dies
  * cannot break the upload; the event checks the original file
- * (notes/m1-original-file.md) and stores the result as post meta.
+ * (notes/m1-original-file.md) and stores the result as post meta. When
+ * WordPress changes the original (the image editor, "Restore original"),
+ * it is checked again (SPEC-014).
  */
 final class UploadHook
 {
@@ -35,6 +37,9 @@ final class UploadHook
     /** After this many seconds a pending marker counts as not checked: its event was lost. */
     public const int PENDING_FOR = 3600;
 
+    /** The file to check: the original, relative to the uploads folder (SPEC-014). */
+    public const string SOURCE_KEY = '_provemark_c2pa_source';
+
     /** @var Closure(): TrustConfig */
     private readonly Closure $trustConfig;
 
@@ -49,7 +54,8 @@ final class UploadHook
     public function register(): void
     {
         add_action('add_attachment', $this->onAddAttachment(...));
-        add_action(self::EVENT, $this->runScheduled(...), 10, 2);
+        add_filter('wp_update_attachment_metadata', $this->onMetadataUpdate(...), 10, 2);
+        add_action(self::EVENT, $this->runScheduled(...));
     }
 
     /**
@@ -66,12 +72,12 @@ final class UploadHook
             // Here get_attached_file() is still the uploaded original on every
             // route (notes/m1-original-file.md); by the time the event runs it
             // may point at -scaled with the metadata not yet naming the
-            // original (SPEC-013 amendment 1), so the path travels with it.
+            // original (SPEC-013 amendment 1), so the path is kept now.
             $path = get_attached_file($attachmentId);
-            $relative = is_string($path) ? _wp_relative_upload_path($path) : '';
+            update_post_meta($attachmentId, self::SOURCE_KEY, is_string($path) ? self::relativeToUploads($path) : '');
 
             update_post_meta($attachmentId, self::PENDING_KEY, time());
-            wp_schedule_single_event(time(), self::EVENT, [$attachmentId, $relative]);
+            wp_schedule_single_event(time(), self::EVENT, [$attachmentId]);
         } catch (Throwable) {
             // The upload always proceeds.
         }
@@ -83,7 +89,7 @@ final class UploadHook
      * WordPress has usually made by now. An ID that is no longer a JPEG,
      * PNG or WebP attachment is skipped.
      */
-    public function runScheduled(mixed $attachmentId, mixed $originalPath = null): void
+    public function runScheduled(mixed $attachmentId): void
     {
         try {
             $id = is_int($attachmentId) || (is_string($attachmentId) && ctype_digit($attachmentId)) ? (int) $attachmentId : 0;
@@ -96,22 +102,85 @@ final class UploadHook
             // next cron request rather than die halfway (SPEC-013 amendment 1).
             $limit = (int) ini_get('max_execution_time');
             if ($limit > 0 && timer_float() > $limit / 2) {
-                wp_schedule_single_event(time(), self::EVENT, [$id, $originalPath]);
+                wp_schedule_single_event(time(), self::EVENT, [$id]);
 
                 return;
             }
 
             wp_raise_memory_limit('admin');
-
-            $path = self::uploadedFile($originalPath);
-            if ($path === null) {
-                $original = wp_get_original_image_path($id);
-                $path = is_string($original) && $original !== '' ? $original : get_attached_file($id);
-            }
-            $this->checkAndStore($id, is_string($path) ? $path : '');
+            $this->checkAndStore($id, self::fileOf($id));
         } catch (Throwable) {
             // Whatever was stored last stays.
         }
+    }
+
+    /**
+     * The filter every change WordPress makes to an attachment's file passes
+     * (the image editor, "Restore original"), with the new file already
+     * attached: when the original is now another file, that file is kept as
+     * the one to check, and an image that was checked is checked again.
+     * Returns the metadata unchanged.
+     */
+    public function onMetadataUpdate(mixed $data, mixed $attachmentId): mixed
+    {
+        try {
+            $id = is_int($attachmentId) ? $attachmentId : 0;
+            if ($id <= 0 || ! in_array(get_post_mime_type($id), self::MIME_TYPES, true)) {
+                return $data;
+            }
+
+            $attached = get_attached_file($id);
+            if (! is_string($attached) || $attached === '') {
+                return $data;
+            }
+            $original = is_array($data) && is_string($data['original_image'] ?? null) && $data['original_image'] !== ''
+                ? dirname($attached).'/'.$data['original_image']
+                : $attached;
+            $relative = self::relativeToUploads($original);
+            if ($relative === get_post_meta($id, self::SOURCE_KEY, true)) {
+                return $data;
+            }
+
+            update_post_meta($id, self::SOURCE_KEY, $relative);
+            if (metadata_exists('post', $id, self::META_KEY)) {
+                delete_post_meta($id, self::META_KEY);
+                Index::write($id, null);
+                update_post_meta($id, self::PENDING_KEY, time());
+                wp_schedule_single_event(time(), self::EVENT, [$id]);
+            }
+        } catch (Throwable) {
+            // The edit always proceeds.
+        }
+
+        return $data;
+    }
+
+    /**
+     * The file to check for an attachment: the kept original when it is a
+     * file inside the uploads folder, else the current original.
+     */
+    public static function fileOf(int $attachmentId): string
+    {
+        $kept = self::uploadedFile(get_post_meta($attachmentId, self::SOURCE_KEY, true));
+        if ($kept !== null) {
+            return $kept;
+        }
+
+        $original = wp_get_original_image_path($attachmentId);
+        $path = is_string($original) && $original !== '' ? $original : get_attached_file($attachmentId);
+
+        return is_string($path) ? $path : '';
+    }
+
+    /**
+     * A path relative to the uploads folder, as WordPress keeps
+     * `_wp_attached_file`; the path itself when it lies outside.
+     */
+    public static function relativeToUploads(string $path): string
+    {
+        $base = trailingslashit(wp_get_upload_dir()['basedir']);
+
+        return str_starts_with($path, $base) ? substr($path, strlen($base)) : $path;
     }
 
     /**
@@ -141,6 +210,16 @@ final class UploadHook
         }
 
         $entry = $this->checker->check($path, $settings, $trust);
+        // Which file this verdict describes (SPEC-014): a later change to it
+        // shows as "Changed since its check".
+        $relative = $path === '' ? null : self::relativeToUploads($path);
+        clearstatcache(true, $path);
+        $size = $path !== '' && is_file($path) ? filesize($path) : false;
+        $modified = $path !== '' && is_file($path) ? filemtime($path) : false;
+        $entry += ['file' => $relative, 'size' => $size === false ? null : $size, 'modified' => $modified === false ? null : $modified];
+        if ($relative !== null) {
+            update_post_meta($attachmentId, self::SOURCE_KEY, $relative);
+        }
 
         update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));
         Index::write($attachmentId, $entry);

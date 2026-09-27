@@ -1611,3 +1611,29 @@ README are where the disclosure lives.
 - Produced: "the checks run with the site's own cron job".
 - Measured: `composer check` (the readme test) before the commit.
 - Decided by Maurice: the wording; push.
+
+## 2026-09-27 — A verdict belongs to one file (SPEC-014)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a thorough final review before submission (three review agents:
+  security, wordpress.org guidelines, behaviour); then (Maurice) four
+  specs, SPEC-014 first.
+- Measured before: an image rotated in WordPress's editor kept its `Valid`
+  while its file had no credential any more (a re-check gave `none`); an
+  edit before the background check made the check read the uploaded file.
+  Read in core 7.1.2: `wp_save_image()` and `wp_restore_image()` call
+  `update_attached_file()` before `wp_update_attachment_metadata()`.
+- Tests first, seen red: AC1–AC7 (AC1: the old entry stayed; AC4: no
+  "Changed since its check"; AC5: no `file` recorded).
+- Produced: the file to check kept in `_provemark_c2pa_source` (no longer
+  in the event's arguments), updated in the `wp_update_attachment_metadata`
+  filter; a checked image whose original changes is checked again; the
+  entry records `file`, `size`, `modified`; the display shows "Changed
+  since its check" (no verdict, signer or AI label) when they no longer
+  match; the plugin's own relative-path helper replaces core's private
+  `_wp_relative_upload_path()`; uninstall, badge colour, readme FAQ.
+  `stable()` in the tests leaves the three new fields out, as the verifier
+  CLI does not produce them.
+- After: SPEC-014 7 passed; `composer check` 52, integration 123,
+  multisite 6; the release suite after the commit.
+- Decided by Maurice: SPEC-014 approved. Not pushed.

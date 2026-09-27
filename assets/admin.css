@@ -38,7 +38,8 @@
 .provemark-c2pa-badge--valid { color: #135e96; background: #f0f6fc; }
 .provemark-c2pa-badge--invalid { color: #b32d2e; background: #fcf0f1; }
 .provemark-c2pa-badge--error,
-.provemark-c2pa-badge--unreadable { color: #8a4b00; background: #fcf9e8; }
+.provemark-c2pa-badge--unreadable,
+.provemark-c2pa-badge--changed { color: #8a4b00; background: #fcf9e8; }
 .provemark-c2pa-badge--ai { color: #3c434a; background: #fff; }
 .provemark-c2pa-badge--pending { color: #3c434a; background: #f0f0f1; }
 

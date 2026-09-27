@@ -103,6 +103,14 @@ off (`DISABLE_WP_CRON`), the checks run with the site's own cron job.
 After an hour without a result the image shows "Not checked"; check it
 with `wp provemark-c2pa check --unchecked`.
 
+= Why does an image say "Changed since its check"? =
+
+Its file was replaced after the check by something WordPress did not
+report, such as another plugin or an upload over FTP. The old verdict no
+longer applies, so none is shown; check it again with
+`wp provemark-c2pa check <ID>`. An image edited in WordPress's own image
+editor, or restored to its original, is checked again automatically.
+
 = Which formats are checked? =
 
 JPEG, PNG and WebP. HEIC files are converted to JPEG by the browser before

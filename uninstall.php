@@ -15,7 +15,7 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 $provemark_c2pa_clean = static function (): void {
-    foreach (['_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai', '_provemark_c2pa_pending'] as $key) {
+    foreach (['_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai', '_provemark_c2pa_pending', '_provemark_c2pa_source'] as $key) {
         delete_post_meta_by_key($key);
     }
     // Background checks not yet run (SPEC-013).

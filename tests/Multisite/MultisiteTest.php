@@ -122,6 +122,7 @@ it('SPEC-013 AC8: uninstall removes the pending markers and the scheduled checks
                 'scheduled before' => $before[$site] > 0,
                 'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'"),
                 'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check']))),
+                'sources' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_source'"),
             ];
             restore_current_blog();
         }
@@ -130,5 +131,5 @@ it('SPEC-013 AC8: uninstall removes the pending markers and the scheduled checks
     $sites = is_array($counts) ? array_values($counts) : [];
 
     expect(count($sites))->toBeGreaterThanOrEqual(2)
-        ->and(array_slice($sites, 0, 2))->each->toBe(['scheduled before' => true, 'markers' => 0, 'events' => 0]);
+        ->and(array_slice($sites, 0, 2))->each->toBe(['scheduled before' => true, 'markers' => 0, 'events' => 0, 'sources' => 0]);
 })->group('SPEC-013');
