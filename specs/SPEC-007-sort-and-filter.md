@@ -168,6 +168,11 @@ select's options use SPEC-002's headlines, after "All Content Credentials".
    `post_date`, and MySQL may return them in either order. The ORDER BY
    now ends with `ID DESC`; AC2 checks that order for the tie.
 
+2. **2026-09-27, approved by Maurice van Loon** with SPEC-013. A filter
+   option "Check pending" (no entry, a pending marker under an hour old);
+   "Not checked" leaves those out. Sorting unchanged: pending images sort
+   with the unchecked.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

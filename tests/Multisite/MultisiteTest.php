@@ -97,3 +97,38 @@ it('AC5: re-checks on one site with --url, and leaves the other alone', function
         ->and(networkEntry($sub, NETWORK_SITE2)['state'] ?? null)->toBe('Trusted')
         ->and(networkEntry($main))->toBe($mainBefore);
 })->group('SPEC-011');
+
+it('SPEC-013 AC8: uninstall removes the pending markers and the scheduled checks, on every site', function (): void {
+    foreach ([NETWORK_MAIN, NETWORK_SITE2] as $url) {
+        // Imported, and its background check left scheduled.
+        $id = (int) networkCli(['media', 'import', '/var/www/html/fixtures/fixture-signed.jpg', '--porcelain'], $url)['output'];
+        expect($id)->toBeGreaterThan(0);
+    }
+
+    $counts = json_decode(networkEval(<<<'PHP'
+        $before = [];
+        foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
+            switch_to_blog($site);
+            $before[$site] = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check'])));
+            restore_current_blog();
+        }
+        require_once ABSPATH.'wp-admin/includes/plugin.php';
+        uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');
+        global $wpdb;
+        $out = [];
+        foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
+            switch_to_blog($site);
+            $out[$site] = [
+                'scheduled before' => $before[$site] > 0,
+                'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'"),
+                'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check']))),
+            ];
+            restore_current_blog();
+        }
+        echo json_encode($out);
+        PHP), true);
+    $sites = is_array($counts) ? array_values($counts) : [];
+
+    expect(count($sites))->toBeGreaterThanOrEqual(2)
+        ->and(array_slice($sites, 0, 2))->each->toBe(['scheduled before' => true, 'markers' => 0, 'events' => 0]);
+})->group('SPEC-013');

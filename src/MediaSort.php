@@ -58,6 +58,7 @@ final class MediaSort
             'ai' => __('AI-generated (signed)', 'provemark-c2pa-check'),
             'error' => __('Could not be checked', 'provemark-c2pa-check'),
             'none' => __('No Content Credentials', 'provemark-c2pa-check'),
+            'pending' => __('Check pending', 'provemark-c2pa-check'),
             'unchecked' => __('Not checked', 'provemark-c2pa-check'),
         ];
     }
@@ -101,6 +102,9 @@ final class MediaSort
     {
         $filter = self::chosen($request[self::PARAM] ?? null);
         if ($filter !== null) {
+            // A pending marker younger than this is "Check pending"; an older
+            // one was lost and counts as not checked (SPEC-013).
+            $cutoff = time() - UploadHook::PENDING_FOR;
             $clause = match ($filter) {
                 'trusted' => ['key' => Index::STATE_KEY, 'value' => 'Trusted'],
                 'valid' => ['key' => Index::STATE_KEY, 'value' => 'Valid'],
@@ -108,7 +112,20 @@ final class MediaSort
                 'error' => ['key' => Index::STATE_KEY, 'value' => 'error'],
                 'none' => ['key' => Index::STATE_KEY, 'value' => 'none'],
                 'ai' => ['key' => Index::AI_KEY, 'value' => '1'],
-                default => ['key' => Index::STATE_KEY, 'compare' => 'NOT EXISTS'],
+                'pending' => [
+                    'relation' => 'AND',
+                    ['key' => Index::STATE_KEY, 'compare' => 'NOT EXISTS'],
+                    ['key' => UploadHook::PENDING_KEY, 'value' => $cutoff, 'compare' => '>', 'type' => 'NUMERIC'],
+                ],
+                default => [
+                    'relation' => 'AND',
+                    ['key' => Index::STATE_KEY, 'compare' => 'NOT EXISTS'],
+                    [
+                        'relation' => 'OR',
+                        ['key' => UploadHook::PENDING_KEY, 'compare' => 'NOT EXISTS'],
+                        ['key' => UploadHook::PENDING_KEY, 'value' => $cutoff, 'compare' => '<=', 'type' => 'NUMERIC'],
+                    ],
+                ],
             };
             $existing = $query->get('meta_query');
             $query->set('meta_query', is_array($existing) && $existing !== [] ? ['relation' => 'AND', $existing, $clause] : [$clause]);

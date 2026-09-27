@@ -15,9 +15,11 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 $provemark_c2pa_clean = static function (): void {
-    foreach (['_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai'] as $key) {
+    foreach (['_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai', '_provemark_c2pa_pending'] as $key) {
         delete_post_meta_by_key($key);
     }
+    // Background checks not yet run (SPEC-013).
+    wp_unschedule_hook('provemark_c2pa_check');
     foreach (['provemark_c2pa_digicert', 'provemark_c2pa_custom_trust', 'provemark_c2pa_trust_failed', 'provemark_c2pa_index_done'] as $option) {
         delete_option($option);
     }

@@ -336,14 +336,159 @@ function stable(array $entry): array
 }
 
 /**
- * Uploads a host file into WordPress with WP-CLI and returns the attachment ID.
+ * Uploads a host file into WordPress with WP-CLI, runs the background check
+ * the upload scheduled (SPEC-013), and returns the attachment ID: what an
+ * upload gives once WP-Cron has run.
  */
 function importMedia(string $hostPath): int
+{
+    $id = importWithoutChecking($hostPath);
+    runPendingChecks();
+
+    return $id;
+}
+
+/**
+ * Uploads a host file with WP-CLI and returns the attachment ID, leaving the
+ * background check it scheduled (SPEC-013) unrun.
+ */
+function importWithoutChecking(string $hostPath): int
 {
     $result = wpCli(['media', 'import', containerPath($hostPath), '--porcelain']);
     $id = (int) $result['output'];
 
     return $id > 0 ? $id : throw new RuntimeException('wp media import failed: '.$result['output']);
+}
+
+/**
+ * Runs the plugin's due background checks (SPEC-013) as wp-cron.php runs an
+ * event: unscheduled first, then its action, in a request of its own.
+ * Prints `RAN:<count>` when the request survives.
+ */
+const RUN_PENDING_CHECKS = <<<'PHP'
+    $ran = 0;
+    foreach (_get_cron_array() ?: [] as $timestamp => $hooks) {
+        foreach ($hooks['provemark_c2pa_check'] ?? [] as $event) {
+            wp_unschedule_event($timestamp, 'provemark_c2pa_check', $event['args']);
+            do_action_ref_array('provemark_c2pa_check', $event['args']);
+            $ran++;
+        }
+    }
+    echo 'RAN:', $ran;
+    PHP;
+
+/**
+ * Runs the due background checks in an environment (on the site at $url
+ * for the multisite one) and returns what the request printed.
+ */
+function runPendingChecksOutput(string $variant = 'test', ?string $url = null): string
+{
+    $args = ['eval', RUN_PENDING_CHECKS, '--user=admin'];
+    if ($url !== null) {
+        $args[] = '--url='.$url;
+    }
+
+    return wpCli($args, $variant)['output'];
+}
+
+/**
+ * How many due background checks ran; 0 when the request died.
+ */
+function runPendingChecks(string $variant = 'test', ?string $url = null): int
+{
+    return preg_match('/RAN:(\d+)/', runPendingChecksOutput($variant, $url), $m) === 1 ? (int) $m[1] : 0;
+}
+
+/**
+ * The scheduled background checks for an attachment (SPEC-013).
+ */
+function scheduledChecks(int $id): int
+{
+    return (int) wpEval("\$n = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n += (\$event['args'] ?? []) === [$id] ? 1 : 0; } } echo \$n;");
+}
+
+/**
+ * The pending marker of an attachment (SPEC-013), or null.
+ */
+function pendingMarker(int $id): ?int
+{
+    $value = wpEval("echo get_post_meta($id, '_provemark_c2pa_pending', true);");
+
+    return is_numeric($value) ? (int) $value : null;
+}
+
+const TEST_SITE = 'http://localhost:8892';
+
+/**
+ * Uploads a host file to the test environment over HTTP as its
+ * administrator (wp-env's default account), through the route the block
+ * editor uses (`rest`, POST /wp/v2/media) or the Media Library's
+ * (`async`, async-upload.php). Returns the HTTP status, the body and the
+ * attachment ID the response names (0 when it names none).
+ *
+ * @param  'rest'|'async'  $route
+ * @return array{status: int, body: string, id: int}
+ */
+function httpUpload(string $route, string $hostPath, string $filename): array
+{
+    $jar = tmpDir().'/admin-cookies.txt';
+    $body = tmpDir().'/upload-response.txt';
+    @unlink($body);
+    exec('curl -s -c '.escapeshellarg($jar).' -b '.escapeshellarg('wordpress_test_cookie=WP Cookie check').' -o /dev/null -d '.escapeshellarg('log=admin&pwd=password&testcookie=1').' '.escapeshellarg(TEST_SITE.'/wp-login.php'));
+
+    if ($route === 'rest') {
+        $nonce = trim((string) shell_exec('curl -s -b '.escapeshellarg($jar).' '.escapeshellarg(TEST_SITE.'/wp-admin/admin-ajax.php?action=rest-nonce')));
+        $status = (int) shell_exec('curl -s -o '.escapeshellarg($body).' -w "%{http_code}" -b '.escapeshellarg($jar)
+            .' -H '.escapeshellarg('X-WP-Nonce: '.$nonce)
+            .' -H '.escapeshellarg('Content-Disposition: attachment; filename='.$filename)
+            .' -H '.escapeshellarg('Content-Type: image/jpeg')
+            .' --data-binary '.escapeshellarg('@'.$hostPath).' '.escapeshellarg(TEST_SITE.'/wp-json/wp/v2/media'));
+    } else {
+        $page = (string) shell_exec('curl -s -b '.escapeshellarg($jar).' '.escapeshellarg(TEST_SITE.'/wp-admin/upload.php'));
+        $nonce = preg_match('/"_wpnonce":"([^"]+)"/', $page, $m) === 1 ? $m[1] : '';
+        $status = (int) shell_exec('curl -s -o '.escapeshellarg($body).' -w "%{http_code}" -b '.escapeshellarg($jar)
+            .' -F '.escapeshellarg('async-upload=@'.$hostPath.';filename='.$filename.';type=image/jpeg')
+            .' -F '.escapeshellarg('name='.$filename).' -F action=upload-attachment -F '.escapeshellarg('_wpnonce='.$nonce)
+            .' '.escapeshellarg(TEST_SITE.'/wp-admin/async-upload.php'));
+    }
+
+    $text = (string) @file_get_contents($body);
+    $json = json_decode($text, true);
+    $id = is_array($json) ? ($json['id'] ?? (is_array($json['data'] ?? null) ? ($json['data']['id'] ?? 0) : 0)) : 0;
+
+    return ['status' => $status, 'body' => $text, 'id' => is_int($id) ? $id : 0];
+}
+
+/**
+ * How many image sizes WordPress made for an attachment; -1 when it has no
+ * metadata at all.
+ */
+function imageSizes(int $id): int
+{
+    return (int) wpEval("\$m = wp_get_attachment_metadata($id); echo is_array(\$m) && \$m !== [] ? count(\$m['sizes'] ?? []) : -1;");
+}
+
+/**
+ * Runs $test with a must-use plugin in the test environment that exhausts
+ * memory whenever the plugin checks a file (in the upload or in its
+ * background check), as a check that dies does; removed afterwards.
+ *
+ * @template T
+ *
+ * @param  callable(): T  $test
+ * @return T
+ */
+function withCheckThatDies(callable $test): mixed
+{
+    wpEval(<<<'PHP'
+        if (! is_dir(WPMU_PLUGIN_DIR)) { mkdir(WPMU_PLUGIN_DIR, 0777, true); }
+        file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-check-dies.php', '<?php add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("add_attachment") || doing_action("provemark_c2pa_check")) { $a = []; while (true) { $a[] = str_repeat("x", 1 << 20); } } return $v; });');
+        PHP);
+    try {
+        return $test();
+    } finally {
+        wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-check-dies.php");');
+    }
 }
 
 /**
@@ -380,6 +525,9 @@ function attachmentWithEntry(mixed $entry): int
     $out = wpEval(<<<PHP
         \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
         \$entry = json_decode(base64_decode('$payload'), true);
+        // Made here, not uploaded: no pending marker, no scheduled check (SPEC-013).
+        delete_post_meta(\$id, '_provemark_c2pa_pending');
+        wp_clear_scheduled_hook('provemark_c2pa_check', [\$id]);
         if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); delete_post_meta(\$id, '_provemark_c2pa_state'); delete_post_meta(\$id, '_provemark_c2pa_ai'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); if (class_exists('Provemark\\C2paCheck\\Index')) { Provemark\\C2paCheck\\Index::write(\$id, \$entry); } }
         echo 'ID:', \$id, "\n";
         PHP);
@@ -479,6 +627,7 @@ function releaseImport(string $fixture): int
         throw new RuntimeException('import failed: '.$result['output']);
     }
     ReleaseUploads::$ids[] = $id;
+    runPendingChecks('release');
 
     return $id;
 }
@@ -627,6 +776,8 @@ function emptyTestEnvironment(): void
         foreach (['provemark_c2pa_digicert', 'provemark_c2pa_custom_trust', 'provemark_c2pa_trust_failed', 'provemark_c2pa_index_done'] as $option) {
             delete_option($option);
         }
+        wp_unschedule_hook('provemark_c2pa_check');
+        @unlink(WPMU_PLUGIN_DIR.'/provemark-test-check-dies.php');
         $uploads = wp_get_upload_dir()['basedir'];
         if (is_dir($uploads)) {
             $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($uploads, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
@@ -669,8 +820,12 @@ function networkImport(string $fixture, string $url = NETWORK_MAIN): int
 {
     $result = networkCli(['media', 'import', '/var/www/html/fixtures/'.$fixture, '--porcelain'], $url);
     $id = (int) $result['output'];
+    if ($id <= 0) {
+        throw new RuntimeException('import failed: '.$result['output']);
+    }
+    runPendingChecks('multisite', $url);
 
-    return $id > 0 ? $id : throw new RuntimeException('import failed: '.$result['output']);
+    return $id;
 }
 
 /**

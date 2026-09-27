@@ -12,9 +12,10 @@ use Closure;
 use Throwable;
 
 /**
- * Verifies an uploaded image in add_attachment, where get_attached_file()
- * is still the uploaded original on every route (notes/m1-original-file.md),
- * and stores the result as post meta.
+ * Checks an uploaded image in the background (SPEC-013): the upload only
+ * marks it pending and schedules one WP-Cron event, so a check that dies
+ * cannot break the upload; the event checks the original file
+ * (notes/m1-original-file.md) and stores the result as post meta.
  */
 final class UploadHook
 {
@@ -24,6 +25,15 @@ final class UploadHook
 
     /** Set while the last check had to run without trust settings (SPEC-004 AC6). */
     public const string TRUST_FAILED_OPTION = 'provemark_c2pa_trust_failed';
+
+    /** The WP-Cron event that checks one attachment (SPEC-013). */
+    public const string EVENT = 'provemark_c2pa_check';
+
+    /** When the check of an attachment was scheduled (Unix time), until it runs. */
+    public const string PENDING_KEY = '_provemark_c2pa_pending';
+
+    /** After this many seconds a pending marker counts as not checked: its event was lost. */
+    public const int PENDING_FOR = 3600;
 
     /** @var Closure(): TrustConfig */
     private readonly Closure $trustConfig;
@@ -39,8 +49,13 @@ final class UploadHook
     public function register(): void
     {
         add_action('add_attachment', $this->onAddAttachment(...));
+        add_action(self::EVENT, $this->runScheduled(...));
     }
 
+    /**
+     * Marks a JPEG, PNG or WebP upload pending and schedules its check;
+     * nothing is verified in the upload request.
+     */
     public function onAddAttachment(int $attachmentId): void
     {
         try {
@@ -48,10 +63,33 @@ final class UploadHook
                 return;
             }
 
-            $path = get_attached_file($attachmentId);
-            $this->checkAndStore($attachmentId, is_string($path) ? $path : '');
+            update_post_meta($attachmentId, self::PENDING_KEY, time());
+            wp_schedule_single_event(time(), self::EVENT, [$attachmentId]);
         } catch (Throwable) {
-            // The upload always proceeds; whatever was stored last stays.
+            // The upload always proceeds.
+        }
+    }
+
+    /**
+     * The scheduled check, in a request of its own (WP-Cron): with the
+     * admin memory limit, on the original file, not on `-scaled`, which
+     * WordPress has usually made by now. An ID that is no longer a JPEG,
+     * PNG or WebP attachment is skipped.
+     */
+    public function runScheduled(mixed $attachmentId): void
+    {
+        try {
+            $id = is_int($attachmentId) || (is_string($attachmentId) && ctype_digit($attachmentId)) ? (int) $attachmentId : 0;
+            if ($id <= 0 || get_post_type($id) !== 'attachment' || ! in_array(get_post_mime_type($id), self::MIME_TYPES, true)) {
+                return;
+            }
+
+            wp_raise_memory_limit('admin');
+            $original = wp_get_original_image_path($id);
+            $path = is_string($original) && $original !== '' ? $original : get_attached_file($id);
+            $this->checkAndStore($id, is_string($path) ? $path : '');
+        } catch (Throwable) {
+            // Whatever was stored last stays.
         }
     }
 
@@ -68,6 +106,7 @@ final class UploadHook
         // backslashes in text from the file (SPEC-001 amendment 2). The
         // provisional entry goes first, before anything that could stop
         // the request, reading the trust lists included.
+        delete_post_meta($attachmentId, self::PENDING_KEY);
         $provisional = $this->checker->interrupted();
         update_post_meta($attachmentId, self::META_KEY, wp_slash($provisional));
         Index::write($attachmentId, $provisional);

@@ -1501,3 +1501,39 @@ README are where the disclosure lives.
   `v0.2.4`: all in `Manifest/Manifest.php`, lines 325 and 335.
 - Decided by Maurice: baseline 616 reviewed and accepted; open point 1
   lapsed. Not pushed.
+
+## 2026-09-27 — The check runs in the background (SPEC-013)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: open point 2, a check that dies must not break the upload; then
+  (Maurice) option B, WP-Cron, with the label "Check pending".
+- Measured before: with a must-use plugin that exhausts memory during the
+  check, a REST upload answered HTTP 200 with a fatal error in the body,
+  `async-upload.php` HTTP 500; the attachment kept its file but got no
+  metadata and no image sizes; the entry was `error` / `interrupted`. In
+  the REST route the check ran under a 128 MB limit.
+- Tests first, seen red: SPEC-013 AC1–AC8 (AC1: the upload stored an
+  entry; AC3: HTTP 200 instead of 201), and SPEC-001 AC7/AC8 once they
+  called the new handler.
+- Produced: `UploadHook` (marker and one WP-Cron event on upload;
+  `runScheduled()` with the admin memory limit on the original file, not
+  `-scaled`; `checkAndStore()` clears the marker), "Check pending" in
+  `Display` and `MediaScreens`, the filter option in `MediaSort`, the badge
+  colour, `uninstall.php`, the readme (background check, an FAQ on
+  "Check pending" and `DISABLE_WP_CRON`), SPEC-001 amendment 3, SPEC-007
+  amendment 2, `NOTES.md` point 2 resolved. Test helpers: imports run the
+  due check, as WP-Cron would; HTTP uploads through REST and
+  `async-upload.php`; a must-use plugin for a check that dies.
+- Test mistakes on the way: `attachmentWithEntry()` and `sevenGroups()`
+  made JPEG attachments that now got a marker and an event, so they clear
+  both; AC3 needs two cron runs, as a check that dies ends its cron
+  request; AC4 first called `wp-cron.php` without the lock key and nothing
+  ran (not explained), now it calls it as `spawn_cron()` does; AC1 holds
+  WP-Cron with a fresh lock, as any request, WP-CLI included, spawns it;
+  SPEC-007 AC6 made its "new unindexed entry" by an upload, now it stores
+  one.
+- Measured after: the result about 2 s after an upload starts, when a page
+  load follows (three runs); `composer check` 52 passed, integration 112,
+  multisite 6; the release suite after the commit (it builds from HEAD).
+- Decided by Maurice: SPEC-013 approved, option B, "Check pending". Not
+  pushed.

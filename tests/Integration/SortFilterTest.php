@@ -27,6 +27,9 @@ function sevenGroups(): array
         \$ids = [];
         foreach (json_decode(base64_decode('$payload'), true) as \$group => \$entry) {
             \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
+            // Made here, not uploaded: no pending check (SPEC-013).
+            delete_post_meta(\$id, '_provemark_c2pa_pending');
+            wp_clear_scheduled_hook('provemark_c2pa_check', [\$id]);
             if (\$entry === null) {
                 delete_post_meta(\$id, '_provemark_c2pa_result');
                 Provemark\\C2paCheck\\Index::write(\$id, null);
@@ -193,7 +196,9 @@ it('AC6: backfills unindexed entries in batches of 500', function (): void {
             ->and(indexOf($last)['state'])->toBe('Valid');
 
         // Done means done: a new unindexed entry is left alone.
-        wpEval("\$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'backfill', 'post_status' => 'inherit'], '/nonexistent.jpg'); delete_post_meta(\$id, '_provemark_c2pa_state');");
+        // An entry stored without its index (the upload no longer stores one
+        // itself: its check runs in the background, SPEC-013).
+        wpEval("\$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'backfill', 'post_status' => 'inherit'], '/nonexistent.jpg'); update_post_meta(\$id, '_provemark_c2pa_result', ['schema' => 1, 'state' => 'none']); delete_post_meta(\$id, '_provemark_c2pa_state');");
         expect(wpEval($request))->toBe('done')
             ->and((int) wpEval($unindexed))->toBe(1);
 
@@ -201,3 +206,18 @@ it('AC6: backfills unindexed entries in batches of 500', function (): void {
         wpEval($cleanup.' delete_option("provemark_c2pa_index_done");');
     }
 })->group('SPEC-007');
+
+it('SPEC-013 AC7: filters and sorts the images whose check is pending', function (): void {
+    $pending = attachmentWithEntry(null);
+    $unchecked = attachmentWithEntry(null);
+    $valid = attachmentWithEntry(sampleEntry(['state' => 'Valid']));
+    wpEval("update_post_meta($pending, '_provemark_c2pa_pending', time());");
+    $ids = [$pending, $unchecked, $valid];
+
+    $sorted = listedIds($ids, ['orderby' => 'provemark_c2pa', 'order' => 'asc'])['ids'];
+
+    expect(listedIds($ids, ['provemark_c2pa' => 'pending'])['ids'])->toBe([$pending])
+        ->and(listedIds($ids, ['provemark_c2pa' => 'unchecked'])['ids'])->toBe([$unchecked])
+        ->and($sorted[0] ?? null)->toBe($valid)
+        ->and(wpEval("do_action('restrict_manage_posts', 'attachment', 'top');"))->toContain('Check pending');
+})->group('SPEC-013');

@@ -94,7 +94,10 @@ plugin's part.
    affected; only an administrator's pasted settings can be.
    `SettingsPage::sanitizeCustom()` could refuse the legacy field with a
    settings error, and the description on the settings page say so.
-2. **Do not let a check that dies break the upload.** Measured in that
+2. **Resolved 2026-09-27 by SPEC-013** (the check runs in the background
+   through WP-Cron; measured: a check that dies no longer breaks the upload
+   on the REST or the Media Library route). Kept for the record:
+   *Do not let a check that dies break the upload.* Measured in that
    review: crafted files of a few MB make the verifier exhaust 256 MB of
    memory or run for about a minute or more. Neither can be caught; the
    plugin's provisional entry (`interrupted`) stays, as designed, but the
@@ -112,8 +115,8 @@ plugin's part.
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
 and every suite, the release suite included. **Done 2026-09-27 for
-v0.2.4** (SPEC-006 amendment 5). Point 2 stays open: v0.2.4 bounds the
-known files, not the next unknown one.
+v0.2.4** (SPEC-006 amendment 5). Point 2 was resolved by SPEC-013: v0.2.4
+bounds the known files, the background check the next unknown one.
 
 ## To measure before a spec relies on it
 

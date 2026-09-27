@@ -52,6 +52,7 @@ it('AC6: stores `error` / `unreadable` when the file is gone, and keeps the atta
         echo 'ID:', $id, "\n";
         PHP);
     $id = (int) preg_replace('/.*ID:(\d+).*/s', '$1', $out);
+    runPendingChecks(); // SPEC-013: the check runs in the background
 
     expect($id)->toBeGreaterThan(0)
         ->and(storedEntry($id)['state'] ?? null)->toBe('error')
@@ -60,7 +61,7 @@ it('AC6: stores `error` / `unreadable` when the file is gone, and keeps the atta
 
 it('AC7: stores `error` / `exception` when verifying throws', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(fn () => throw new RuntimeException('secret'))))->onAddAttachment($id);");
+    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(fn () => throw new RuntimeException('secret'))))->runScheduled($id);");
 
     expect(storedEntry($id)['state'] ?? null)->toBe('error')
         ->and(storedEntry($id)['reason'] ?? null)->toBe('exception');
@@ -68,7 +69,7 @@ it('AC7: stores `error` / `exception` when verifying throws', function (): void 
 
 it('AC8: leaves `error` / `interrupted` when the check is stopped midway', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(function () { exit(0); })))->onAddAttachment($id);");
+    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(function () { exit(0); })))->runScheduled($id);");
 
     expect(storedEntry($id)['state'] ?? null)->toBe('error')
         ->and(storedEntry($id)['reason'] ?? null)->toBe('interrupted');

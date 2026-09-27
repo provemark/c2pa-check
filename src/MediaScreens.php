@@ -56,7 +56,7 @@ final class MediaScreens
     public function renderColumn(string $column, int $attachmentId): void
     {
         if ($column === self::COLUMN) {
-            echo wp_kses_post(Display::headline(self::entryOf($attachmentId)));
+            echo wp_kses_post(Display::headline(self::entryOf($attachmentId), self::pendingSince($attachmentId), time()));
         }
     }
 
@@ -69,10 +69,20 @@ final class MediaScreens
         $fields[self::COLUMN] = [
             'label' => esc_html__('Content Credentials', 'provemark-c2pa-check'),
             'input' => 'html',
-            'html' => wp_kses_post(Display::details(self::entryOf($post->ID))),
+            'html' => wp_kses_post(Display::details(self::entryOf($post->ID), self::pendingSince($post->ID), time())),
         ];
 
         return $fields;
+    }
+
+    /**
+     * When the attachment's background check was scheduled (SPEC-013), or null.
+     */
+    private static function pendingSince(int $attachmentId): ?int
+    {
+        $since = get_post_meta($attachmentId, UploadHook::PENDING_KEY, true);
+
+        return is_numeric($since) ? (int) $since : null;
     }
 
     /**

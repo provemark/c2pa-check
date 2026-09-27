@@ -16,8 +16,9 @@ made or edited it, with which tool, and whether generative AI was used.
 Provemark C2PA Check verifies that record for every JPEG, PNG and WebP you
 upload and shows the verdict where you already work with media.
 
-* **Checked on upload, on the original file**, not on the resized copies
-  WordPress or your browser makes.
+* **Checked right after upload, on the original file**, not on the
+  resized copies WordPress or your browser makes. The check runs in the
+  background, so a file that trips it up can never break an upload.
 * **A verdict per image** in a Media Library column and in the attachment
   details: who signed it, when, and against which trust list.
 * **"AI-generated (signed)"** when a manifest that verifies says the image
@@ -55,7 +56,8 @@ C2PA verifier written in PHP, bundled with the plugin.
 
 1. Install and activate the plugin. The server needs PHP 8.3 or later with
    the `openssl` and `mbstring` extensions.
-2. Upload images as usual. Each JPEG, PNG and WebP is checked on upload.
+2. Upload images as usual. Each JPEG, PNG and WebP is checked in the
+   background, usually within seconds; until then it shows "Check pending".
 3. Optional: under Settings → C2PA Check, choose whether to trust
    DigiCert timestamps, or paste your own trust settings.
 4. Images uploaded before the plugin was active show "Not checked". Check
@@ -91,6 +93,14 @@ AI image without Content Credentials gets no label.
 
 No. It only reads the original file and stores the result with the image.
 Settings → Privacy offers suggested text for your privacy policy.
+
+= Why does an image say "Check pending"? =
+
+The check runs in the background through WP-Cron, on the next request to
+the site after the upload, usually within seconds. If WP-Cron is switched
+off (`DISABLE_WP_CRON`), the checks run when the site's own cron job runs
+it. After an hour without a result the image shows "Not checked"; check it
+with `wp provemark-c2pa check --unchecked`.
 
 = Which formats are checked? =
 
@@ -138,7 +148,7 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 = 0.1.0 =
 
-* Verifies the Content Credentials of JPEG, PNG and WebP uploads on the original file.
+* Verifies the Content Credentials of JPEG, PNG and WebP uploads on the original file, in the background.
 * Media Library column and attachment details, with an AI label for verified AI images.
 * Bundled C2PA trust lists (2026-08-14), DigiCert timestamps, custom trust settings.
 * Sorting and filtering by verdict; `wp provemark-c2pa check` for existing images.

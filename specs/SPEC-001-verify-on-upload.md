@@ -242,6 +242,14 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    `wp_slash()`, and AC11 checks it. Found by reasoning while building
    SPEC-002, then seen red with a crafted file.
 
+3. **2026-09-27, approved by Maurice van Loon** with SPEC-013. The check no
+   longer runs inside the upload request: `add_attachment` marks the image
+   pending and schedules a WP-Cron event, which checks the original file
+   (`wp_get_original_image_path()`, as the upload's `-scaled` copy exists by
+   then). What is stored, and every criterion's verdict, is unchanged; the
+   tests run the due event after an import. AC6–AC8 drive the check through
+   the event's handler (`UploadHook::runScheduled`).
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at

@@ -32,23 +32,26 @@ final class Display
      * The column cell: one headline.
      *
      * @param  mixed  $entry  the stored value, or null when there is none
+     * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function headline(mixed $entry): string
+    public static function headline(mixed $entry, ?int $pendingSince = null, int $now = 0): string
     {
-        return self::badges(self::read($entry));
+        return self::badges(self::read($entry), self::pending($entry, $pendingSince, $now));
     }
 
     /**
      * The attachment-details row: the headline and what the entry says.
      *
      * @param  mixed  $entry  the stored value, or null when there is none
+     * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
      */
-    public static function details(mixed $entry): string
+    public static function details(mixed $entry, ?int $pendingSince = null, int $now = 0): string
     {
         $read = self::read($entry);
-        [$class] = self::headlineOf($read);
+        $pending = self::pending($entry, $pendingSince, $now);
+        [$class] = self::headlineOf($read, $pending);
 
-        $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'."\n".'<p class="provemark-c2pa-badges">'.self::badges($read).'</p>';
+        $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'."\n".'<p class="provemark-c2pa-badges">'.self::badges($read, $pending).'</p>';
         $rows = is_array($read) ? self::rows($read) : [];
         if ($rows !== []) {
             $html .= "\n".'<dl class="provemark-c2pa-facts">';
@@ -76,6 +79,16 @@ final class Display
         }
 
         return $read === false ? ['unreadable', false] : [$read['state'], self::showsAiLabel($read)];
+    }
+
+    /**
+     * Whether "Check pending" shows (SPEC-013): no entry yet, and a marker
+     * younger than UploadHook::PENDING_FOR. An entry always wins; an older
+     * marker means the event was lost, so the image counts as not checked.
+     */
+    private static function pending(mixed $entry, ?int $pendingSince, int $now): bool
+    {
+        return $entry === null && $pendingSince !== null && $now - $pendingSince < UploadHook::PENDING_FOR;
     }
 
     /**
@@ -163,14 +176,15 @@ final class Display
      *
      * @param  array{state: string, ai: bool}|false|null  $read
      */
-    private static function badges(array|false|null $read): string
+    private static function badges(array|false|null $read, bool $pending = false): string
     {
-        [$class, $headline] = self::headlineOf($read);
+        [$class, $headline] = self::headlineOf($read, $pending);
         $icon = match ($class) {
             'trusted' => 'yes-alt',
             'valid' => 'yes',
             'invalid' => 'dismiss',
             'error', 'unreadable' => 'warning',
+            'pending' => 'clock',
             default => 'minus',
         };
 
@@ -228,10 +242,12 @@ final class Display
      * @param  array{state: string}|false|null  $read
      * @return array{string, string} CSS modifier and headline (both plain text)
      */
-    private static function headlineOf(array|false|null $read): array
+    private static function headlineOf(array|false|null $read, bool $pending = false): array
     {
         if ($read === null) {
-            return ['unchecked', __('Not checked', 'provemark-c2pa-check')];
+            return $pending
+                ? ['pending', __('Check pending', 'provemark-c2pa-check')]
+                : ['unchecked', __('Not checked', 'provemark-c2pa-check')];
         }
         if ($read === false) {
             return ['unreadable', __('Result unreadable', 'provemark-c2pa-check')];
