@@ -1106,3 +1106,20 @@ README are where the disclosure lives.
   decided. `composer check` green. The two earlier commits stay in the
   history, unpushed until now.
 - Decided by Maurice: remove the header; stay wordpress.org-ready.
+
+## 2026-09-27 — SPEC-010 drafted (privacy policy text)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: start on the privacy text; after asking what it is for, Maurice
+  chose the suggested text only (no exporter or eraser).
+- Measured: CI run 36258905640 on `61dd988` green on every job. Read in
+  core 7.1.2: `wp_add_privacy_policy_content()` works only from
+  `admin_init` in the admin (else `_doing_it_wrong`), and
+  `privacy-policy-tutorial` marks guidance left out of the copied text;
+  core's "WordPress Media" personal-data exporter exports only the URLs of
+  a user's attachments.
+- Produced: `specs/SPEC-010-privacy-policy-text.md` (status `draft`): the
+  text, where it is registered, a test per claim not tested elsewhere
+  (including "deleted when the image is deleted"); one non-blocking open
+  question (the wording).
+- Decided by Maurice: the suggested text only. Not pushed.
