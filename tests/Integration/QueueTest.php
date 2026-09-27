@@ -47,9 +47,13 @@ it('AC4: a run that dies loses nothing', function (): void {
     try {
         $died = runPendingChecksOutput();
         $states = array_map(fn (int $id): ?string => is_string(storedEntry($id)['state'] ?? null) ? storedEntry($id)['state'] : null, $ids);
+        // Which image dies first depends on markers set in the same second:
+        // compare the counts, not their order (CI of da84e45 failed on it).
+        $counts = array_count_values(array_map(fn (?string $s): string => $s ?? 'none yet', $states));
+        ksort($counts);
 
         expect($died)->not->toContain('RAN:')
-            ->and(array_count_values(array_map(fn (?string $s): string => $s ?? 'none yet', $states)))->toBe(['error' => 1, 'none yet' => 2])
+            ->and($counts)->toBe(['error' => 1, 'none yet' => 2])
             ->and(queueEvents()['events'])->toBe(1)
             ->and(wpEval("echo wp_next_scheduled('provemark_c2pa_check') > time() ? 'later' : 'now';"))->toBe('later')
             ->and(runPendingChecks())->toBe(2);

@@ -272,11 +272,13 @@ final class UploadHook
         if (! is_string($originalImage) || $originalImage === '') {
             return $attached;
         }
+        // Without the extension: a site may have WordPress save the copy in
+        // another format (`name-scaled.webp` for `name.jpg`, SPEC-018
+        // amendment 1).
         $name = pathinfo($originalImage, PATHINFO_FILENAME);
-        $extension = pathinfo($originalImage, PATHINFO_EXTENSION);
-        $copies = [$name.'-scaled.'.$extension, $name.'-rotated.'.$extension];
+        $copies = [$name.'-scaled', $name.'-rotated'];
 
-        return in_array(wp_basename($attached), $copies, true) ? dirname($attached).'/'.$originalImage : $attached;
+        return in_array(pathinfo($attached, PATHINFO_FILENAME), $copies, true) ? dirname($attached).'/'.$originalImage : $attached;
     }
 
     /**
@@ -341,6 +343,15 @@ final class UploadHook
         $modified = $path !== '' && is_file($path) ? filemtime($path) : false;
         $entry += ['file' => $relative, 'size' => $size === false ? null : $size, 'modified' => $modified === false ? null : $modified];
 
+        // Deleted while it was being checked (SPEC-015): leave no rows behind.
+        if (get_post_type($attachmentId) !== 'attachment') {
+            foreach ([self::META_KEY, self::PENDING_KEY, self::SOURCE_KEY, Index::STATE_KEY, Index::AI_KEY] as $key) {
+                delete_post_meta($attachmentId, $key);
+            }
+
+            return $entry;
+        }
+
         // Changed while it was being checked (SPEC-018): the metadata filter
         // has already queued the file it changed to; keep nothing of this.
         if (get_post_meta($attachmentId, self::SOURCE_KEY, true) !== $source) {
@@ -349,15 +360,6 @@ final class UploadHook
 
         if ($relative !== null) {
             update_post_meta($attachmentId, self::SOURCE_KEY, $relative);
-        }
-
-        // Deleted while it was being checked (SPEC-015): leave no rows behind.
-        if (get_post_type($attachmentId) !== 'attachment') {
-            foreach ([self::META_KEY, self::PENDING_KEY, self::SOURCE_KEY, Index::STATE_KEY, Index::AI_KEY] as $key) {
-                delete_post_meta($attachmentId, $key);
-            }
-
-            return $entry;
         }
 
         update_post_meta($attachmentId, self::META_KEY, wp_slash($entry));

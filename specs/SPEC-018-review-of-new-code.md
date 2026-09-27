@@ -136,6 +136,32 @@ says how it is escaped.
 
 None. Decided by Maurice on 2026-09-27: option A.
 
+## Amendments
+
+1. **2026-09-27, approved by Maurice van Loon.** From a last review of this
+   spec's own change:
+   - *A converted copy is still WordPress's copy.* With
+     `image_editor_output_format` mapping JPEG to WebP (common in
+     performance plugins), the copy made at upload is `name-scaled.webp`
+     while `original_image` stays `name.jpg`; `shownFile()` compared whole
+     names, did not recognise it, and the queue checked the copy: the
+     reviewer measured `none` for a Lightroom photo that is `Valid` without
+     the filter, a regression of this spec. Names are now compared without
+     their extension, in the same folder.
+   - *A post deleted as a check starts* leaves no rows: the check for a
+     deleted attachment comes before the early return for a changed file
+     (reasoned; the window is microseconds).
+
+   Added criteria:
+
+   - **AC10 — a JPEG saved as WebP is checked on its original** *(error
+     path)*: with `image_editor_output_format` mapping JPEG to WebP, the
+     Pixel 10 photo's copy is `…-scaled.webp`, and its entry is `Trusted`
+     and records the `.jpg`.
+   - **AC11 — deleted right after the provisional entry** *(error path)*:
+     an attachment deleted while its provisional entry is written leaves
+     no `_provemark_c2pa_*` row.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
@@ -149,3 +175,5 @@ None. Decided by Maurice on 2026-09-27: option A.
 | AC7 | `tests/Unit/RobustnessTest.php` :: SPEC-018 AC7 | `provemark-c2pa-check.php` |
 | AC8 | `tests/Unit/RobustnessTest.php` :: SPEC-018 AC8 | `Checker`, `MediaSort`, `RecheckCommand`, `UploadHook` (`phpcs:ignore … -- reason`) |
 | AC9 | `tests/Unit/ReadmeTest.php` :: SPEC-018 AC9 | `readme.txt` |
+| AC10 | `tests/Integration/NewCodeFixesTest.php` :: AC10 | `UploadHook::shownFile` (names compared without extension) |
+| AC11 | `tests/Integration/NewCodeFixesTest.php` :: AC11 | `UploadHook::checkAndStore` (the deleted-post check before the changed-file return) |

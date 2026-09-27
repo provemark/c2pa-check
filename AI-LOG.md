@@ -1776,3 +1776,28 @@ README are where the disclosure lives.
 - Asked: mark SPEC-018 implemented and push.
 - Produced: the status line; Traceability was filled in `5cc7392`.
 - Decided by Maurice: SPEC-018 implemented; push.
+
+## 2026-09-27 — SPEC-018 amendment 1, from a last review of its change
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a last short review of SPEC-018's change (one review agent);
+  then (Maurice) amendment 1.
+- Measured (by the reviewer, confirmed in the code): with
+  `image_editor_output_format` mapping JPEG to WebP, WordPress's copy is
+  `name-scaled.webp` while `original_image` is `name.jpg`; `shownFile()`
+  compared whole names and the queue checked the copy: `none` for a photo
+  that is `Valid` otherwise, a regression of SPEC-018. Reasoned: an
+  attachment deleted as its check starts could leave rows, as the new
+  early return came before the deleted-post check.
+- Tests first, seen red: AC10 (`none` instead of `Trusted`, copy
+  `-scaled.webp`), AC11 (2 rows left).
+- Produced: `shownFile()` compares names without their extension; the
+  deleted-post check moved before the changed-file return.
+- After: SPEC-018 11 passed; `composer check` 62, integration 143,
+  multisite 7; the release suite after the commit.
+- CI of `da84e45` failed once, not green as this entry first said: SPEC-017
+  AC4's test compared state counts with `toBe()`, which also compares key
+  order, and which image dies first depends on markers set in the same
+  second. The counts were right (1 `error`, 2 still pending). The test now
+  sorts them first; the plugin is unchanged by it.
+- Decided by Maurice: amendment 1 approved. Not pushed.

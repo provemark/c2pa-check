@@ -114,3 +114,29 @@ it('AC5: every run checks at least one image', function (): void {
     expect(count($checked))->toBeGreaterThanOrEqual(1);
     runPendingChecks();
 })->group('SPEC-018');
+
+it('AC10: a JPEG saved as WebP is checked on its original', function (): void {
+    runPendingChecks();
+    $mu = '<?php add_filter("image_editor_output_format", static fn ($formats) => ["image/jpeg" => "image/webp"] + (array) $formats);';
+    withTestPlugin('provemark-test-webp-output', $mu, function (): void {
+        $id = importWithoutChecking(fixturePath(PIXEL));
+        runPendingChecks();
+
+        expect(attachedFile($id))->toEndWith('-scaled.webp')
+            ->and(storedEntry($id)['state'] ?? null)->toBe('Trusted')
+            ->and(storedEntry($id)['file'] ?? '')->toEndWith('.jpg');
+    });
+})->group('SPEC-018');
+
+it('AC11: deleted right after the provisional entry', function (): void {
+    runPendingChecks();
+    $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));
+    $mu = '<?php add_filter("update_post_metadata", static function ($check, $id, $key, $value) { if ($key === "_provemark_c2pa_result" && (int) get_option("provemark_test_delete_now") === $id && is_array($value) && ($value["reason"] ?? null) === "interrupted") { delete_option("provemark_test_delete_now"); wp_delete_attachment($id, true); } return $check; }, 10, 4);';
+    withTestPlugin('provemark-test-delete-at-start', $mu, function () use ($id): void {
+        wpEval("update_option('provemark_test_delete_now', $id, false);");
+        runPendingChecks();
+    });
+
+    expect(wpEval("echo get_post_type($id) === false ? 'gone' : 'there';"))->toBe('gone')
+        ->and(wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE post_id = $id AND meta_key LIKE '\\\\_provemark\\\\_c2pa\\\\_%'\");"))->toBe('0');
+})->group('SPEC-018');
