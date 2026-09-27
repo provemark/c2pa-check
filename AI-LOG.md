@@ -1203,3 +1203,11 @@ README are where the disclosure lives.
   a multisite test suite and CI job, the readme updated; five criteria;
   one non-blocking open question (very large networks).
 - Decided by Maurice: support multisite. Not pushed.
+
+## 2026-09-27 — SPEC-011 approved
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-011 approved with the proposal for large networks.
+- Produced: SPEC-011 status `approved`.
+- Measured: nothing.
+- Decided by Maurice: SPEC-011 approved. Not pushed.

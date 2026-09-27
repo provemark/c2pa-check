@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-27                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -114,9 +114,8 @@ foreach ($sites as $site) {
 
 ## Open questions
 
-- **Very large networks (non-blocker).** Uninstall visits every site in one
-  request. Proposal: accept for now (it only deletes rows), and note it; a
-  network of thousands of sites could need WP-CLI instead.
+None. Resolved by Maurice on 2026-09-27, as proposed: uninstall visits
+every site in one request; the readme says so.
 
 ## Traceability
 
