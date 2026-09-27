@@ -1590,3 +1590,15 @@ README are where the disclosure lives.
 - Not done: the online readme validator (it sends the readme to
   wordpress.org; asked first).
 - Decided by Maurice: the username. Not pushed.
+
+## 2026-09-27 — The readme validator
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: run wordpress.org's readme validator.
+- Measured: the readme of `8083358`, pasted into the validator in Chrome
+  and submitted with its own button (a plain POST with `curl` returned
+  the page without a result): no errors, no warnings; notes only, "The
+  following tags are not widely used: c2pa, provenance" and "No donate
+  link was found".
+- Produced: the tick in `notes/wporg-submission.md`.
+- Decided by Maurice: run the validator. Not pushed.

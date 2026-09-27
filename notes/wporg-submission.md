@@ -34,8 +34,11 @@ Items marked *reasoned* are not stated on those pages; check them then.
       `composer test:multisite` green; then `composer test:release`,
       which builds `build/provemark-c2pa-check.zip` and runs Plugin Check
       on it (no errors, no warnings).
-- [ ] `readme.txt` through the
-      [readme validator](https://wordpress.org/plugins/developers/readme-validator/).
+- [x] `readme.txt` through the
+      [readme validator](https://wordpress.org/plugins/developers/readme-validator/)
+      (2026-09-27, the readme of `8083358`: no errors, no warnings; notes
+      only: the tags `c2pa` and `provenance` are not widely used, no donate
+      link).
 - [ ] The zip installed by hand once on a clean WordPress (the release
       environment, port 8890) and an image uploaded.
 
