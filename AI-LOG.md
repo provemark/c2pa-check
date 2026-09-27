@@ -1458,3 +1458,10 @@ README are where the disclosure lives.
   release 9 (the release suite again after the commit, as it builds from
   `HEAD`).
 - Decided by Maurice: SPEC-012 approved. Not pushed.
+
+## 2026-09-27 — SPEC-012 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-012 implemented and push.
+- Produced: the status line; Traceability was filled in `03269e1`.
+- Decided by Maurice: SPEC-012 implemented; push.
