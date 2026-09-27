@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Provemark C2PA Check: an image, checked. Not the C2PA "cr" mark. -->
+  <rect width="256" height="256" rx="48" fill="#131519"/>
+  <!-- the image -->
+  <rect x="44" y="56" width="148" height="120" rx="14" fill="none" stroke="#e9e9ec" stroke-width="12"/>
+  <circle cx="88" cy="96" r="14" fill="#e9e9ec"/>
+  <path d="M56 164 L98 122 L128 150 L148 132 L180 164" fill="none" stroke="#e9e9ec" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- the seal -->
+  <circle cx="178" cy="178" r="50" fill="#2dd4bf" stroke="#131519" stroke-width="12"/>
+  <path d="M154 179 L171 196 L203 162" fill="none" stroke="#0b0c0e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

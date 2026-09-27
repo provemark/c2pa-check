@@ -1282,3 +1282,29 @@ README are where the disclosure lives.
   release tests (that suite does not clean up); deleted, the five kept.
   `composer check` green (41 unit tests).
 - Decided by Maurice: the screenshots first. Not pushed.
+
+## 2026-09-27 — Icon and banner proposed
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: propose an icon and a banner for wordpress.org; then (Maurice,
+  on the first version) "text runs out of the boxes" and "a more modern
+  typeface".
+- Measured: CI run for the screenshot commit green on every job. No logo
+  or brand files exist in the projects; the verifier's demo site uses a
+  dark background (`#0b0c0e`, `#131519`), accent `#2dd4bf`, and green,
+  amber and red status colours. No SVG renderer is installed; headless
+  Chrome writes a screenshot but does not exit, so the script waits for
+  the file and stops it.
+- Produced: `.wordpress-org/source/icon.svg` (an image frame with a
+  turquoise check seal; not the C2PA "cr" mark, whose use has its own
+  rules), `.wordpress-org/source/banner.html` (HTML/CSS so the badges size
+  to their text; system-ui, i.e. SF Pro on macOS, with Inter and Helvetica
+  as fallbacks), `.wordpress-org/source/render.sh`, and the rendered
+  `icon-128x128.png`, `icon-256x256.png`, `banner-772x250.png`,
+  `banner-1544x500.png`. The first banner was an SVG with hand-measured
+  badge widths, which let text run out of its boxes.
+- Found after the first commit: `banner-772x250.png` was 2 KB, a broken
+  image. The first, hung render job (killed only by name pattern later)
+  had kept running and overwrote it with the deleted SVG banner; stopped,
+  all four re-rendered and each looked at. Amended into the same commit.
+- Decided by Maurice: a proposal; not yet accepted. Not pushed.
