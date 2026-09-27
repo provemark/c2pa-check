@@ -44,14 +44,17 @@ Items marked *reasoned* are not stated on those pages; check them then.
 
 ## 3. Submit (Maurice)
 
-- [ ] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
+- [x] **Submitted by Maurice on 2026-09-27**, the zip of `d938e6c` (SHA-256
+      `aa393b53…7a57b7d6`; a copy kept in `build/submitted/`, which the
+      build does not clear).
+- [x] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
       logged in): eight confirmations to tick, each a statement by the
       account owner (the FAQ and the guidelines read; Plugin Check run; the
       name not confusingly similar, searched for; permission and an account
       that represents the owner; no trialware; the rejection rules
       understood), and the zip (at most 10 MB). **There is no field for an
       overview**; the reviewer reads `readme.txt`.
-- [ ] Ownership of the name: the form names the account's e-mail address
+- [x] Ownership of the name: the form names the account's e-mail address
       as how ownership is verified, and names starting with a brand may
       only be submitted by its verified owner. The account's address is
       not on a Provemark domain. Decided by Maurice (2026-09-27): submit

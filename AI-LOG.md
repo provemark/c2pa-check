@@ -1840,3 +1840,13 @@ README are where the disclosure lives.
 - Decided by Maurice: option B, submit as is and show the GitHub
   organisation if asked. The confirmations and the submission are his.
   Not pushed.
+
+## 2026-09-27 — Submitted to wordpress.org
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice submitted the plugin; record it.
+- Measured: the zip in `build/` still had the SHA-256 recorded for the
+  submission (`aa393b53…7a57b7d6`); a copy with the same hash kept in
+  `build/submitted/` (ignored by git, not cleared by `tools/build.sh`).
+- Produced: the submission ticked in `notes/wporg-submission.md`.
+- Decided by Maurice: the submission (done by him). Not pushed.
