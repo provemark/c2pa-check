@@ -53,6 +53,12 @@ Items marked *reasoned* are not stated on those pages; check them then.
       `8c7d7548e4aa1193729cd48aa9813249f8255b41b5c34e24a3507933a50b693e`
       (CI green on every job; kept in `build/submitted/`). This is the
       version under review.
+- [x] **Frozen until the reviewer replies** (decided by Maurice,
+      2026-09-27): no more uploads before the review, as repeated uploads
+      would look unsettled. Changes wait for the reviewer's reply (then one
+      new version with them) or for 0.1.1: first SPEC-019, the Development
+      section in `readme.txt`. `build/provemark-c2pa-check.zip` may be newer
+      than what is under review; the submitted zips are in `build/submitted/`.
 - [x] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
       logged in): eight confirmations to tick, each a statement by the
       account owner (the FAQ and the guidelines read; Plugin Check run; the

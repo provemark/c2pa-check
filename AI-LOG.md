@@ -1928,3 +1928,21 @@ README are where the disclosure lives.
   guideline 4's wording read again; SPEC-019 AC1 red first, then green;
   `composer check` 63; the release suite after the commit.
 - Decided by Maurice: the site texts; SPEC-019 approved. Not pushed.
+
+## 2026-09-27 — A flaky queue test, and the submission frozen
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: whether to upload the zip with SPEC-019 as well (Maurice: repeated
+  uploads look odd); then fix the failing CI and freeze the submission.
+- Measured: CI of `445480d` (notes only; the code of `3566af8`, which was
+  green) failed on PHP 8.5 in SPEC-017 AC4, which took 62.9 s: the test
+  compared the safety run (60 s after the run began) with "now". Reasoned:
+  its fixed `ini_set("memory_limit", "32M")` is refused when more is in
+  use, so the run filled memory until Docker stopped it. Locally the test
+  now takes about 4 s (was 6 s), twice green.
+- Produced: the test sets the limit 8 MB above the memory in use and
+  compares the safety run with the run's start; the plugin is unchanged.
+  `notes/wporg-submission.md`: the submission frozen until the reviewer
+  replies; SPEC-019 waits for that reply or 0.1.1.
+- Decided by Maurice: no upload of the SPEC-019 zip; the test fix. Not
+  pushed.
