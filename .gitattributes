@@ -8,6 +8,7 @@
 /.wp-env.json           export-ignore
 /.wp-env.release.json   export-ignore
 /.wp-env.test.json      export-ignore
+/.wp-env.multisite.json export-ignore
 /AI-LOG.md              export-ignore
 /NOTES.md               export-ignore
 /composer.lock          export-ignore

@@ -1186,3 +1186,20 @@ README are where the disclosure lives.
   `upload-media.js`); that most services strip Content Credentials when
   sharing.
 - Decided by Maurice: write the complete readme. Not pushed.
+
+## 2026-09-27 — Multisite measured; SPEC-011 drafted
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: start on multisite.
+- Measured: CI run 36296664497 on `d1d452d` (readme) green on every job.
+  A multisite wp-env (`.wp-env.multisite.json`, port 8894, network-
+  activated plugin, a second site): uploads on both sites were checked and
+  stored on their own site (`Valid`, `Trusted`); the WP-CLI command worked
+  with `--url`; options are per site; `uninstall_plugin()` cleaned only
+  the main site (0 entries, no options there; the subsite kept 3 meta rows
+  and its DigiCert option).
+- Produced: `.wp-env.multisite.json` (export-ignored);
+  `specs/SPEC-011-multisite.md` (status `draft`): uninstall on every site,
+  a multisite test suite and CI job, the readme updated; five criteria;
+  one non-blocking open question (very large networks).
+- Decided by Maurice: support multisite. Not pushed.
