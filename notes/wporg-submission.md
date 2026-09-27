@@ -47,6 +47,12 @@ Items marked *reasoned* are not stated on those pages; check them then.
 - [x] **Submitted by Maurice on 2026-09-27**, the zip of `d938e6c` (SHA-256
       `aa393b53…7a57b7d6`; a copy kept in `build/submitted/`, which the
       build does not clear).
+- [x] **A new version uploaded by Maurice on 2026-09-27**, before the review
+      began: the zip of `3566af8`, with verifier v0.2.5 (four wrong
+      `Trusted` fixed there), 286,674 bytes, SHA-256
+      `8c7d7548e4aa1193729cd48aa9813249f8255b41b5c34e24a3507933a50b693e`
+      (CI green on every job; kept in `build/submitted/`). This is the
+      version under review.
 - [x] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
       logged in): eight confirmations to tick, each a statement by the
       account owner (the FAQ and the guidelines read; Plugin Check run; the

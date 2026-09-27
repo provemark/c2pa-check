@@ -1898,3 +1898,15 @@ README are where the disclosure lives.
   at `v0.2.4` and `v0.2.5`.
 - Decided by Maurice: baseline 621 reviewed and accepted; option a for
   AC2. Not pushed.
+
+## 2026-09-27 — A new version uploaded for review
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice uploaded the zip with verifier v0.2.5 on the submission
+  page; record it.
+- Measured: every suite on `3566af8` (`composer check` 62, integration
+  143, multisite 7, release 11 with Plugin Check clean) and its CI green;
+  the zip in `build/` still had the hash recorded, and a copy with the same
+  hash is kept in `build/submitted/` next to the first submission.
+- Produced: the upload recorded in `notes/wporg-submission.md`.
+- Decided by Maurice: the upload (done by him). Not pushed.
