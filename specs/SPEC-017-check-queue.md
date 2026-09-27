@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-09-27                      |
 | Supersedes | SPEC-013 in part: one WP-Cron event per upload, and AC5's one-hour cutoff while the queue runs |

@@ -1734,3 +1734,10 @@ README are where the disclosure lives.
 - After: `composer check` 58, integration 136, multisite 7; the release
   suite after the commit.
 - Decided by Maurice: SPEC-017 approved. Not pushed.
+
+## 2026-09-27 — SPEC-017 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark SPEC-017 implemented and push.
+- Produced: the status line; Traceability was filled in `e7eaf0d`.
+- Decided by Maurice: SPEC-017 implemented; push.
