@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-28                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -179,6 +179,7 @@ Not applicable: text in `readme.txt` and a Unit test in
   not forbid it for a readme but does not say so either. (b) Release
   0.1.1 with only this change: follows the handbook exactly, but every
   site gets an update for a text change. Proposal: (a).
+  **Decided by Maurice, 2026-09-28: (a).**
 
 ## Traceability
 
@@ -187,8 +188,8 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
+| AC1                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC1 | `readme.txt` (short description) |
+| AC2                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC2 | `readme.txt` (`== Description ==`, first paragraph) |
+| AC3                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC3 | `readme.txt` (`== Frequently Asked Questions ==`, first question) |
+| AC4                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC4 (the allow-list names the two GitHub repositories, `provemark/tracefern-image-check` and `provemark/c2pa-verifier`, rather than all of `github.com/provemark/`, which `tests/Unit/NameTest.php` also requires) | `readme.txt` (all URLs) |
 | AC5                  | SPEC-024 AC2–AC3            | —                    |

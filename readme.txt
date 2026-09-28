@@ -8,9 +8,18 @@ Stable tag: 0.1.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Checks the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.
+Verifies the Content Credentials (C2PA) of uploaded images (signature, image hash and signer) and shows the verdict in the Media Library.
 
 == Description ==
+
+**Verified, not just detected.** Finding a C2PA manifest in a file is
+easy; knowing whether it is genuine is not. A manifest can be copied onto
+another image, and an image can be changed after it was signed while its
+manifest still claims what it did before. Tracefern checks the signature,
+the hash that ties the manifest to the image's own bytes, and the signer's
+certificate against the C2PA trust lists. Only when the signature and the
+hash hold does it show "AI-generated (signed)", and only when the signer
+is also on the trust list does it say "Verified".
 
 Content Credentials (C2PA) are a signed record inside an image file: who
 made or edited it, with which tool, and whether generative AI was used.
@@ -65,6 +74,17 @@ C2PA verifier written in PHP, bundled with the plugin.
    them with `wp tracefern check --unchecked` (WP-CLI).
 
 == Frequently Asked Questions ==
+
+= How is this different from plugins that label AI images? =
+
+Many plugins look for C2PA or IPTC metadata and label an image as
+AI-generated when they find it. Some count any C2PA manifest as AI, so a
+camera photo with Content Credentials is labelled AI-generated. Others
+read what the manifest claims without checking it, so an AI image that was
+changed after signing keeps its label. Tracefern verifies first: a camera
+photo stays a camera photo, and a changed image says "Does not verify" and
+loses the label. It adds no badges to your pages; it gives you the verdict
+a label can rely on.
 
 = What is the difference between "Verified" and "Intact"? =
 

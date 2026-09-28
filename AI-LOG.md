@@ -2241,3 +2241,22 @@ README are where the disclosure lives.
   not measured.
 - Produced: the checklist item in `notes/wporg-submission.md`.
 - Decided by Maurice: the SVN commit (done by him). Not pushed.
+
+## 2026-09-28 — SPEC-025 built: the readme says what sets the plugin apart
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: approve SPEC-025 with option (a) and without plugin names; the
+  tests, then the text.
+- Produced: the short description, the first Description paragraph and
+  the first FAQ question in `readme.txt`; four tests in
+  `tests/Unit/ReadmeTest.php`; the spec anonymised and its Traceability.
+  The two unpushed commits that named the measured plugins were rewritten
+  before any push, so the names are not in the published history.
+- Measured: AC1–AC3 red first (text absent), AC4 green before and after
+  (a guard) and red with a planted link to another plugin; all green
+  after two fixes in the test code (an answer regex that stopped at the
+  first line end; an allow-list that tripped the old-name test); `composer
+  check` (72 tests) and the Release suite with Plugin Check (17 tests)
+  green; `readme.txt` 8,900 bytes.
+- Decided by Maurice: SPEC-025 approved, (a) a readme-only update of
+  trunk and tags/0.1.0, names anonymised. Not pushed.

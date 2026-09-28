@@ -79,3 +79,56 @@ it('SPEC-019 AC1: links the development location', function (): void {
         ->and($section)->toContain('https://github.com/provemark/c2pa-verifier')
         ->and($section)->toContain('composer build');
 })->group('SPEC-019');
+
+it('SPEC-025 AC1: the short description says it verifies', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $blocks = explode("\n\n", $readme, 3);
+
+    expect(trim(explode("\n", $blocks[1] ?? '')[0]))
+        ->toBe('Verifies the Content Credentials (C2PA) of uploaded images (signature, image hash and signer) and shows the verdict in the Media Library.');
+})->group('SPEC-025');
+
+it('SPEC-025 AC2: the description opens with what is verified', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $body = (string) preg_replace('/.*\n== Description ==\n\n(.*?)\n\n.*/s', '$1', $readme);
+    $first = trim((string) preg_replace('/\s+/', ' ', $body));
+
+    expect($first)->toStartWith('**Verified, not just detected.**')
+        ->toContain('the signature')
+        ->toContain('the hash that ties the manifest to the image\'s own bytes')
+        ->toContain('the signer\'s certificate against the C2PA trust lists')
+        ->toEndWith('Only when the signature and the hash hold does it show "AI-generated (signed)", and only when the signer is also on the trust list does it say "Verified".');
+})->group('SPEC-025');
+
+it('SPEC-025 AC3: the FAQ answers the comparison first', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/.*\n== Frequently Asked Questions ==\n(.*?)(\n== .*|$)/s', '$1', $readme);
+    preg_match_all('/^= (.+) =$/m', $faq, $questions);
+    $answers = preg_split('/^= .+ =$/m', $faq) ?: [];
+    $answer = trim((string) preg_replace('/\s+/', ' ', $answers[1] ?? ''));
+
+    expect($questions[1][0] ?? null)->toBe('How is this different from plugins that label AI images?')
+        ->and($answer)->toContain('Some count any C2PA manifest as AI')
+        ->toContain('Others read what the manifest claims without checking it')
+        ->toContain('a camera photo stays a camera photo')
+        ->toContain('a changed image says "Does not verify" and loses the label');
+})->group('SPEC-025');
+
+it('SPEC-025 AC4: links to no other plugin', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    preg_match_all('#https?://[^\s)\]<>,]+#', $readme, $urls);
+    $allowed = [
+        'https://opensource.org/licenses/',
+        'https://creativecommons.org/licenses/',
+        'https://github.com/provemark/tracefern-image-check',
+        'https://github.com/provemark/c2pa-verifier',
+        'https://github.com/c2pa-org/',
+        'https://wordpress.org/plugins/tracefern-image-check-for-c2pa',
+    ];
+
+    expect($urls[0])->not->toBeEmpty();
+    foreach ($urls[0] as $url) {
+        $url = rtrim($url, '.');
+        expect(array_filter($allowed, fn (string $prefix): bool => str_starts_with($url, $prefix)))->not->toBeEmpty($url.' is not on the allow-list');
+    }
+})->group('SPEC-025');
