@@ -2292,3 +2292,19 @@ README are where the disclosure lives.
   (74 tests), the integration suite (159), the Release suite with Plugin
   Check (17) and the multisite suite (7) green locally.
 - Decided by Maurice: SPEC-026 approved; 0.1.1. Not pushed; not released.
+
+## 2026-09-28 — 0.1.1 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: prepare the 0.1.1 release; after Maurice's SVN commit, check it,
+  tag `v0.1.1` and make a GitHub release.
+- Produced: the build from `46e9f47` in `trunk/` and `tags/0.1.1` of the
+  SVN working copy; the tag `v0.1.1`; the GitHub release with that zip;
+  the release recorded in `notes/wporg-submission.md` (also the
+  readme-only update of SPEC-025).
+- Measured: the Release suite green on the committed build (an earlier
+  local run preceded the commit and so built the previous one); the
+  plugin API reported 0.1.1 at 14:53, 39 minutes after r3717131; the
+  public download unpacks to the same files as the build.
+- Decided by Maurice: the SVN commit (done by him), the tag and the
+  GitHub release. Not pushed.

@@ -207,3 +207,18 @@ rebuilds every version's zip.
       *reasoned*).
 - [ ] New C2PA trust lists or a new verifier version: a normal release
       (`trust/README.md`, `tests/wpcs-verifier-baseline.json` reviewed).
+
+Releases after 0.1.0:
+
+- **2026-09-28, readme only** (SPEC-025): `readme.txt` in `trunk/` and
+  `tags/0.1.0/`, no new version, committed by Maurice (r3717036); the
+  page and the plugin API showed the new text from 14:02.
+- **0.1.1, 2026-09-28** (SPEC-026, the `tracefern_verdict` filter):
+  built from `46e9f47` (SHA-256 `db7674d8…dbebed`, kept in
+  `build/submitted/`), the Release suite green on that build; `trunk/`
+  replaced by the build and `tags/0.1.1` copied, committed by Maurice
+  (r3717131, 14:14). Git tag `v0.1.1` on `46e9f47` and a GitHub release
+  with the same zip, on Maurice's go. Measured: the plugin API reported
+  0.1.1 at 14:53; the public download
+  (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.1.zip`)
+  unpacks to the same files as the build.
