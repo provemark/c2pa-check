@@ -2260,3 +2260,17 @@ README are where the disclosure lives.
   green; `readme.txt` 8,900 bytes.
 - Decided by Maurice: SPEC-025 approved, (a) a readme-only update of
   trunk and tags/0.1.0, names anonymised. Not pushed.
+
+## 2026-09-28 — SPEC-026 drafted: other plugins can read the verdict
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: how much work a connection to WordPress's C2PA Monitor would be;
+  then a spec for the first option, a readable verdict for any plugin.
+- Produced: `specs/SPEC-026-verdict-for-other-plugins.md` (draft): a
+  `tracefern_verdict` filter returning a documented array built by the
+  column's own code; a FAQ entry.
+- Measured: the Monitor's code in WordPress/ai#459 (no filters or actions
+  of its own; column `wpai_c2pa`; meta `_wpai_monitor_record`).
+- Reasoned: that a filter with a `null` default needs no dependency; that
+  the Monitor or label plugins could use it.
+- Decided by Maurice: write the spec. Not approved yet; not pushed.
