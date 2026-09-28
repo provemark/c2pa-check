@@ -2170,3 +2170,19 @@ README are where the disclosure lives.
 - Produced: section 4a of `notes/wporg-submission.md` updated.
 - Decided by Maurice: nothing yet; how to handle uploads in the preview
   is open (SPEC-024, open question 1). Not pushed.
+
+## 2026-09-28 — SPEC-024 amendment 1 proposed: checks in the preview
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: write the amendment for checking a visitor's own upload in the
+  preview.
+- Produced: amendment 1 in `specs/SPEC-024-live-preview.md` (proposed):
+  a must-use plugin written by the blueprint that runs the plugin's
+  `tracefern_check` queue on admin page loads when it is due; AC6, AC7,
+  and an addition to AC1.
+- Measured: see the previous entry (WP-Cron does not run in the browser
+  Playground; the browser uploader redirects to the Media Library).
+- Reasoned: that the drag-and-drop uploader's image is checked on the
+  next admin page; that `admin_init` runs before the upload creates the
+  attachment.
+- Decided by Maurice: write the amendment. Not approved yet; not pushed.

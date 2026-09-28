@@ -175,6 +175,74 @@ Illustrative; the tamper step is the one from `tests/Pest.php`.
   "Test Preview"; whether and how to handle it is then a new decision.
 - Whether to make the preview public is Maurice's, after "Test Preview".
 
+## Amendments
+
+1. **2026-09-28, proposed (draft).** Checks for a visitor's own upload
+   in the preview.
+
+   *Why.* Measured 2026-09-28 in Chrome, with the link the directory's
+   button opens: an image uploaded in the preview through Media → Add New
+   stays "Check pending" after more than 2 minutes and several page
+   loads, and `wp-cron.php` called directly answers 503. WP-Cron does not
+   run in the browser Playground, so the plugin's background check
+   (SPEC-013) never starts there. A visitor who tries their own image,
+   the most convincing thing the preview can offer, sees nothing happen.
+
+   *What.* The blueprint writes one must-use plugin into the preview,
+   `wp-content/mu-plugins/tracefern-preview-checks.php`. On each admin
+   page load (`admin_init`) it runs the plugin's own queue, the
+   `tracefern_check` action (`UploadHook::EVENT`), when that event is
+   scheduled and due. Nothing else: no other cron events, no network, no
+   change to what the check does or stores. With the browser uploader,
+   WordPress redirects to the Media Library after the upload (measured
+   2026-09-28), and that page load checks the image, so the visitor sees
+   the verdict at once. With the default drag-and-drop uploader the
+   upload request itself cannot check it (the attachment is created after
+   `admin_init`); the next admin page the visitor opens does, such as the
+   Media Library (*reasoned*).
+
+   It lives only in the blueprint. The plugin, the zip and real sites are
+   unchanged; a real site's WP-Cron is untouched. The setup step `wp cron
+   event run --due-now` stays, so the five demo images are checked before
+   the preview opens and the landing page does not do that work.
+
+   *Added to Scope.* The must-use plugin, written by a `writeFile` step
+   with literal PHP; a Release test that uploads an image after setup and
+   loads an admin page, as a visitor would.
+
+   *Added to Out of scope.* Checking on page loads outside `wp-admin`;
+   running any other cron event; the same fallback in the plugin itself
+   for real sites where WP-Cron does not run (a separate question, with
+   its own spec if wanted).
+
+   *New acceptance criteria.*
+
+   - **AC6 — A visitor's upload is checked on the next admin page**
+     - Given the blueprint's preview after setup, with the plugin from the
+       local build zip
+     - When an image is imported without running cron
+       (`fixture-signed.jpg`), and then `/wp-admin/upload.php` is
+       requested as the logged-in admin (Playground's `request` step)
+     - Then that attachment has a stored result equal to the verifier
+       CLI's with the default settings (`Valid`), and no
+       `tracefern_check` event is left due.
+
+   - **AC7 — Nothing happens when there is nothing to do, or no plugin**
+     *(error path)*
+     - Given the must-use plugin in place
+     - When an admin page is requested (a) with no event scheduled, and
+       (b) with the plugin deactivated and an event still scheduled
+     - Then the page answers 200 with no PHP warning or error in the
+       output, and in (b) the event stays scheduled and untouched: the
+       must-use plugin only calls the action, and with the plugin
+       inactive no one listens to it.
+
+   - **AC1** additionally checks that the blueprint writes exactly one
+     file under `/wordpress/wp-content/mu-plugins/`, and that the file
+     names `tracefern_check` and `admin_init`.
+
+   *Open question 1* is answered by this amendment once approved.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at
