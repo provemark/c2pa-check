@@ -2120,3 +2120,18 @@ README are where the disclosure lives.
 - Measured: the attached zip is 290,831 bytes, the same file as in
   `build/submitted/`.
 - Decided by Maurice: make the release. Not pushed.
+
+## 2026-09-28 — SPEC-024 drafted: a Live Preview
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: how to bring the plugin to people's attention; then look into
+  the directory's Live Preview and write the spec.
+- Produced: `specs/SPEC-024-live-preview.md` (draft).
+- Measured: the handbook page "Previews and Blueprints"; a draft
+  blueprint in Playground CLI installing 0.1.0 from the directory (PHP
+  8.3.33, WordPress 7.1.2, openssl and mbstring present; five images
+  checked after the due cron events, results as the integration tests
+  expect; 12.6 s); CORS headers of the fixture URLs.
+- Reasoned: the browser Playground behind the button, its load time, and
+  WP-Cron for a visitor's own upload; to be measured with "Test Preview".
+- Decided by Maurice: look into it and draft the spec. Not approved yet.
