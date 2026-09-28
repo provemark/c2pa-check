@@ -20,7 +20,11 @@ jobs:
       matrix:
         php: ['8.3', '8.4', '8.5']
     steps:
+      # The full history, tags included: the blueprint's test checks each
+      # image at tag v0.1.0 (SPEC-024).
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -128,6 +132,10 @@ jobs:
           cache: npm
 
       - run: npm ci --ignore-scripts
+
+      # Playground CLI (SPEC-024) needs this one package's install script,
+      # which fetches its native module; every other script stays off.
+      - run: npm rebuild fs-ext-extra-prebuilt
 
       # The clean environment maps build/, so the zip exists before it starts.
       - run: composer build

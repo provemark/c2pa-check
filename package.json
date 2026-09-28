@@ -14,6 +14,7 @@
     "multisite:stop": "wp-env stop --config .wp-env.multisite.json"
   },
   "devDependencies": {
-    "@wordpress/env": "11.16.0"
+    "@wordpress/env": "11.16.0",
+    "@wp-playground/cli": "3.1.55"
   }
 }

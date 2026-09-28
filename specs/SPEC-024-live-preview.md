@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-28                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -182,8 +182,8 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
+| AC1                  | `tests/Unit/BlueprintTest.php` :: AC1 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json`; `blueprint()`, `blueprintSteps()` in `tests/Pest.php` |
+| AC2                  | `tests/Release/PreviewTest.php` :: AC2 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (fetch, altered copy, import, cron); `@wp-playground/cli` 3.1.55 in `package.json`; `npm rebuild fs-ext-extra-prebuilt` in `.github/workflows/ci.yml` |
+| AC3                  | `tests/Release/PreviewTest.php` :: AC3 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (the plugin's own column) |
+| AC4                  | `tests/Release/PreviewTest.php` :: AC4 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (`--caption`) |
+| AC5                  | `tests/Release/PreviewTest.php` :: AC5 / SPEC-024 | Playground CLI's own step error |

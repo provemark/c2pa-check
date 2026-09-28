@@ -2135,3 +2135,23 @@ README are where the disclosure lives.
 - Reasoned: the browser Playground behind the button, its load time, and
   WP-Cron for a visitor's own upload; to be measured with "Test Preview".
 - Decided by Maurice: look into it and draft the spec. Not approved yet.
+
+## 2026-09-28 — SPEC-024 built: the Live Preview's blueprint
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: approve SPEC-024; write the tests, then the blueprint.
+- Produced: `.wordpress-org/blueprints/blueprint.json`;
+  `tests/Unit/BlueprintTest.php`, `tests/Release/PreviewTest.php`, two
+  helpers in `tests/Pest.php`; `@wp-playground/cli` 3.1.55 pinned; CI:
+  full history in the check job (the test reads tag v0.1.0), and the one
+  install script Playground CLI needs in the release job; section 4a in
+  `notes/wporg-submission.md`; the spec's Traceability.
+- Measured: the five tests red first (no blueprint), then green;
+  `composer check` (67 tests) and the whole Release suite (15 tests) green
+  locally; the committed blueprint, installing 0.1.0 from the directory,
+  runs to the end in Playground CLI. With `npm ci --ignore-scripts` alone
+  Playground CLI fails ("Failed to load fs-ext native module"); after
+  `npm rebuild fs-ext-extra-prebuilt` it runs.
+- Reasoned: the browser Playground behind the button; measured with "Test
+  Preview" after the SVN commit.
+- Decided by Maurice: SPEC-024 approved; build it. Not pushed.

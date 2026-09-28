@@ -162,6 +162,18 @@ https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password
 SVN is a release system: commit to it only for a release, as each commit
 rebuilds every version's zip.
 
+## 4a. The Live Preview (SPEC-024)
+
+- [ ] `.wordpress-org/blueprints/blueprint.json` to SVN as
+      `assets/blueprints/blueprint.json` (not in `trunk/`; no new
+      version needed). Committed by Maurice.
+- [ ] "Test Preview" on the plugin page (committers only). Measure there:
+      the time until the Media Library shows, the five verdicts, and
+      whether an image uploaded in the preview gets checked (WP-Cron in
+      the browser Playground).
+- [ ] The preview set to "public" in the plugin's Advanced view: Maurice's
+      decision, after the test.
+
 ## 5. Each later release
 
 - [ ] Changelog and upgrade notice in `readme.txt`; version in the header

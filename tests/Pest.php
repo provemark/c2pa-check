@@ -931,3 +931,33 @@ function networkEntry(int $id, string $url = NETWORK_MAIN): ?array
 
     return is_array($entry) ? $entry : null;
 }
+
+/**
+ * The Live Preview's blueprint (SPEC-024), decoded.
+ *
+ * @return array<mixed>
+ */
+function blueprint(): array
+{
+    $decoded = json_decode((string) file_get_contents(dirname(__DIR__).'/.wordpress-org/blueprints/blueprint.json'), true);
+
+    return is_array($decoded) ? $decoded : throw new RuntimeException('blueprint.json is not a JSON object');
+}
+
+/**
+ * The blueprint's steps of one kind.
+ *
+ * @param  array<mixed>  $blueprint
+ * @return list<array<mixed>>
+ */
+function blueprintSteps(array $blueprint, string $kind): array
+{
+    $steps = [];
+    foreach (is_array($blueprint['steps'] ?? null) ? $blueprint['steps'] : [] as $step) {
+        if (is_array($step) && ($step['step'] ?? null) === $kind) {
+            $steps[] = $step;
+        }
+    }
+
+    return $steps;
+}
