@@ -182,7 +182,8 @@ function expectedEntry(string $path, ?string $settingsFile = null): array
         'signer' => is_array($info) ? ['issuer' => $info['issuer'] ?? null, 'common_name' => $info['common_name']] : null,
         'signed_at' => is_array($info) ? ($info['time'] ?? null) : null,
         'codes' => $state === 'Invalid' ? array_column($failures, 'code') : [],
-        'ai' => claimsTrainedAi(is_array($active) ? $active : []),
+        'ai' => aiHistoryOracle($report)[0],
+        'ai_edited' => aiHistoryOracle($report)[1],
         'reason' => null,
     ];
 }
@@ -287,12 +288,12 @@ function wpEvalAs(string $user, string $php): string
 }
 
 /**
- * The oracle's side of SPEC-003: does an action in this (CLI-printed)
- * manifest's actions assertion carry the IPTC trainedAlgorithmicMedia URI?
+ * Does an action in this (CLI-printed) manifest's actions assertion carry
+ * the given IPTC digital source type URI?
  *
  * @param  array<mixed>  $manifest
  */
-function claimsTrainedAi(array $manifest): bool
+function carriesSourceType(array $manifest, string $uri): bool
 {
     foreach (is_array($manifest['assertions'] ?? null) ? $manifest['assertions'] : [] as $assertion) {
         if (! is_array($assertion) || ! in_array($assertion['label'] ?? null, ['c2pa.actions', 'c2pa.actions.v2'], true)) {
@@ -300,13 +301,113 @@ function claimsTrainedAi(array $manifest): bool
         }
         $actions = is_array($assertion['data'] ?? null) && is_array($assertion['data']['actions'] ?? null) ? $assertion['data']['actions'] : [];
         foreach ($actions as $action) {
-            if (is_array($action) && ($action['digitalSourceType'] ?? null) === 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia') {
+            if (is_array($action) && ($action['digitalSourceType'] ?? null) === $uri) {
                 return true;
             }
         }
     }
 
     return false;
+}
+
+/**
+ * The oracle's side of SPEC-027: [generated, edited] for a CLI report.
+ * Every path from the active manifest through followed ingredients is
+ * walked, recursively, with the manifests already on the path as the
+ * cycle guard; the plugin's walk is written independently.
+ *
+ * @param  array<mixed>  $report
+ * @return array{bool, bool}
+ */
+function aiHistoryOracle(array $report): array
+{
+    $manifests = is_array($report['manifests'] ?? null) ? $report['manifests'] : [];
+    $trained = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia';
+    $composite = 'http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia';
+    $generated = false;
+    $edited = false;
+
+    $walk = function (mixed $label, bool $parentLine, array $path) use (&$walk, &$generated, &$edited, $manifests, $trained, $composite, $report): void {
+        if (! is_string($label) || in_array($label, $path, true) || ! is_array($manifests[$label] ?? null)) {
+            return;
+        }
+        $manifest = $manifests[$label];
+        if (carriesSourceType($manifest, $trained)) {
+            $parentLine ? $generated = true : $edited = true;
+        }
+        if (carriesSourceType($manifest, $composite)) {
+            $edited = true;
+        }
+        foreach (is_array($manifest['ingredients'] ?? null) ? $manifest['ingredients'] : [] as $ingredient) {
+            $relationship = is_array($ingredient) ? ($ingredient['relationship'] ?? null) : null;
+            if (! is_array($ingredient) || ! in_array($relationship, ['parentOf', 'componentOf', 'inputTo'], true) || ! ingredientPassesOracle($ingredient, $label, $report)) {
+                continue;
+            }
+            $walk($ingredient['active_manifest'] ?? null, $parentLine && $relationship === 'parentOf', [...$path, $label]);
+        }
+    };
+    $walk($report['active_manifest'] ?? null, true, []);
+
+    return [$generated, $edited && ! $generated];
+}
+
+/**
+ * The oracle's ingredient bar (SPEC-027 amendment 2): the results the
+ * signer recorded and the verifier's delta for this ingredient are both
+ * there, and neither fails on anything but signingCredential.untrusted.
+ *
+ * @param  array<mixed>  $ingredient
+ * @param  array<mixed>  $report
+ */
+function ingredientPassesOracle(array $ingredient, string $parent, array $report): bool
+{
+    $clean = function (mixed $failures): bool {
+        if (! is_array($failures)) {
+            return false;
+        }
+        foreach ($failures as $failure) {
+            if (! is_array($failure) || ($failure['code'] ?? null) !== 'signingCredential.untrusted') {
+                return false;
+            }
+        }
+
+        return true;
+    };
+    $results = is_array($ingredient['validation_results'] ?? null) ? $ingredient['validation_results'] : [];
+    $recorded = is_array($results['activeManifest'] ?? null) ? ($results['activeManifest']['failure'] ?? null) : null;
+    if (! $clean($recorded) || ! is_string($ingredient['label'] ?? null)) {
+        return false;
+    }
+
+    $uri = 'self#jumbf=/c2pa/'.$parent.'/c2pa.assertions/'.$ingredient['label'];
+    $all = is_array($report['validation_results'] ?? null) && is_array($report['validation_results']['ingredientDeltas'] ?? null) ? $report['validation_results']['ingredientDeltas'] : [];
+    $mine = array_filter($all, fn (mixed $d): bool => is_array($d) && ($d['ingredientAssertionURI'] ?? null) === $uri);
+    if ($mine === []) {
+        return false;
+    }
+    foreach ($mine as $delta) {
+        $found = is_array($delta['validationDeltas'] ?? null) ? ($delta['validationDeltas']['failure'] ?? null) : null;
+        if (! $clean($found)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * A copy of c2pa-rs-ocsp.jpg with one byte of image data changed, 100
+ * bytes before the end, as alteredSignedJpeg() does (SPEC-027 AC9).
+ */
+function tamperedOcspJpeg(): string
+{
+    $bytes = (string) file_get_contents(fixturePath('c2pa-rs-ocsp.jpg'));
+    $offset = strlen($bytes) - 100;
+    $bytes[$offset] = chr(ord($bytes[$offset]) ^ 0x01);
+    $path = tmpDir().'/tampered-ocsp.jpg';
+    file_put_contents($path, $bytes);
+
+    return $path;
 }
 
 /**
@@ -325,6 +426,7 @@ function sampleEntry(array $fields): array
         'signed_at' => null,
         'codes' => [],
         'ai' => false,
+        'ai_edited' => false,
         'remote_manifest_url' => null,
         'reason' => null,
         'verifier' => 'v0.2.3',

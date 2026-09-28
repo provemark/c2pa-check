@@ -32,7 +32,9 @@ upload and shows the verdict where you already work with media.
 * **A verdict per image** in a Media Library column and in the attachment
   details: who signed it, when, and against which trust list.
 * **"AI-generated (signed)"** when a manifest that verifies says the image
-  was made by generative AI. Never on a file that does not verify.
+  was made by generative AI, also when the AI image was processed later.
+  **"AI-edited (signed)"** when it says generative AI edited the image or
+  was part of it. Never on a file that does not verify.
 * **Sort and filter** the Media Library list by verdict, including all
   AI-generated images.
 * **Check existing images again** with WP-CLI:
@@ -107,7 +109,10 @@ when an image is shared or downloaded.
 
 = Does "AI-generated (signed)" detect AI images? =
 
-No. It shows what a verified manifest in the file says about itself. An
+No. It shows what a verified manifest in the file says about itself, or
+about the earlier versions it was made from; each earlier version counts
+only when its own signature and hash hold. The same goes for "AI-edited
+(signed)". An
 AI image without Content Credentials gets no label. Next to "Intact: signer
 not trusted" the claim comes from a signer nobody on the trust list vouches
 for.
@@ -160,7 +165,8 @@ Yes, through a filter, with no dependency on this plugin:
 `null` when the plugin is not active or the ID is not an attachment, and
 otherwise an array: `status` (`checked`, `pending`, `not_checked`,
 `changed`, `unreadable`), `state`, `intact`, `trusted`, `ai` (true
-exactly when the Media Library shows "AI-generated (signed)"), `signer`,
+exactly when the Media Library shows "AI-generated (signed)"), `ai_edited`
+(the same for "AI-edited (signed)"), `signer`,
 `signed_at`, `codes` and more. `signer` comes from the file: escape it
 where you output it.
 

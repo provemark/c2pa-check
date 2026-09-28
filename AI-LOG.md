@@ -2393,3 +2393,30 @@ README are where the disclosure lives.
   ingredient bar (see the spec's References).
 - Decided by Maurice: that the spec is written. Its open questions are
   his.
+
+## 2026-09-28 — SPEC-027 implemented: AI in the image's history
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: build SPEC-027 as approved (proposals 2–4; a fixture of our
+  own), then amendments 1 and 2.
+- Produced: `Outcome::aiHistory()` (two walks: the parent line, then the
+  whole history), the stored key `ai_edited`, the label "AI-edited
+  (signed)" in the column and the details, `ai_edited` in the
+  `tracefern_verdict` filter, the readme text; tests in
+  `tests/Unit/AiHistoryTest.php` and `tests/Integration/AiHistoryTest.php`
+  with an independent oracle in `tests/Pest.php`; the fixture
+  `c2pa-verifier-ai-parent-chain.png`, copied from the verifier's step 178
+  (`0cf13e4`, local).
+- Measured: tests first, seen red. Unit: 19 failed (no `aiHistory()`),
+  then the two amendment 2 cases failed. Integration: 13 failed (no
+  `ai_edited`, no label, no fixture). Now: `composer check` green (95 unit
+  tests, PHPStan max, Pint), integration 172 passed. With the bundled
+  settings, `c2pa-rs-ocsp.jpg` gets "AI-edited (signed)", and its
+  tampered copy is `Invalid` with no label. The new fixture is `Valid`
+  and gets "AI-generated (signed)". While making it: an ingredient's
+  recorded `validation_results` differ from the verifier's own
+  `ingredientDeltas` (amendment 2).
+- Reasoned: the relationship meanings and the ingredient bar (the spec's
+  References).
+- Decided by Maurice: approval with the proposals and his own fixture;
+  amendments 1 and 2. Release as 0.1.3 still to come.

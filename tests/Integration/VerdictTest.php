@@ -30,9 +30,9 @@ function verdict(int $id): array
 }
 
 /**
- * The keys every verdict has (SPEC-026, Behavior).
+ * The keys every verdict has (SPEC-026, Behavior; ai_edited from SPEC-027).
  */
-const VERDICT_KEYS = ['schema', 'status', 'state', 'intact', 'trusted', 'ai', 'signer', 'signed_at', 'checked_at', 'codes', 'reason', 'verifier', 'trust'];
+const VERDICT_KEYS = ['schema', 'status', 'state', 'intact', 'trusted', 'ai', 'ai_edited', 'signer', 'signed_at', 'checked_at', 'codes', 'reason', 'verifier', 'trust'];
 
 /**
  * The column headline a verdict must match (AC7).

@@ -154,7 +154,7 @@ final class Display
      *
      * @param  mixed  $entry  the stored value, or null when there is none
      * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
-     * @return array{schema: int, status: string, state: ?string, intact: bool, trusted: bool, ai: bool, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, checked_at: ?string, codes: list<string>, reason: ?string, verifier: ?string, trust: ?string}
+     * @return array{schema: int, status: string, state: ?string, intact: bool, trusted: bool, ai: bool, ai_edited: bool, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, checked_at: ?string, codes: list<string>, reason: ?string, verifier: ?string, trust: ?string}
      */
     public static function verdict(mixed $entry, ?int $pendingSince, int $now, bool $changed): array
     {
@@ -171,6 +171,7 @@ final class Display
             'intact' => false,
             'trusted' => false,
             'ai' => false,
+            'ai_edited' => false,
             'signer' => null,
             'signed_at' => null,
             'checked_at' => null,
@@ -192,6 +193,7 @@ final class Display
             'intact' => in_array($read['state'], ['Trusted', 'Valid'], true),
             'trusted' => $read['state'] === 'Trusted',
             'ai' => self::showsAiLabel($read),
+            'ai_edited' => self::showsAiEditedLabel($read),
             'signer' => $signer === null ? null : [
                 'issuer' => $signer['issuer'] === null ? null : self::visible($signer['issuer']),
                 'common_name' => self::visible($signer['common_name']),
@@ -208,7 +210,7 @@ final class Display
     /**
      * A SPEC-001 entry, null for no entry, false for anything else.
      *
-     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
+     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, ai_edited: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
      */
     private static function read(mixed $entry): array|false|null
     {
@@ -253,7 +255,8 @@ final class Display
         }
 
         $ai = $entry['ai'] ?? false;
-        if (! is_bool($ai)) {
+        $aiEdited = $entry['ai_edited'] ?? false;
+        if (! is_bool($ai) || ! is_bool($aiEdited)) {
             return false;
         }
 
@@ -269,6 +272,7 @@ final class Display
             'codes' => $codes,
             'codes_omitted' => $omitted,
             'ai' => $ai,
+            'ai_edited' => $aiEdited,
             'trust' => $trust,
             'remote_manifest_url' => $text['remote_manifest_url'],
             'reason' => $reason,
@@ -281,7 +285,7 @@ final class Display
      * The verdict (and the AI label) as badges: an icon that is decoration
      * only, and the words (SPEC-002 amendment 1).
      *
-     * @param  array{state: string, ai: bool}|false|null  $read
+     * @param  array{state: string, ai: bool, ai_edited: bool}|false|null  $read
      */
     private static function badges(array|false|null $read, bool $pending = false): string
     {
@@ -297,8 +301,12 @@ final class Display
 
         $html = '<span class="tracefern-badge tracefern-badge--'.esc_attr($class).'"><span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span>'.esc_html($headline).'</span>';
 
-        return self::showsAiLabel($read)
-            ? $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-generated (signed)', 'tracefern-image-check-for-c2pa').'</span>'
+        if (self::showsAiLabel($read)) {
+            return $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-generated (signed)', 'tracefern-image-check-for-c2pa').'</span>';
+        }
+
+        return self::showsAiEditedLabel($read)
+            ? $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-edited (signed)', 'tracefern-image-check-for-c2pa').'</span>'
             : $html;
     }
 
@@ -338,11 +346,22 @@ final class Display
      * The AI label is a signed statement worth showing only when the
      * manifest verifies (SPEC-003): never on Invalid, none or error.
      *
-     * @param  array{state: string, ai: bool}|false|null  $read
+     * @param  array{state: string, ai: bool, ai_edited: bool}|false|null  $read
      */
     private static function showsAiLabel(array|false|null $read): bool
     {
         return is_array($read) && $read['ai'] && in_array($read['state'], ['Trusted', 'Valid'], true);
+    }
+
+    /**
+     * The AI-edited label, under the same gate as the AI label (SPEC-027),
+     * and never next to it.
+     *
+     * @param  array{state: string, ai: bool, ai_edited: bool}|false|null  $read
+     */
+    private static function showsAiEditedLabel(array|false|null $read): bool
+    {
+        return is_array($read) && ! $read['ai'] && $read['ai_edited'] && in_array($read['state'], ['Trusted', 'Valid'], true);
     }
 
     /**
@@ -372,7 +391,7 @@ final class Display
     /**
      * The facts under the badges: term and value, each already safe HTML.
      *
-     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
+     * @param  array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, ai_edited: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}  $entry
      * @return list<array{string, string}>
      */
     private static function rows(array $entry): array

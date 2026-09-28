@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-28                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -40,11 +40,14 @@ statement validates.
 
 C2PA 2.4 models an asset's history as a chain of manifests linked by
 ingredient assertions (§11.1, ingredients; `relationship` `parentOf`,
-`componentOf`, `inputTo`). Each ingredient that points at a manifest in
-the store carries its own validation results (§15.11). The verifier
-reports these in `toArray()` as `manifests.<label>.ingredients[]`, with
-`relationship`, `active_manifest` and `validation_results`. It also
-reports them as `validation_results.ingredientDeltas`.
+`componentOf`, `inputTo`). An ingredient assertion that points at a
+manifest in the store carries the validation results its signer
+**recorded** (§15.11). The verifier validates that manifest again and
+reports what it found differently as a delta (§15.11). In `toArray()`
+the first are `manifests.<label>.ingredients[].validation_results`, next
+to `relationship` and `active_manifest`; the second are
+`validation_results.ingredientDeltas[]`, keyed by the ingredient
+assertion's URI (amendment 2).
 
 ## Scope
 
@@ -60,11 +63,16 @@ reports them as `validation_results.ingredientDeltas`.
   reached manifest, or `trainedAlgorithmicMedia` in a manifest reached
   through a `componentOf` or `inputTo` ingredient. New label: "AI-edited
   (signed)".
-- **The gate on ingredients.** An ingredient is followed only when its
-  `validation_results.activeManifest.failure` is present and is empty or
-  holds only `signingCredential.untrusted`. That is the same bar as
-  `Valid` for the active manifest. Nothing below an ingredient that is not
-  followed is read.
+- **The gate on ingredients** (amendment 2). An ingredient is followed
+  only when both of these are present, and each is empty or holds only
+  `signingCredential.untrusted`:
+  - its recorded `validation_results.activeManifest.failure`;
+  - the failures of the verifier's own delta for it: the
+    `ingredientDeltas` entry whose `ingredientAssertionURI` is
+    `self#jumbf=/c2pa/<manifest label>/c2pa.assertions/<ingredient label>`.
+
+  That is the same bar as `Valid` for the active manifest. Nothing below
+  an ingredient that is not followed is read.
 - **The gate on the label** is unchanged (SPEC-003 AC5). Either label is
   shown only when the state is `Trusted` or `Valid`.
 - The `tracefern_verdict` filter (SPEC-026) gains the key `ai_edited`,
@@ -127,6 +135,9 @@ The history rules (AC1–AC6) are tested on report arrays in the shape of
     `signingCredential.untrusted` and `claimSignature.mismatch`; and a
     variant where B's ingredient has no `validation_results`
   - When the outcomes are computed
+  - And (amendment 2) variants where B's ingredient records an empty
+    failure list, but the verifier's delta for it holds
+    `claimSignature.mismatch`, or there is no delta for it
   - Then each has `ai` `false` and `ai_edited` `false`
 
 - **AC5: an unknown signer on an ingredient is followed**
@@ -250,19 +261,37 @@ final class Display
 
 ## Open questions
 
-1. **Blocker: a real fixture for AC1's case.** No licensed file has AI
-   origin down a `parentOf` chain. Proposal: ask C2PA staff whether the
-   two shared samples may go in the repository, with the source named.
-   Fallback: make one in the verifier repository with its variant script
-   (`bin/make-m7-absence-variants.php` makes a two-manifest store with a
-   throw-away key outside the repository). That is verifier work, with
-   its own step there.
-2. **Wording.** Proposal: "AI-edited (signed)", on the same place and
-   line as "AI-generated (signed)".
-3. **The ingredient bar.** Proposal: as in Scope. The strict
-   alternative, an empty failure list only, would hide the label on the
-   same file whenever the site has no trust list.
-4. **Version.** Proposal: 0.1.3, in line with 0.1.1 for SPEC-026.
+None. Resolved by Maurice on 2026-09-28:
+
+1. **The fixture for AC1's case** is made in the verifier repository,
+   with its variant script and a throw-away key outside the repository,
+   as its own step there. The plugin copies it with the verifier's
+   licence. The shared samples stay out of both repositories.
+2. **Wording:** "AI-edited (signed)", on the same place and line as
+   "AI-generated (signed)", as proposed.
+3. **The ingredient bar:** as in Scope, as proposed.
+4. **Version:** 0.1.3, as proposed.
+
+## Amendments
+
+1. **2026-09-28, approved by Maurice van Loon.** AC6 says "each manifest is
+   read at most once". The walk reads the parent line first and then the
+   whole history, so a manifest is read at most **twice**: once per walk.
+   One walk that visits each manifest only once would get AC1's second
+   test wrong. That test is a manifest reached as a component before it is
+   reached as a parent: it would be counted as "edited" when it should
+   count as "generated". AC6 therefore reads: "each manifest is read at most
+   once per walk, and there are two walks".
+
+2. **2026-09-28, approved by Maurice van Loon.** Making the fixture for
+   AC7 showed that an ingredient's `validation_results` in `toArray()`
+   are what the ingredient assertion's signer recorded, not what the
+   verifier found. Measured with verifier v0.2.6 on the verifier's
+   `tests/Fixtures/ai-history/parent-chain.png` without trust settings:
+   the recorded failure list is empty, while the verifier's delta for the
+   same ingredient holds `signingCredential.untrusted`. The first gate
+   followed an ingredient on the signer's word. The gate now also requires
+   the verifier's own delta (Scope; AC4 gains the two cases).
 
 ## Traceability
 
@@ -271,12 +300,12 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
+| AC1 | `tests/Unit/AiHistoryTest.php` :: AC1 (both) | `src/Outcome.php` `Outcome::aiHistory`, `Outcome::reached` (parentOf walk) |
+| AC2 | `tests/Unit/AiHistoryTest.php` :: AC2 | `Outcome::aiHistory` (`COMPOSITE_TRAINED_ALGORITHMIC_MEDIA`) |
+| AC3 | `tests/Unit/AiHistoryTest.php` :: AC3 | `Outcome::aiHistory` (second walk) |
+| AC4 | `tests/Unit/AiHistoryTest.php` :: AC4 | `Outcome::reached`, `Outcome::deltaFailures`, `Outcome::onlyUnknownSigner` |
+| AC5 | `tests/Unit/AiHistoryTest.php` :: AC5 | `Outcome::onlyUnknownSigner` |
+| AC6 | `tests/Unit/AiHistoryTest.php` :: AC6 (both) | `Outcome::reached` (each manifest once per walk) |
+| AC7 | `tests/Integration/AiHistoryTest.php` :: AC7 | `Outcome::fromReport`; `src/Display.php` `Display::badges`, `Display::showsAiEditedLabel` |
+| AC8 | `tests/Integration/AiHistoryTest.php` :: AC8 (both); `tests/Integration/VerdictTest.php` (`VERDICT_KEYS`) | `Display::read` (`ai_edited` optional, bool only), `Display::verdict` |
+| AC9 | `tests/Integration/AiHistoryTest.php` :: AC9 | `Display::showsAiLabel`, `Display::showsAiEditedLabel` (state gate) |
