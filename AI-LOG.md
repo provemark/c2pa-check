@@ -2100,3 +2100,13 @@ README are where the disclosure lives.
   with four screenshots, two banners and two icons.
 - Reasoned: search results can take up to 72 hours (the approval email).
 - Decided by Maurice: the SVN commit (done by him). Not pushed.
+
+## 2026-09-28 — Tag v0.1.0
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: push, and tag v0.1.0.
+- Produced: the annotated tag `v0.1.0` on `432a64b`, the commit whose
+  build is the released zip (the zip names it in
+  `vendor/composer/installed.php`); the checklist item ticked.
+- Measured: `c6cdbfc` and the tag on `origin`.
+- Decided by Maurice: push and tag.

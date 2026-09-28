@@ -153,8 +153,9 @@ https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password
       as wordpress.org packs it again); the plugin API reports version
       0.1.0, requires 7.1, PHP 8.3, four screenshots, both banners and
       both icons; the public page returns 200.
-- [ ] A matching git tag and, if wanted, a GitHub release (each on
-      Maurice's go).
+- [x] A matching git tag: `v0.1.0` on `432a64b`, the commit the
+      released zip names in `vendor/composer/installed.php`; pushed
+      2026-09-28 on Maurice's go. A GitHub release: not made.
 
 SVN is a release system: commit to it only for a release, as each commit
 rebuilds every version's zip.
