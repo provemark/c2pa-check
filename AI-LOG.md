@@ -2369,3 +2369,27 @@ README are where the disclosure lives.
   `tags/0.1.2` (16:08); a rebuild of `ebbcb62` differs from it only in
   Composer's autoloader class name, which changes with every build.
 - Decided by Maurice: the correction and the push.
+
+## 2026-09-28 — SPEC-027 drafted: AI in the image's history
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: test the sample files C2PA staff shared, then draft a spec for
+  what they showed.
+- Produced: `specs/SPEC-027-ai-in-the-history.md` (draft). `ai` also
+  follows `parentOf` ingredients; a new `ai_edited` key and label for
+  `compositeWithTrainedAlgorithmicMedia` and for AI in `componentOf` or
+  `inputTo` ingredients; an ingredient is followed only when its failures
+  are at most `signingCredential.untrusted`.
+- Measured: with verifier v0.2.6 and the bundled trust settings, both
+  shared samples are `Trusted` with no ingredient failures, and neither
+  gets a label today. One has AI origin two `parentOf` steps down; the
+  other has `compositeWithTrainedAlgorithmicMedia` in the active
+  manifest. `c2pa-rs-ocsp.jpg` is `Valid`, with a `componentOf` AI
+  ingredient whose only failure is `signingCredential.untrusted`. A scan
+  of all JPEG, PNG and WebP fixtures here and in the verifier found no
+  other licensed file with AI in an ingredient. The samples are not in
+  the repository: their licence is unknown.
+- Reasoned: the meaning given to the three relationships, and the
+  ingredient bar (see the spec's References).
+- Decided by Maurice: that the spec is written. Its open questions are
+  his.
