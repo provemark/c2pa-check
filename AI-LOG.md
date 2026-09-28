@@ -2326,3 +2326,15 @@ README are where the disclosure lives.
   every count equal to the new baseline; the new one is
   `Trust/Certificate.php:305`, `rsaExponent()`.
 - Decided by Maurice: baseline 4 reviewed and accepted.
+
+## 2026-09-28 — 0.1.2 prepared
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "bereid 0.1.2 voor".
+- Produced: version 0.1.2 in the plugin header and `Stable tag`; the
+  changelog entry; the build from this commit in `trunk/` and
+  `tags/0.1.2` of the SVN working copy (not committed).
+- Measured: `composer check` (74 passed); the Release suite on the
+  committed build (see the next entry).
+- Decided by Maurice: prepare 0.1.2. The SVN commit, tag and GitHub
+  release wait for him.

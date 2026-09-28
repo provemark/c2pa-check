@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -198,6 +198,10 @@ Authenticity (C2PA), from https://github.com/c2pa-org/conformance-public,
 licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
+
+= 0.1.2 =
+
+* Bundles c2pa-verifier 0.2.6, a security release: an image signed with an RSA key whose public exponent is 1 no longer shows as trusted, since such a signature needs no private key.
 
 = 0.1.1 =
 
