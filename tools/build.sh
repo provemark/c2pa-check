@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds build/provemark-c2pa-check.zip from the committed HEAD (SPEC-006,
+# Builds build/tracefern-image-check-for-c2pa.zip from the committed HEAD (SPEC-006,
 # SPEC-009).
 #
 # 1. git archive HEAD; export-ignore in .gitattributes leaves out what does
@@ -7,7 +7,7 @@
 #    before it is committed); uncommitted files are not in a release.
 # 2. composer install --no-dev with the committed lock, in the build folder.
 # 3. Strauss (pinned by version and SHA-256) moves the verifier under the
-#    plugin's namespace, Provemark\C2paCheck\Vendor\, into vendor-prefixed/,
+#    plugin's namespace, Tracefern\ImageCheck\Vendor\, into vendor-prefixed/,
 #    and rewrites the call sites in the build's copy of src/ (SPEC-009).
 # 4. The verifier trimmed to what runs: src/, LICENSE, composer.json; and
 #    vendor/bin/, Composer's proxy for the verifier's CLI, which is not
@@ -18,13 +18,13 @@ set -eu
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 out="$root/build"
-dir="$out/provemark-c2pa-check"
+dir="$out/tracefern-image-check-for-c2pa"
 
 strauss_version=0.30.0
 strauss_sha256=08c1a8e553594745c22294e158129005fd11ed09ed452d7d4f48566f38c66c96
 strauss="$out/.tools/strauss-$strauss_version.phar"
 
-rm -rf "$dir" "$out/provemark-c2pa-check.zip"
+rm -rf "$dir" "$out/tracefern-image-check-for-c2pa.zip"
 mkdir -p "$dir" "$out/.tools"
 
 if [ ! -f "$strauss" ]; then
@@ -58,5 +58,5 @@ rm -rf "$dir/vendor/bin"
 
 rm "$dir/composer.lock"
 
-(cd "$out" && zip -qr -X provemark-c2pa-check.zip provemark-c2pa-check)
-echo "Built $out/provemark-c2pa-check.zip from $(git -C "$root" rev-parse --short HEAD)"
+(cd "$out" && zip -qr -X tracefern-image-check-for-c2pa.zip tracefern-image-check-for-c2pa)
+echo "Built $out/tracefern-image-check-for-c2pa.zip from $(git -C "$root" rev-parse --short HEAD)"

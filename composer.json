@@ -1,5 +1,5 @@
 {
-    "name": "provemark/c2pa-check",
+    "name": "provemark/tracefern-image-check",
     "description": "WordPress plugin that verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.",
     "type": "wordpress-plugin",
     "license": "MIT",
@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Provemark\\C2paCheck\\": "src/"
+            "Tracefern\\ImageCheck\\": "src/"
         }
     },
     "config": {
@@ -59,13 +59,13 @@
     "extra": {
         "strauss": {
             "target_directory": "vendor-prefixed",
-            "namespace_prefix": "Provemark\\C2paCheck\\Vendor\\",
+            "namespace_prefix": "Tracefern\\ImageCheck\\Vendor\\",
             "packages": [
                 "provemark/c2pa-verifier"
             ],
             "update_call_sites": [
                 "src",
-                "provemark-c2pa-check.php",
+                "tracefern-image-check-for-c2pa.php",
                 "uninstall.php"
             ],
             "delete_vendor_packages": true

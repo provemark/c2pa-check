@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Provemark\C2paCheck\Checker;
-use Provemark\C2paCheck\TrustConfig;
+use Tracefern\ImageCheck\Checker;
+use Tracefern\ImageCheck\TrustConfig;
 
 function bundledTrustDir(): string
 {

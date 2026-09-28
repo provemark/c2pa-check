@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -17,7 +17,7 @@ use WP_Query;
  */
 final class MediaSort
 {
-    public const string PARAM = 'provemark_c2pa';
+    public const string PARAM = 'tracefern';
 
     /** Ascending sort order of the index states; no index sorts after all of them. */
     private const array ORDER = ['Trusted', 'Valid', 'Invalid', 'error', 'unreadable', 'none'];
@@ -49,14 +49,14 @@ final class MediaSort
     public static function options(): array
     {
         return [
-            'trusted' => __('Verified: trusted signer', 'provemark-c2pa-check'),
-            'valid' => __('Intact: signer not trusted', 'provemark-c2pa-check'),
-            'invalid' => __('Does not verify', 'provemark-c2pa-check'),
-            'ai' => __('AI-generated (signed)', 'provemark-c2pa-check'),
-            'error' => __('Could not be checked', 'provemark-c2pa-check'),
-            'none' => __('No Content Credentials', 'provemark-c2pa-check'),
-            'pending' => __('Check pending', 'provemark-c2pa-check'),
-            'unchecked' => __('Not checked', 'provemark-c2pa-check'),
+            'trusted' => __('Verified: trusted signer', 'tracefern-image-check-for-c2pa'),
+            'valid' => __('Intact: signer not trusted', 'tracefern-image-check-for-c2pa'),
+            'invalid' => __('Does not verify', 'tracefern-image-check-for-c2pa'),
+            'ai' => __('AI-generated (signed)', 'tracefern-image-check-for-c2pa'),
+            'error' => __('Could not be checked', 'tracefern-image-check-for-c2pa'),
+            'none' => __('No Content Credentials', 'tracefern-image-check-for-c2pa'),
+            'pending' => __('Check pending', 'tracefern-image-check-for-c2pa'),
+            'unchecked' => __('Not checked', 'tracefern-image-check-for-c2pa'),
         ];
     }
 
@@ -68,9 +68,9 @@ final class MediaSort
 
         $chosen = self::chosen(self::request()[self::PARAM]);
 
-        echo '<label for="provemark-c2pa-filter" class="screen-reader-text">'.esc_html__('Filter by Content Credentials', 'provemark-c2pa-check').'</label>';
-        echo '<select name="'.esc_attr(self::PARAM).'" id="provemark-c2pa-filter">';
-        echo '<option value="">'.esc_html__('All Content Credentials', 'provemark-c2pa-check').'</option>';
+        echo '<label for="tracefern-filter" class="screen-reader-text">'.esc_html__('Filter by Content Credentials', 'tracefern-image-check-for-c2pa').'</label>';
+        echo '<select name="'.esc_attr(self::PARAM).'" id="tracefern-filter">';
+        echo '<option value="">'.esc_html__('All Content Credentials', 'tracefern-image-check-for-c2pa').'</option>';
         foreach (self::options() as $value => $label) {
             echo '<option value="'.esc_attr($value).'"'.selected($chosen, $value, false).'>'.esc_html($label).'</option>';
         }
@@ -137,7 +137,7 @@ final class MediaSort
 
         if (($request['orderby'] ?? null) === self::PARAM) {
             $order = is_string($request['order'] ?? null) && strtolower($request['order']) === 'desc' ? 'DESC' : 'ASC';
-            $query->set('provemark_c2pa_order', $order);
+            $query->set('tracefern_order', $order);
         }
     }
 
@@ -151,7 +151,7 @@ final class MediaSort
      */
     public static function orderClauses(array $clauses, WP_Query $query): array
     {
-        $order = $query->get('provemark_c2pa_order');
+        $order = $query->get('tracefern_order');
         if ($order !== 'ASC' && $order !== 'DESC') {
             return $clauses;
         }
@@ -162,10 +162,10 @@ final class MediaSort
             $cases .= $wpdb->prepare(' WHEN %s THEN %d', $state, $rank);
         }
 
-        $clauses['join'] = ($clauses['join'] ?? '').$wpdb->prepare(' LEFT JOIN %i AS provemark_c2pa_sort ON provemark_c2pa_sort.post_id = %i.ID AND provemark_c2pa_sort.meta_key = %s', $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY);
+        $clauses['join'] = ($clauses['join'] ?? '').$wpdb->prepare(' LEFT JOIN %i AS tracefern_sort ON tracefern_sort.post_id = %i.ID AND tracefern_sort.meta_key = %s', $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY);
         // post_date alone ties for uploads in the same second; ID settles it
         // (a higher ID is newer), so the order is the same on every request.
-        $clauses['orderby'] = 'CASE provemark_c2pa_sort.meta_value'.$cases.' ELSE '.count(self::ORDER).' END '.$order.", {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
+        $clauses['orderby'] = 'CASE tracefern_sort.meta_value'.$cases.' ELSE '.count(self::ORDER).' END '.$order.", {$wpdb->posts}.post_date DESC, {$wpdb->posts}.ID DESC";
 
         return $clauses;
     }
@@ -174,7 +174,7 @@ final class MediaSort
      * The three request values this class reads, unslashed and sanitized;
      * apply() and chosen() still check them against fixed lists.
      *
-     * @return array{provemark_c2pa: ?string, orderby: ?string, order: ?string}
+     * @return array{tracefern: ?string, orderby: ?string, order: ?string}
      */
     private static function request(): array
     {
@@ -186,7 +186,7 @@ final class MediaSort
             $values[$key] = isset($_GET[$key]) && is_string($_GET[$key]) ? sanitize_text_field(wp_unslash($_GET[$key])) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- a read-only list filter, checked against fixed lists
         }
 
-        return ['provemark_c2pa' => $values[self::PARAM], 'orderby' => $values['orderby'], 'order' => $values['order']];
+        return ['tracefern' => $values[self::PARAM], 'orderby' => $values['orderby'], 'order' => $values['order']];
     }
 
     /**

@@ -13,7 +13,7 @@ function readmeHeader(string $readme, string $name): ?string
 it('keeps readme.txt within wordpress.org\'s limits', function (): void {
     $root = dirname(__DIR__, 2);
     $readme = (string) file_get_contents($root.'/readme.txt');
-    $main = (string) file_get_contents($root.'/provemark-c2pa-check.php');
+    $main = (string) file_get_contents($root.'/tracefern-image-check-for-c2pa.php');
     preg_match('/^ \* Version:\s*(\S+)$/m', $main, $version);
     // The short description is the first line after the header block.
     $blocks = explode("\n\n", $readme, 3);
@@ -75,7 +75,7 @@ it('SPEC-019 AC1: links the development location', function (): void {
     $section = (string) preg_replace('/.*\n== Development ==\n(.*?)(\n== .*|$)/s', '$1', $readme);
 
     expect($readme)->toContain("\n== Development ==\n")
-        ->and($section)->toContain('https://github.com/provemark/c2pa-check')
+        ->and($section)->toContain('https://github.com/provemark/tracefern-image-check')
         ->and($section)->toContain('https://github.com/provemark/c2pa-verifier')
         ->and($section)->toContain('composer build');
 })->group('SPEC-019');

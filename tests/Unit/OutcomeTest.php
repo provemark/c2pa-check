@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Provemark\C2paCheck\Outcome;
 use Provemark\C2paVerifier\Verifier\VerificationReport;
 use Provemark\C2paVerifier\Verifier\Verifier;
+use Tracefern\ImageCheck\Outcome;
 
 function reportFor(string $path): VerificationReport
 {

@@ -15,7 +15,7 @@ it('AC1: labels a verifying AI upload in the column and the details', function (
 it('AC2: does not label an invalid upload that claims AI', function (): void {
     // Amendment 1: with DigiCert on (the default) Amazon Titan is Valid and
     // rightly labelled; with it off, it is Invalid.
-    setOption('provemark_c2pa_digicert', false);
+    setOption('tracefern_digicert', false);
     try {
         $id = importMedia(fixturePath('amazon-20240925-titan-g1.png'));
     } finally {

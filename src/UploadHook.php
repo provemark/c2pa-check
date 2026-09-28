@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -21,15 +21,15 @@ use Throwable;
  */
 final class UploadHook
 {
-    public const string META_KEY = '_provemark_c2pa_result';
+    public const string META_KEY = '_tracefern_result';
 
     public const array MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
     /** Set while the last check had to run without trust settings (SPEC-004 AC6). */
-    public const string TRUST_FAILED_OPTION = 'provemark_c2pa_trust_failed';
+    public const string TRUST_FAILED_OPTION = 'tracefern_trust_failed';
 
     /** The WP-Cron event of the check queue, without arguments (SPEC-017). */
-    public const string EVENT = 'provemark_c2pa_check';
+    public const string EVENT = 'tracefern_check';
 
     /** The most images one run of the queue checks. */
     public const int BATCH = 20;
@@ -38,13 +38,13 @@ final class UploadHook
     public const int SAFETY_DELAY = 60;
 
     /** When the check of an attachment was scheduled (Unix time), until it runs. */
-    public const string PENDING_KEY = '_provemark_c2pa_pending';
+    public const string PENDING_KEY = '_tracefern_pending';
 
     /** After this many seconds a pending marker counts as not checked: its event was lost. */
     public const int PENDING_FOR = 3600;
 
     /** The file to check: the original, relative to the uploads folder (SPEC-014). */
-    public const string SOURCE_KEY = '_provemark_c2pa_source';
+    public const string SOURCE_KEY = '_tracefern_source';
 
     /** @var Closure(): TrustConfig */
     private readonly Closure $trustConfig;

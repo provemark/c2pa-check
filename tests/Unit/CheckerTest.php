@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Composer\InstalledVersions;
-use Provemark\C2paCheck\Checker;
+use Tracefern\ImageCheck\Checker;
 
 it('checks a file with the bundled verifier', function (): void {
     $entry = (new Checker)->check(fixturePath('fixture-signed.jpg'));

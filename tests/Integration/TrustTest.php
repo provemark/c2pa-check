@@ -24,7 +24,7 @@ it('AC2: trusts and labels an OpenAI image with the default settings', function 
 })->group('SPEC-004');
 
 it('AC3: lets DigiCert decide an expired signer with a DigiCert timestamp', function (bool $digiCert, string $state, string $trust): void {
-    setOption('provemark_c2pa_digicert', $digiCert);
+    setOption('tracefern_digicert', $digiCert);
     $path = fixturePath('amazon-20240925-titan-g1.png');
     $id = importMedia($path);
 
@@ -37,7 +37,7 @@ it('AC3: lets DigiCert decide an expired signer with a DigiCert timestamp', func
 ])->group('SPEC-004');
 
 it('AC4: lets custom settings replace the bundled lists', function (): void {
-    setOption('provemark_c2pa_custom_trust', customSettingsJson());
+    setOption('tracefern_custom_trust', customSettingsJson());
     $signed = importMedia(fixturePath('fixture-signed.jpg'));
     $pixel = importMedia(fixturePath('google-20250919-pixel10-npld-picnic-table.jpg'));
 
@@ -50,13 +50,13 @@ it('AC4: lets custom settings replace the bundled lists', function (): void {
 })->group('SPEC-004');
 
 it('AC5: refuses custom text that is not trust settings, and keeps the old value', function (string $bad): void {
-    setOption('provemark_c2pa_custom_trust', customSettingsJson());
+    setOption('tracefern_custom_trust', customSettingsJson());
     $payload = base64_encode($bad);
     // Registered as options.php registers it, through admin_init (SPEC-012).
     $out = wpEval(REGISTER_SETTINGS_ON.<<<PHP
         (\$registerSettingsOn('admin_init'))();
-        update_option('provemark_c2pa_custom_trust', base64_decode('$payload'));
-        echo json_encode(['kept' => get_option('provemark_c2pa_custom_trust'), 'errors' => get_settings_errors('provemark_c2pa_custom_trust')]);
+        update_option('tracefern_custom_trust', base64_decode('$payload'));
+        echo json_encode(['kept' => get_option('tracefern_custom_trust'), 'errors' => get_settings_errors('tracefern_custom_trust')]);
         PHP);
     $result = json_decode($out, true);
     $kept = is_array($result) ? ($result['kept'] ?? null) : null;
@@ -71,7 +71,7 @@ it('AC5: refuses custom text that is not trust settings, and keeps the old value
 ])->group('SPEC-004');
 
 it('AC6: checks without settings it cannot build, says so, and clears the notice after', function (): void {
-    wpEval("remove_all_filters('sanitize_option_provemark_c2pa_custom_trust'); update_option('provemark_c2pa_custom_trust', '{not json');");
+    wpEval("remove_all_filters('sanitize_option_tracefern_custom_trust'); update_option('tracefern_custom_trust', '{not json');");
     $id = importMedia(fixturePath('fixture-signed.jpg'));
     $notice = wpEval("do_action('admin_notices');");
 
@@ -79,7 +79,7 @@ it('AC6: checks without settings it cannot build, says so, and clears the notice
         ->and(storedEntry($id)['state'] ?? null)->toBe(expectedEntry(fixturePath('fixture-signed.jpg'))['state'])
         ->and(visibleText($notice))->toContain('without trust settings');
 
-    wpEval("delete_option('provemark_c2pa_custom_trust');");
+    wpEval("delete_option('tracefern_custom_trust');");
     importMedia(fixturePath('fixture-signed.jpg'));
 
     expect(visibleText(wpEval("do_action('admin_notices');")))->not->toContain('without trust settings');
@@ -100,22 +100,22 @@ it('AC7: names the trust source in the details', function (?string $trust, strin
 it('AC8: shows the settings page to administrators only, escaped', function (): void {
     // Stored past validation (which would refuse it), to test the output.
     $hostile = base64_encode('</textarea><script>alert(1)</script>');
-    wpEval("remove_all_filters('sanitize_option_provemark_c2pa_custom_trust'); update_option('provemark_c2pa_custom_trust', base64_decode('$hostile'));");
-    $page = wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Provemark\\C2paCheck\\SettingsPage)->render();");
+    wpEval("remove_all_filters('sanitize_option_tracefern_custom_trust'); update_option('tracefern_custom_trust', base64_decode('$hostile'));");
+    $page = wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();");
 
     expect(visibleText($page))->toContain('2026-08-14')
         ->toContain('99927ca')
         ->toContain('new uploads')
-        ->and($page)->toMatch('/name="provemark_c2pa_digicert"[^>]*checked/')
+        ->and($page)->toMatch('/name="tracefern_digicert"[^>]*checked/')
         ->and($page)->toContain('&lt;/textarea&gt;&lt;script&gt;')
         ->and(activeMarkup($page))->not->toContain('<script>');
 
     wpCli(['user', 'create', 'm4-subscriber', 'm4-subscriber@example.test', '--role=subscriber']);
-    expect(trim(wpEvalAs('m4-subscriber', "require_once ABSPATH.'wp-admin/includes/admin.php'; (new Provemark\\C2paCheck\\SettingsPage)->render();")))->toBe('')
-        ->and(wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; do_action('admin_menu'); global \$submenu; foreach (\$submenu['options-general.php'] ?? [] as \$item) { if (\$item[2] === 'provemark-c2pa-check') { echo \$item[1]; } }"))->toBe('manage_options');
+    expect(trim(wpEvalAs('m4-subscriber', "require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();")))->toBe('')
+        ->and(wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; do_action('admin_menu'); global \$submenu; foreach (\$submenu['options-general.php'] ?? [] as \$item) { if (\$item[2] === 'tracefern-image-check-for-c2pa') { echo \$item[1]; } }"))->toBe('manage_options');
     wpCli(['user', 'delete', 'm4-subscriber', '--yes']);
 })->group('SPEC-004');
 
 it('AC9: shows no age warning for a list from 2026-08-14 today', function (): void {
-    expect(visibleText(wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Provemark\\C2paCheck\\SettingsPage)->render();")))->not->toContain('older than');
+    expect(visibleText(wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();")))->not->toContain('older than');
 })->group('SPEC-004');

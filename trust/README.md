@@ -1,6 +1,6 @@
 # Bundled trust lists
 
-These files are what Provemark C2PA Check trusts by default (SPEC-004).
+These files are what Tracefern Image Check for C2PA trusts by default (SPEC-004).
 Nothing here is fetched at run time; a new copy arrives with a plugin
 release. An administrator can replace all of it with custom trust settings
 on Settings → C2PA Check.

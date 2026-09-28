@@ -14,13 +14,13 @@ it('AC1: holds what runs, and nothing else', function (): void {
     foreach ($lines as $line) {
         if ($line !== '') {
             $tops[explode('/', $line)[0]] = true;
-            $inside[] = substr($line, strlen('provemark-c2pa-check/'));
+            $inside[] = substr($line, strlen('tracefern-image-check-for-c2pa/'));
         }
     }
 
     expect($exit)->toBe(0)
-        ->and(array_keys($tops))->toBe(['provemark-c2pa-check']);
-    foreach (['provemark-c2pa-check.php', 'uninstall.php', 'readme.txt', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor-prefixed/provemark/c2pa-verifier/LICENSE'] as $needed) {
+        ->and(array_keys($tops))->toBe(['tracefern-image-check-for-c2pa']);
+    foreach (['tracefern-image-check-for-c2pa.php', 'uninstall.php', 'readme.txt', 'LICENSE', 'composer.json', 'src/UploadHook.php', 'trust/C2PA-TRUST-LIST.pem', 'assets/admin.css', 'vendor/autoload.php', 'vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php', 'vendor-prefixed/provemark/c2pa-verifier/LICENSE'] as $needed) {
         expect($inside)->toContain($needed);
     }
 
@@ -38,14 +38,14 @@ it('AC2: installs and works on a clean WordPress', function (string $fixture, st
 
     expect($entry['state'] ?? null)->toBe($state)
         ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($fixture), defaultSettingsFile()))
-        ->and(releaseEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Provemark\\C2paCheck\\SettingsPage)->render();"))->toContain('C2PA Check');
+        ->and(releaseEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();"))->toContain('C2PA Check');
 })->with([
     ['fixture-signed.jpg', 'Valid'],
     ['google-20250919-pixel10-npld-picnic-table.jpg', 'Trusted'],
 ])->group('SPEC-006');
 
 it('AC3: passes Plugin Check on the build, with nothing excluded', function (): void {
-    $result = wpCli(['plugin', 'check', 'provemark-c2pa-check', '--format=csv', '--fields=type,code,message'], 'release');
+    $result = wpCli(['plugin', 'check', 'tracefern-image-check-for-c2pa', '--format=csv', '--fields=type,code,message'], 'release');
 
     expect(preg_grep('/^(ERROR|WARNING),/m', explode("\n", $result['output'])))->toBe([], $result['output'])
         ->and($result['output'])->toContain('Checks complete');
@@ -59,7 +59,7 @@ it('AC4: keeps the shipped verifier within its reviewed WPCS baseline', function
             $baseline[$sniff] = $count;
         }
     }
-    $shipped = dirname(__DIR__, 2).'/build/provemark-c2pa-check/vendor-prefixed/provemark/c2pa-verifier/src';
+    $shipped = dirname(__DIR__, 2).'/build/tracefern-image-check-for-c2pa/vendor-prefixed/provemark/c2pa-verifier/src';
 
     expect($baseline)->not->toBeEmpty()
         ->and(wpcsFindings($shipped))->not->toBeEmpty()
@@ -68,7 +68,7 @@ it('AC4: keeps the shipped verifier within its reviewed WPCS baseline', function
     // A planted unescaped echo in a copy must break the baseline.
     // Outside the repository: only the host needs it, and PHPStan and Pint
     // must not read it.
-    $copy = sys_get_temp_dir().'/provemark-c2pa-wpcs-planted';
+    $copy = sys_get_temp_dir().'/tracefern-wpcs-planted';
     exec('rm -rf '.escapeshellarg($copy).' && cp -R '.escapeshellarg($shipped).' '.escapeshellarg($copy));
     file_put_contents($copy.'/Planted.php', "<?php\necho \$_GET['x'];\n");
 
@@ -76,11 +76,11 @@ it('AC4: keeps the shipped verifier within its reviewed WPCS baseline', function
 })->group('SPEC-006');
 
 it('AC5: stays up and says so when its bundled libraries are missing', function (): void {
-    wpCli(['eval', "exec('rm -rf '.escapeshellarg(WP_PLUGIN_DIR.'/provemark-c2pa-check/vendor'));"], 'release');
+    wpCli(['eval', "exec('rm -rf '.escapeshellarg(WP_PLUGIN_DIR.'/tracefern-image-check-for-c2pa/vendor'));"], 'release');
     try {
         $id = releaseImport('fixture-signed.jpg');
 
-        expect(wpCli(['plugin', 'is-active', 'provemark-c2pa-check'], 'release')['exit'])->toBe(0)
+        expect(wpCli(['plugin', 'is-active', 'tracefern-image-check-for-c2pa'], 'release')['exit'])->toBe(0)
             ->and(releaseEval("do_action('admin_notices');"))->toContain('bundled libraries are missing')
             ->and(releaseEntry($id))->toBeNull();
     } finally {
@@ -102,8 +102,8 @@ it('SPEC-009 AC1: carries only the prefixed verifier', function (): void {
         }
     }
 
-    expect(array_values(array_filter($lines, fn (string $f): bool => str_starts_with($f, 'provemark-c2pa-check/vendor/provemark/'))))->toBe([])
-        ->and($lines)->toContain('provemark-c2pa-check/vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php')
+    expect(array_values(array_filter($lines, fn (string $f): bool => str_starts_with($f, 'tracefern-image-check-for-c2pa/vendor/provemark/'))))->toBe([])
+        ->and($lines)->toContain('tracefern-image-check-for-c2pa/vendor-prefixed/provemark/c2pa-verifier/src/Verifier/Verifier.php')
         ->and($unprefixed)->toBe([]);
 })->group('SPEC-009');
 
@@ -161,12 +161,12 @@ it('SPEC-016 AC1: holds no code that writes PHP and includes it', function (): v
         }
     }
 
-    expect($lines)->not->toContain('provemark-c2pa-check/vendor/composer/autoload_aliases.php')
+    expect($lines)->not->toContain('tracefern-image-check-for-c2pa/vendor/composer/autoload_aliases.php')
         ->and($writesAndRuns)->toBe([]);
 })->group('SPEC-016');
 
 it('SPEC-016 AC2: does not ship README.md', function (): void {
     exec('unzip -Z1 '.escapeshellarg(releaseZip()), $lines);
 
-    expect($lines)->not->toContain('provemark-c2pa-check/README.md');
+    expect($lines)->not->toContain('tracefern-image-check-for-c2pa/README.md');
 })->group('SPEC-016');

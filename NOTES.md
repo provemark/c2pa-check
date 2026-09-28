@@ -1,6 +1,6 @@
 # Notes
 
-Decisions and open questions for Provemark C2PA Check. Each entry says what
+Decisions and open questions for Tracefern Image Check for C2PA. Each entry says what
 is measured (a command was run) and what is reasoned (read or concluded).
 
 ## Decisions (2026-09-26)
@@ -42,11 +42,11 @@ wordpress.org is decided after M5.
 
 | what | value |
 |---|---|
-| name | Provemark C2PA Check |
-| slug, text domain | `provemark-c2pa-check` |
-| namespace | `Provemark\C2paCheck` |
-| prefix | `provemark_c2pa_` |
-| post meta | `_provemark_c2pa_result` (the leading underscore keeps it out of the Custom Fields panel) |
+| name | Tracefern Image Check for C2PA |
+| slug, text domain | `tracefern-image-check-for-c2pa` |
+| namespace | `Tracefern\ImageCheck` |
+| prefix | `tracefern_` |
+| post meta | `_tracefern_result` (the leading underscore keeps it out of the Custom Fields panel) |
 
 The brand comes first because "C2PA" and "Content Credentials" belong to
 others (wordpress.org guideline 17; reasoned) and because
@@ -190,7 +190,7 @@ bounds the known files, the background check the next unknown one.
   api.wordpress.org for update checks; with an `Update URI` other than its
   own wordpress.org URL "the API will not return any result"
   (make.wordpress.org/core, 2021-06-29, WordPress 5.8). Without it, a
-  plugin someone later registers as `provemark-c2pa-check` on
+  plugin someone later registers as `tracefern-image-check-for-c2pa` on
   wordpress.org would be offered as an update to this plugin's users.
   `false` rather than a GitHub URL: `github.com` is shared, and any plugin
   hooking `update_plugins_github.com` could answer for it. wordpress.org's
@@ -227,7 +227,7 @@ bounds the known files, the background check the next unknown one.
   option's registered default, `update_option()` treats the option as
   missing and calls `add_option()` without an autoload value, which gives
   `auto`, i.e. autoloaded below 150 KB. With `'default' => ''` registered
-  for `provemark_c2pa_custom_trust`, the first save of custom settings
+  for `tracefern_custom_trust`, the first save of custom settings
   turned its autoload from `off` to `auto` (measured with WP-CLI; caught
   by SPEC-012 AC2). Without the registered default it stays `off`,
   measured through `options.php` as an administrator (HTTP 302, autoload

@@ -40,7 +40,7 @@ function calledFunctions(string $file): array
 }
 
 it('AC10: makes no network calls in the plugin\'s own code', function (): void {
-    $files = [...(glob(dirname(__DIR__, 2).'/src/*.php') ?: []), dirname(__DIR__, 2).'/provemark-c2pa-check.php'];
+    $files = [...(glob(dirname(__DIR__, 2).'/src/*.php') ?: []), dirname(__DIR__, 2).'/tracefern-image-check-for-c2pa.php'];
     $found = [];
     foreach ($files as $file) {
         foreach (array_intersect(calledFunctions($file), NETWORK_FUNCTIONS) as $call) {

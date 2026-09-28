@@ -11,7 +11,7 @@ beforeAll(function (): void {
 
 afterEach(function (): void {
     foreach ([NETWORK_MAIN, NETWORK_SITE2] as $url) {
-        networkEval("delete_option('provemark_c2pa_custom_trust'); delete_option('provemark_c2pa_digicert');", $url);
+        networkEval("delete_option('tracefern_custom_trust'); delete_option('tracefern_digicert');", $url);
     }
 });
 
@@ -21,12 +21,12 @@ it('AC1: checks and stores each site\'s uploads on that site', function (): void
 
     expect(stable((array) networkEntry($main)))->toBe(expectedEntry(fixturePath('fixture-signed.jpg'), defaultSettingsFile()))
         ->and(stable((array) networkEntry($sub, NETWORK_SITE2)))->toBe(expectedEntry(fixturePath('openai-20260826-c2pa_2x.png'), defaultSettingsFile()))
-        ->and(networkCli(['post', 'meta', 'get', (string) $sub, '_provemark_c2pa_state'], NETWORK_SITE2)['output'])->toBe('Trusted');
+        ->and(networkCli(['post', 'meta', 'get', (string) $sub, '_tracefern_state'], NETWORK_SITE2)['output'])->toBe('Trusted');
 })->group('SPEC-011');
 
 it('AC2: keeps settings per site', function (): void {
     $payload = base64_encode(customSettingsJson());
-    networkEval("update_option('provemark_c2pa_custom_trust', base64_decode('$payload'));", NETWORK_SITE2);
+    networkEval("update_option('tracefern_custom_trust', base64_decode('$payload'));", NETWORK_SITE2);
 
     $main = networkImport('fixture-signed.jpg');
     $sub = networkImport('fixture-signed.jpg', NETWORK_SITE2);
@@ -40,7 +40,7 @@ it('AC3: cleans every site on uninstall, and nothing else', function (): void {
     $main = networkImport('fixture-signed.jpg');
     $sub = networkImport('fixture-signed.jpg', NETWORK_SITE2);
     foreach ([NETWORK_MAIN, NETWORK_SITE2] as $url) {
-        networkEval("update_option('provemark_c2pa_digicert', '0'); update_option('provemark_c2pa_index_done', '1');", $url);
+        networkEval("update_option('tracefern_digicert', '0'); update_option('tracefern_index_done', '1');", $url);
     }
     networkEval("update_option('m11_unrelated', 'keep me'); add_post_meta($sub, '_m11_unrelated', 'keep me');", NETWORK_SITE2);
 
@@ -49,14 +49,14 @@ it('AC3: cleans every site on uninstall, and nothing else', function (): void {
     // site (a deleted plugin does not).
     $counts = json_decode(networkEval(<<<'PHP'
         require_once ABSPATH.'wp-admin/includes/plugin.php';
-        uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');
+        uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');
         global $wpdb;
         $out = [];
         foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
             switch_to_blog($site);
             $out[$site] = [
-                'meta' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key IN ('_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai')"),
-                'options' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE 'provemark\\_c2pa\\_%'"),
+                'meta' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key IN ('_tracefern_result', '_tracefern_state', '_tracefern_ai')"),
+                'options' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE 'tracefern\\_%'"),
             ];
             restore_current_blog();
         }
@@ -89,9 +89,9 @@ it('AC5: re-checks on one site with --url, and leaves the other alone', function
     $sub = networkImport('fixture-signed.jpg', NETWORK_SITE2);
     $mainBefore = networkEntry($main);
     $payload = base64_encode(customSettingsJson());
-    networkEval("update_option('provemark_c2pa_custom_trust', base64_decode('$payload'));", NETWORK_SITE2);
+    networkEval("update_option('tracefern_custom_trust', base64_decode('$payload'));", NETWORK_SITE2);
 
-    $result = networkCli(['provemark-c2pa', 'check', (string) $sub], NETWORK_SITE2);
+    $result = networkCli(['tracefern', 'check', (string) $sub], NETWORK_SITE2);
 
     expect($result['exit'])->toBe(0, $result['output'])
         ->and(networkEntry($sub, NETWORK_SITE2)['state'] ?? null)->toBe('Trusted')
@@ -109,20 +109,20 @@ it('SPEC-013 AC8: uninstall removes the pending markers and the scheduled checks
         $before = [];
         foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
             switch_to_blog($site);
-            $before[$site] = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check'])));
+            $before[$site] = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['tracefern_check'])));
             restore_current_blog();
         }
         require_once ABSPATH.'wp-admin/includes/plugin.php';
-        uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');
+        uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');
         global $wpdb;
         $out = [];
         foreach (get_sites(['fields' => 'ids', 'number' => 0]) as $site) {
             switch_to_blog($site);
             $out[$site] = [
                 'scheduled before' => $before[$site] > 0,
-                'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'"),
-                'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check']))),
-                'sources' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_source'"),
+                'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_tracefern_pending'"),
+                'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['tracefern_check']))),
+                'sources' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_tracefern_source'"),
             ];
             restore_current_blog();
         }
@@ -144,22 +144,22 @@ it('SPEC-015 AC7: network deactivation cleans up on every site', function (): vo
     try {
         $counts = json_decode(networkEval(<<<'PHP'
             require_once ABSPATH.'wp-admin/includes/plugin.php';
-            $before = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check'])));
-            deactivate_plugins('provemark-c2pa-check/provemark-c2pa-check.php', false, true);
+            $before = count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['tracefern_check'])));
+            deactivate_plugins('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php', false, true);
             global $wpdb;
             $out = ['scheduled before' => $before > 0];
             foreach (array_slice(get_sites(['fields' => 'ids', 'number' => 0]), 0, 2) as $site) {
                 switch_to_blog($site);
                 $out[$site] = [
-                    'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'"),
-                    'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['provemark_c2pa_check']))),
+                    'markers' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_tracefern_pending'"),
+                    'events' => count(array_filter(_get_cron_array() ?: [], fn ($hooks) => isset($hooks['tracefern_check']))),
                 ];
                 restore_current_blog();
             }
             echo json_encode($out);
             PHP), true);
     } finally {
-        networkEval("require_once ABSPATH.'wp-admin/includes/plugin.php'; activate_plugin('provemark-c2pa-check/provemark-c2pa-check.php', '', true);");
+        networkEval("require_once ABSPATH.'wp-admin/includes/plugin.php'; activate_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php', '', true);");
     }
     $sites = is_array($counts) ? $counts : [];
 

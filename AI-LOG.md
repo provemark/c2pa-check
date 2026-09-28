@@ -1946,3 +1946,35 @@ README are where the disclosure lives.
   replies; SPEC-019 waits for that reply or 0.1.1.
 - Decided by Maurice: no upload of the SPEC-019 zip; the test fix. Not
   pushed.
+
+## 2026-09-28 — Renamed to Tracefern Image Check for C2PA (SPEC-020)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: work through wordpress.org's first review; it questioned the name
+  ("ProveMark" possibly someone else's brand, "C2PA" not after "for").
+  Then find English name candidates without a Dutch second meaning.
+- Measured: Blockchain Commons publishes "Provenance Marks" under
+  `developer.blockchaincommons.com/provemark/`. About twenty coined names
+  checked against the directory API (`plugin_information`,
+  `query_plugins`) and a web search; most were companies already
+  (Tracewell, Credwise, Rootline, Sealwise, Provenly, Heronsight).
+  "tracefern": no plugin, no product; only a housing subdivision.
+- Produced: the repository renamed on GitHub to
+  `provemark/tracefern-image-check` (Maurice's go) and `origin` updated;
+  SPEC-020; the main file `tracefern-image-check-for-c2pa.php`; slug, text
+  domain, namespace `Tracefern\ImageCheck` (Strauss prefix too), prefix
+  `tracefern_` for options, meta, cron event and settings group, CSS
+  classes and `wp tracefern`, in code, tests, CI, build and docs; the
+  naming sections in `notes/`; the banner re-rendered with the new name
+  (title 64 px, one line; looked at). The verifier keeps its own name.
+- Tests first, seen red: `tests/Unit/NameTest.php` (the main file missing;
+  54 files with the old name), then green. After: `composer check` 65,
+  integration 143, multisite 7; the release suite after the
+  commit.
+- Reasoned: no migration of stored data, as no version was released; not a
+  legal trademark search; reserved slugs do not show in the API.
+- Not yet done: the plugin's block on the organisation profile and the
+  card on provemark.github.io still say "c2pa-check" (other repositories,
+  Maurice's go needed); the reply to the reviewer.
+- Decided by Maurice: the name Tracefern (not his own name; not "Keel…",
+  which means throat in Dutch); rename the repository. Not pushed.

@@ -1,15 +1,15 @@
-/* Provemark C2PA Check: the verdict badge and the facts (SPEC-002 amendment 1).
+/* Tracefern Image Check for C2PA: the verdict badge and the facts (SPEC-002 amendment 1).
    Colours from the WordPress admin palette. */
 
-.compat-field-provemark_c2pa th {
+.compat-field-tracefern th {
 	vertical-align: top;
 }
 
-.provemark-c2pa-badges {
+.tracefern-badges {
 	margin: 0 0 8px;
 }
 
-.provemark-c2pa-badge {
+.tracefern-badge {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
@@ -28,22 +28,22 @@
 	background: #f6f7f7;
 }
 
-.provemark-c2pa-badge .dashicons {
+.tracefern-badge .dashicons {
 	width: 16px;
 	height: 16px;
 	font-size: 16px;
 }
 
-.provemark-c2pa-badge--trusted { color: #007017; background: #edfaef; }
-.provemark-c2pa-badge--valid { color: #135e96; background: #f0f6fc; }
-.provemark-c2pa-badge--invalid { color: #b32d2e; background: #fcf0f1; }
-.provemark-c2pa-badge--error,
-.provemark-c2pa-badge--unreadable,
-.provemark-c2pa-badge--changed { color: #8a4b00; background: #fcf9e8; }
-.provemark-c2pa-badge--ai { color: #3c434a; background: #fff; }
-.provemark-c2pa-badge--pending { color: #3c434a; background: #f0f0f1; }
+.tracefern-badge--trusted { color: #007017; background: #edfaef; }
+.tracefern-badge--valid { color: #135e96; background: #f0f6fc; }
+.tracefern-badge--invalid { color: #b32d2e; background: #fcf0f1; }
+.tracefern-badge--error,
+.tracefern-badge--unreadable,
+.tracefern-badge--changed { color: #8a4b00; background: #fcf9e8; }
+.tracefern-badge--ai { color: #3c434a; background: #fff; }
+.tracefern-badge--pending { color: #3c434a; background: #f0f0f1; }
 
-.provemark-c2pa-facts {
+.tracefern-facts {
 	display: grid;
 	grid-template-columns: max-content 1fr;
 	gap: 2px 12px;
@@ -52,18 +52,18 @@
 	line-height: 1.5;
 }
 
-.provemark-c2pa-facts dt {
+.tracefern-facts dt {
 	margin: 0;
 	font-weight: 600;
 	color: #50575e;
 }
 
-.provemark-c2pa-facts dd {
+.tracefern-facts dd {
 	margin: 0;
 	overflow-wrap: anywhere;
 }
 
-.provemark-c2pa-facts code {
+.tracefern-facts code {
 	padding: 0 3px;
 	font-size: 11px;
 }

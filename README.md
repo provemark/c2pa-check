@@ -1,4 +1,4 @@
-# Provemark C2PA Check
+# Tracefern Image Check for C2PA
 
 A WordPress plugin that verifies the Content Credentials (C2PA) of every
 uploaded image with [provemark/c2pa-verifier](https://github.com/provemark/c2pa-verifier)
@@ -32,7 +32,7 @@ and `ext-mbstring`.
   C2PA Check lets an administrator replace them.
 - Sorts and filters the Media Library list by verdict, including all
   AI-generated images and the images still waiting for their check.
-- Re-checks existing images with WP-CLI: `wp provemark-c2pa check`.
+- Re-checks existing images with WP-CLI: `wp tracefern check`.
 - Works on multisite, suggests text for the site's privacy policy, and
   removes its data when the plugin is deleted.
 
@@ -61,13 +61,13 @@ Four wp-env environments, each its own WordPress:
 | `npm run env:start` | 8888 | development, by hand; no test touches it |
 | `npm run test:start` | 8892 | `composer test:integration` (uploads, uninstalls, thousands of test attachments) |
 | `npm run multisite:start` | 8894 | `composer test:multisite`: a multisite network with the plugin network-activated |
-| `npm run release:start` | 8890 | `composer test:release`: `composer build` makes `build/provemark-c2pa-check.zip`, which is installed and checked there |
+| `npm run release:start` | 8890 | `composer test:release`: `composer build` makes `build/tracefern-image-check-for-c2pa.zip`, which is installed and checked there |
 
 `composer build` ([`tools/build.sh`](tools/build.sh)) makes the release
 zip from the committed tree: `composer install --no-dev`, then
 [Strauss](https://github.com/BrianHenryIE/strauss) 0.30.0 (a pinned,
 SHA-256-checked `strauss.phar`) prefixes the bundled verifier to
-`Provemark\C2paCheck\Vendor\`, and what does not run is left out.
+`Tracefern\ImageCheck\Vendor\`, and what does not run is left out.
 
 The specifications are in
 [`specs/`](specs/), measurements in [`notes/`](notes/), decisions in

@@ -59,8 +59,8 @@ it('AC3: a check that dies does not break the upload', function (): void {
 
 it('AC4: the check runs with the raised memory limit', function (): void {
     wpEval(<<<'PHP'
-        delete_option('provemark_test_memory');
-        file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-memory.php', '<?php add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("provemark_c2pa_check")) { update_option("provemark_test_memory", ini_get("memory_limit"), false); } return $v; });');
+        delete_option('tracefern_test_memory');
+        file_put_contents(WPMU_PLUGIN_DIR.'/tracefern-test-memory.php', '<?php add_filter("pre_option_tracefern_digicert", static function ($v) { if (doing_action("tracefern_check")) { update_option("tracefern_test_memory", ini_get("memory_limit"), false); } return $v; });');
         PHP);
     try {
         importWithoutChecking(fixturePath('fixture-signed.jpg'));
@@ -69,9 +69,9 @@ it('AC4: the check runs with the raised memory limit', function (): void {
         $key = wpEval('$key = sprintf("%.22F", microtime(true)); set_transient("doing_cron", $key); echo $key;');
         exec('curl -s -o /dev/null --max-time 120 '.escapeshellarg(TEST_SITE.'/wp-cron.php?doing_wp_cron='.$key));
 
-        expect(wpEval("echo get_option('provemark_test_memory');"))->toBe(wpEval('echo WP_MAX_MEMORY_LIMIT;'));
+        expect(wpEval("echo get_option('tracefern_test_memory');"))->toBe(wpEval('echo WP_MAX_MEMORY_LIMIT;'));
     } finally {
-        wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-memory.php"); delete_option("provemark_test_memory");');
+        wpEval('@unlink(WPMU_PLUGIN_DIR."/tracefern-test-memory.php"); delete_option("tracefern_test_memory");');
     }
 })->group('SPEC-013');
 
@@ -80,8 +80,8 @@ it('AC5: a lost event does not say "pending" forever', function (): void {
     $fresh = attachmentWithEntry(null);
     // A lost event: no queue scheduled (SPEC-017 keeps a marker pending
     // while the queue is, AC6 there).
-    wpEval("update_post_meta($lost, '_provemark_c2pa_pending', time() - 3601); update_post_meta($fresh, '_provemark_c2pa_pending', time()); wp_unschedule_hook('provemark_c2pa_check');");
-    $unchecked = json_decode((string) preg_replace('/^[^\[]*/s', '', wpCli(['provemark-c2pa', 'check', '--unchecked', '--dry-run', '--format=json'])['output']), true);
+    wpEval("update_post_meta($lost, '_tracefern_pending', time() - 3601); update_post_meta($fresh, '_tracefern_pending', time()); wp_unschedule_hook('tracefern_check');");
+    $unchecked = json_decode((string) preg_replace('/^[^\[]*/s', '', wpCli(['tracefern', 'check', '--unchecked', '--dry-run', '--format=json'])['output']), true);
     $listed = array_map(fn (mixed $row): mixed => is_array($row) ? ($row['id'] ?? null) : null, is_array($unchecked) ? $unchecked : []);
 
     expect(scheduledChecks($lost))->toBe(0)
@@ -94,7 +94,7 @@ it('AC5: a lost event does not say "pending" forever', function (): void {
 
 it('AC6: an image deleted before its check', function (): void {
     // Markers an earlier test left without a queue (AC5) would be counted.
-    wpEval("delete_post_meta_by_key('_provemark_c2pa_pending');");
+    wpEval("delete_post_meta_by_key('_tracefern_pending');");
     $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));
     wpEval("wp_delete_attachment($id, true);");
 
@@ -120,7 +120,7 @@ it('AC9: the check reads the original even in the -scaled window', function (): 
 it('AC10: a late check in a batch waits instead of dying', function (): void {
     runPendingChecks(); // anything an earlier test left scheduled
     wpEval(<<<'PHP'
-        file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-time-limit.php', '<?php if (defined("DOING_CRON") && DOING_CRON) { ini_set("max_execution_time", "3"); set_time_limit(3); } add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("provemark_c2pa_check")) { $end = microtime(true) + 2; while (microtime(true) < $end) { } } return $v; });');
+        file_put_contents(WPMU_PLUGIN_DIR.'/tracefern-test-time-limit.php', '<?php if (defined("DOING_CRON") && DOING_CRON) { ini_set("max_execution_time", "3"); set_time_limit(3); } add_filter("pre_option_tracefern_digicert", static function ($v) { if (doing_action("tracefern_check")) { $end = microtime(true) + 2; while (microtime(true) < $end) { } } return $v; });');
         PHP);
     $cron = function (): void {
         // wp-cron.php as spawn_cron() calls it: the lock set, and passed.
@@ -143,7 +143,7 @@ it('AC10: a late check in a batch waits instead of dying', function (): void {
             expect(storedEntry($id)['state'] ?? null)->toBe('Valid');
         }
     } finally {
-        wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-time-limit.php");');
+        wpEval('@unlink(WPMU_PLUGIN_DIR."/tracefern-test-time-limit.php");');
     }
 })->group('SPEC-013', 'SPEC-017');
 
@@ -151,11 +151,11 @@ it('AC11: the command removes the scheduled check it made unnecessary', function
     $id = importWithoutChecking(fixturePath('fixture-signed.jpg'));
 
     expect(scheduledChecks($id))->toBe(1);
-    wpCli(['provemark-c2pa', 'check', (string) $id]);
+    wpCli(['tracefern', 'check', (string) $id]);
     expect(scheduledChecks($id))->toBe(0)
         ->and(storedEntry($id)['state'] ?? null)->toBe('Valid');
 })->group('SPEC-013');
 
 it('AC12: without a time, the display uses the current one', function (): void {
-    expect(visibleText(wpEval('echo Provemark\\C2paCheck\\Display::headline(null, time() - 7200);')))->toBe('Not checked');
+    expect(visibleText(wpEval('echo Tracefern\\ImageCheck\\Display::headline(null, time() - 7200);')))->toBe('Not checked');
 })->group('SPEC-013');

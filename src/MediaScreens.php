@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -18,7 +18,7 @@ use WP_Post;
  */
 final class MediaScreens
 {
-    public const string COLUMN = 'provemark_c2pa';
+    public const string COLUMN = 'tracefern';
 
     public function register(): void
     {
@@ -35,8 +35,8 @@ final class MediaScreens
     public function enqueueStyle(): void
     {
         wp_enqueue_style(
-            'provemark-c2pa-check',
-            plugins_url('assets/admin.css', dirname(__DIR__).'/provemark-c2pa-check.php'),
+            'tracefern-image-check-for-c2pa',
+            plugins_url('assets/admin.css', dirname(__DIR__).'/tracefern-image-check-for-c2pa.php'),
             ['dashicons'],
             (string) filemtime(dirname(__DIR__).'/assets/admin.css'),
         );
@@ -48,7 +48,7 @@ final class MediaScreens
      */
     public function addColumn(array $columns): array
     {
-        $columns[self::COLUMN] = esc_html__('Content Credentials', 'provemark-c2pa-check');
+        $columns[self::COLUMN] = esc_html__('Content Credentials', 'tracefern-image-check-for-c2pa');
 
         return $columns;
     }
@@ -73,7 +73,7 @@ final class MediaScreens
         }
         $entry = self::entryOf($post->ID);
         $fields[self::COLUMN] = [
-            'label' => esc_html__('Content Credentials', 'provemark-c2pa-check'),
+            'label' => esc_html__('Content Credentials', 'tracefern-image-check-for-c2pa'),
             'input' => 'html',
             'html' => wp_kses_post(Display::details($entry, self::pendingSince($post->ID), time(), Display::changed($entry, self::currentOriginal($post->ID)))),
         ];

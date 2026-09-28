@@ -23,6 +23,10 @@ Items marked *reasoned* are not stated on those pages; check them then.
       "C2PA" is the coalition's name; the guidelines ask not to use
       others' trademarks in a way that suggests endorsement (*reasoned*: a
       reviewer may ask; "Provemark" comes first for that reason).
+      Outcome: the first review (2026-09-28) rejected "Provemark" as a
+      possible third-party brand and asked for C2PA after "for"; renamed
+      to Tracefern Image Check for C2PA (SPEC-020), new slug
+      `tracefern-image-check-for-c2pa` to be requested in the reply.
 
 ## 2. Prepare the release (Claude, on request)
 

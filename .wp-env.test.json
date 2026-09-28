@@ -5,10 +5,10 @@
   "port": 8892,
   "plugins": [],
   "mappings": {
-    "wp-content/plugins/provemark-c2pa-check": "."
+    "wp-content/plugins/tracefern-image-check-for-c2pa": "."
   },
   "testsEnvironment": false,
   "lifecycleScripts": {
-    "afterStart": "wp-env run --config .wp-env.test.json cli wp plugin activate provemark-c2pa-check"
+    "afterStart": "wp-env run --config .wp-env.test.json cli wp plugin activate tracefern-image-check-for-c2pa"
   }
 }

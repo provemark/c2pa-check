@@ -56,7 +56,7 @@ it('AC4: a file changed without WordPress knowing', function (): void {
         ->and($details)->not->toContain('Signer')
         ->and($details)->not->toContain('AI-generated');
 
-    wpCli(['provemark-c2pa', 'check', (string) $id]);
+    wpCli(['tracefern', 'check', (string) $id]);
 
     expect(visibleText(columnHtml($id)))->toContain('No Content Credentials')
         ->and(visibleText(columnHtml($id)))->not->toContain('Changed since its check');
@@ -84,7 +84,7 @@ it('AC5: an ordinary upload is checked once, and records its file', function ():
 it('AC6: the command records the same file', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
     $background = storedEntry($id) ?? [];
-    wpCli(['provemark-c2pa', 'check', (string) $id]);
+    wpCli(['tracefern', 'check', (string) $id]);
     $command = storedEntry($id) ?? [];
 
     expect($background['file'] ?? null)->not->toBeNull()
@@ -94,7 +94,7 @@ it('AC6: the command records the same file', function (): void {
 
 it('AC7: uninstall removes the kept path', function (): void {
     importWithoutChecking(fixturePath('fixture-signed.jpg'));
-    $count = "global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_source'\");";
+    $count = "global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key = '_tracefern_source'\");";
 
     expect((int) wpEval($count))->toBeGreaterThan(0);
     wpEval(UNINSTALL_PLUGIN_PHP);

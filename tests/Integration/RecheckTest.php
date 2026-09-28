@@ -5,14 +5,14 @@ declare(strict_types=1);
 afterEach(fn () => resetTrustOptions());
 
 /**
- * Runs `wp provemark-c2pa check` with $args in the test environment.
+ * Runs `wp tracefern check` with $args in the test environment.
  *
  * @param  list<string>  $args
  * @return array{exit: int, output: string}
  */
 function recheck(array $args): array
 {
-    return wpCli(['provemark-c2pa', 'check', ...$args]);
+    return wpCli(['tracefern', 'check', ...$args]);
 }
 
 /**
@@ -48,7 +48,7 @@ it('AC1: checks again with the current trust settings', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
     expect(storedEntry($id)['state'] ?? null)->toBe('Valid');
 
-    setOption('provemark_c2pa_custom_trust', customSettingsJson());
+    setOption('tracefern_custom_trust', customSettingsJson());
     $result = recheck([(string) $id]);
 
     expect($result['exit'])->toBe(0, $result['output'])
@@ -61,7 +61,7 @@ it('AC1: checks again with the current trust settings', function (): void {
 it('AC2: checks the original of a large image, not its -scaled copy', function (): void {
     $path = fixturePath('google-20250919-pixel10-npld-picnic-table.jpg');
     $id = importMedia($path);
-    wpEval("delete_post_meta($id, '_provemark_c2pa_result');");
+    wpEval("delete_post_meta($id, '_tracefern_result');");
 
     recheck([(string) $id]);
 
@@ -146,7 +146,7 @@ it('AC6: stores error / unreadable when the original is gone, and goes on', func
 
 it('AC7: changes nothing with --dry-run', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    setOption('provemark_c2pa_custom_trust', customSettingsJson());
+    setOption('tracefern_custom_trust', customSettingsJson());
     $before = [storedEntry($id), indexOf($id)];
 
     $result = recheck([(string) $id, '--dry-run']);

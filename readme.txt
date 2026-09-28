@@ -1,4 +1,4 @@
-=== Provemark C2PA Check ===
+=== Tracefern Image Check for C2PA ===
 Contributors: mauricevanloon
 Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
@@ -14,7 +14,7 @@ Checks the Content Credentials (C2PA) of uploaded images and shows the result in
 
 Content Credentials (C2PA) are a signed record inside an image file: who
 made or edited it, with which tool, and whether generative AI was used.
-Provemark C2PA Check verifies that record for every JPEG, PNG and WebP you
+Tracefern Image Check for C2PA verifies that record for every JPEG, PNG and WebP you
 upload and shows the verdict where you already work with media.
 
 * **Checked right after upload, on the original file**, not on the
@@ -27,7 +27,7 @@ upload and shows the verdict where you already work with media.
 * **Sort and filter** the Media Library list by verdict, including all
   AI-generated images.
 * **Check existing images again** with WP-CLI:
-  `wp provemark-c2pa check --all`.
+  `wp tracefern check --all`.
 
 The verdicts:
 
@@ -62,7 +62,7 @@ C2PA verifier written in PHP, bundled with the plugin.
 3. Optional: under Settings → C2PA Check, choose whether to trust
    DigiCert timestamps, or paste your own trust settings.
 4. Images uploaded before the plugin was active show "Not checked". Check
-   them with `wp provemark-c2pa check --unchecked` (WP-CLI).
+   them with `wp tracefern check --unchecked` (WP-CLI).
 
 == Frequently Asked Questions ==
 
@@ -103,18 +103,18 @@ The check runs in the background through WP-Cron, on the next request to
 the site after the upload, usually within seconds. If WP-Cron is switched
 off (`DISABLE_WP_CRON`), the checks run with the site's own cron job.
 After an hour without a result the image shows "Not checked"; check it
-with `wp provemark-c2pa check --unchecked`.
+with `wp tracefern check --unchecked`.
 
 = Why does an image say "Changed since its check"? =
 
 Its file was replaced after the check by something WordPress did not
 report, such as another plugin or an upload over FTP. The old verdict no
 longer applies, so none is shown; check it again with
-`wp provemark-c2pa check <ID>`. An image edited in WordPress's own image
+`wp tracefern check <ID>`. An image edited in WordPress's own image
 editor, or restored to its original, is checked again automatically. After
 moving a site with a tool that does not keep file modification times, or
 with media moved to external storage, every image can show this; check
-them again with `wp provemark-c2pa check --all`.
+them again with `wp tracefern check --all`.
 
 = Which formats are checked? =
 
@@ -124,7 +124,7 @@ not checked.
 
 = How do I check images again after changing the trust settings? =
 
-With WP-CLI: `wp provemark-c2pa check --all`, or `--state=Invalid,error`,
+With WP-CLI: `wp tracefern check --all`, or `--state=Invalid,error`,
 or attachment IDs. Add `--dry-run` to see what would be checked.
 
 = Does it work on multisite? =
@@ -140,7 +140,7 @@ The bundled verifier requires PHP 8.3 or later.
 == Development ==
 
 The source code, the tests and the build are public at
-https://github.com/provemark/c2pa-check. `composer build` makes the
+https://github.com/provemark/tracefern-image-check. `composer build` makes the
 plugin's zip from it: it installs the bundled verifier and prefixes its
 namespace with Strauss, so it cannot collide with another copy. The
 verifier itself is developed at https://github.com/provemark/c2pa-verifier.
@@ -173,5 +173,5 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 * Verifies the Content Credentials of JPEG, PNG and WebP uploads on the original file, in the background.
 * Media Library column and attachment details, with an AI label for verified AI images.
 * Bundled C2PA trust lists (2026-08-14), DigiCert timestamps, custom trust settings.
-* Sorting and filtering by verdict; `wp provemark-c2pa check` for existing images.
+* Sorting and filtering by verdict; `wp tracefern check` for existing images.
 * Suggested privacy policy text; data removed on uninstall.

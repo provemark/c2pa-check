@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -53,15 +53,15 @@ final class Display
         if (is_array($read) && $changed) {
             // The verdict describes bytes that are no longer there (SPEC-014):
             // no verdict, no signer, no AI label.
-            return '<div class="provemark-c2pa provemark-c2pa--changed">'."\n".'<p class="provemark-c2pa-badges">'.self::changedBadge().'</p>'."\n".'</div>';
+            return '<div class="tracefern tracefern--changed">'."\n".'<p class="tracefern-badges">'.self::changedBadge().'</p>'."\n".'</div>';
         }
         $pending = self::pending($entry, $pendingSince, $now ?? time());
         [$class] = self::headlineOf($read, $pending);
 
-        $html = '<div class="provemark-c2pa provemark-c2pa--'.esc_attr($class).'">'."\n".'<p class="provemark-c2pa-badges">'.self::badges($read, $pending).'</p>';
+        $html = '<div class="tracefern tracefern--'.esc_attr($class).'">'."\n".'<p class="tracefern-badges">'.self::badges($read, $pending).'</p>';
         $rows = is_array($read) ? self::rows($read) : [];
         if ($rows !== []) {
-            $html .= "\n".'<dl class="provemark-c2pa-facts">';
+            $html .= "\n".'<dl class="tracefern-facts">';
             foreach ($rows as [$term, $value]) {
                 $html .= "\n".'<dt>'.$term."</dt>\n<dd>".$value.'</dd>';
             }
@@ -111,8 +111,8 @@ final class Display
      */
     private static function changedBadge(): string
     {
-        return '<span class="provemark-c2pa-badge provemark-c2pa-badge--changed"><span class="dashicons dashicons-warning" aria-hidden="true"></span>'
-            .esc_html__('Changed since its check', 'provemark-c2pa-check').'</span>';
+        return '<span class="tracefern-badge tracefern-badge--changed"><span class="dashicons dashicons-warning" aria-hidden="true"></span>'
+            .esc_html__('Changed since its check', 'tracefern-image-check-for-c2pa').'</span>';
     }
 
     /**
@@ -230,10 +230,10 @@ final class Display
             default => 'minus',
         };
 
-        $html = '<span class="provemark-c2pa-badge provemark-c2pa-badge--'.esc_attr($class).'"><span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span>'.esc_html($headline).'</span>';
+        $html = '<span class="tracefern-badge tracefern-badge--'.esc_attr($class).'"><span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span>'.esc_html($headline).'</span>';
 
         return self::showsAiLabel($read)
-            ? $html.' <span class="provemark-c2pa-badge provemark-c2pa-badge--ai">'.esc_html__('AI-generated (signed)', 'provemark-c2pa-check').'</span>'
+            ? $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-generated (signed)', 'tracefern-image-check-for-c2pa').'</span>'
             : $html;
     }
 
@@ -254,19 +254,19 @@ final class Display
     private static function trustList(string $trust): string
     {
         if ($trust === 'custom') {
-            return esc_html__('Custom trust settings', 'provemark-c2pa-check');
+            return esc_html__('Custom trust settings', 'tracefern-image-check-for-c2pa');
         }
         if ($trust === 'none') {
-            return esc_html__('None', 'provemark-c2pa-check');
+            return esc_html__('None', 'tracefern-image-check-for-c2pa');
         }
 
         $date = self::text(substr($trust, 5, 10));
 
         return str_ends_with($trust, '+digicert')
             /* translators: %s: date of the C2PA trust list */
-            ? sprintf(esc_html__('C2PA, %s (with DigiCert timestamps)', 'provemark-c2pa-check'), $date)
+            ? sprintf(esc_html__('C2PA, %s (with DigiCert timestamps)', 'tracefern-image-check-for-c2pa'), $date)
             /* translators: %s: date of the C2PA trust list */
-            : sprintf(esc_html__('C2PA, %s', 'provemark-c2pa-check'), $date);
+            : sprintf(esc_html__('C2PA, %s', 'tracefern-image-check-for-c2pa'), $date);
     }
 
     /**
@@ -288,19 +288,19 @@ final class Display
     {
         if ($read === null) {
             return $pending
-                ? ['pending', __('Check pending', 'provemark-c2pa-check')]
-                : ['unchecked', __('Not checked', 'provemark-c2pa-check')];
+                ? ['pending', __('Check pending', 'tracefern-image-check-for-c2pa')]
+                : ['unchecked', __('Not checked', 'tracefern-image-check-for-c2pa')];
         }
         if ($read === false) {
-            return ['unreadable', __('Result unreadable', 'provemark-c2pa-check')];
+            return ['unreadable', __('Result unreadable', 'tracefern-image-check-for-c2pa')];
         }
 
         return match ($read['state']) {
-            'Trusted' => ['trusted', __('Verified: trusted signer', 'provemark-c2pa-check')],
-            'Valid' => ['valid', __('Intact: signer not trusted', 'provemark-c2pa-check')],
-            'Invalid' => ['invalid', __('Does not verify', 'provemark-c2pa-check')],
-            'none' => ['none', __('No Content Credentials', 'provemark-c2pa-check')],
-            default => ['error', __('Could not be checked', 'provemark-c2pa-check')],
+            'Trusted' => ['trusted', __('Verified: trusted signer', 'tracefern-image-check-for-c2pa')],
+            'Valid' => ['valid', __('Intact: signer not trusted', 'tracefern-image-check-for-c2pa')],
+            'Invalid' => ['invalid', __('Does not verify', 'tracefern-image-check-for-c2pa')],
+            'none' => ['none', __('No Content Credentials', 'tracefern-image-check-for-c2pa')],
+            default => ['error', __('Could not be checked', 'tracefern-image-check-for-c2pa')],
         };
     }
 
@@ -317,47 +317,47 @@ final class Display
         $signer = $entry['signer'];
         if ($signer !== null && in_array($entry['state'], ['Trusted', 'Valid', 'Invalid'], true)) {
             $rows[] = [
-                esc_html__('Signer', 'provemark-c2pa-check'),
+                esc_html__('Signer', 'tracefern-image-check-for-c2pa'),
                 $signer['issuer'] === null ? self::text($signer['common_name']) : self::text($signer['common_name']).' ('.self::text($signer['issuer']).')',
             ];
             if ($entry['signed_at'] !== null) {
-                $rows[] = [esc_html__('Signed at', 'provemark-c2pa-check'), self::text($entry['signed_at'])];
+                $rows[] = [esc_html__('Signed at', 'tracefern-image-check-for-c2pa'), self::text($entry['signed_at'])];
             }
         }
 
         if ($entry['state'] === 'Invalid' && $entry['codes'] !== []) {
             $rows[] = [
-                esc_html__('Codes', 'provemark-c2pa-check'),
+                esc_html__('Codes', 'tracefern-image-check-for-c2pa'),
                 implode("<br>\n", array_map(static fn (string $code): string => '<code>'.self::text($code).'</code>', $entry['codes']))
                     .($entry['codes_omitted'] > 0
                         /* translators: %d: how many more status codes the file has */
-                        ? "<br>\n".esc_html(sprintf(__('and %d more', 'provemark-c2pa-check'), $entry['codes_omitted']))
+                        ? "<br>\n".esc_html(sprintf(__('and %d more', 'tracefern-image-check-for-c2pa'), $entry['codes_omitted']))
                         : ''),
             ];
         }
 
         if ($entry['state'] === 'none' && $entry['remote_manifest_url'] !== null) {
             /* translators: %s: a URL from the file, shown as text and never fetched */
-            $rows[] = [esc_html__('Refers to', 'provemark-c2pa-check'), sprintf(esc_html__('%s (not checked)', 'provemark-c2pa-check'), self::text($entry['remote_manifest_url']))];
+            $rows[] = [esc_html__('Refers to', 'tracefern-image-check-for-c2pa'), sprintf(esc_html__('%s (not checked)', 'tracefern-image-check-for-c2pa'), self::text($entry['remote_manifest_url']))];
         }
 
         if ($entry['state'] === 'error') {
             $words = match ($entry['reason']) {
-                'interrupted' => __('the check did not finish', 'provemark-c2pa-check'),
-                'unreadable' => __('the file could not be read', 'provemark-c2pa-check'),
-                'unsupported' => __('not a JPEG, PNG or WebP file', 'provemark-c2pa-check'),
-                default => __('the verifier failed', 'provemark-c2pa-check'),
+                'interrupted' => __('the check did not finish', 'tracefern-image-check-for-c2pa'),
+                'unreadable' => __('the file could not be read', 'tracefern-image-check-for-c2pa'),
+                'unsupported' => __('not a JPEG, PNG or WebP file', 'tracefern-image-check-for-c2pa'),
+                default => __('the verifier failed', 'tracefern-image-check-for-c2pa'),
             };
-            $rows[] = [esc_html__('Reason', 'provemark-c2pa-check'), esc_html($words)];
+            $rows[] = [esc_html__('Reason', 'tracefern-image-check-for-c2pa'), esc_html($words)];
         }
 
         if ($entry['checked_at'] !== null && $entry['verifier'] !== null) {
             /* translators: 1: time of the check, 2: verifier version */
-            $rows[] = [esc_html__('Checked', 'provemark-c2pa-check'), sprintf(esc_html__('%1$s, c2pa-verifier %2$s', 'provemark-c2pa-check'), self::checkedAt($entry['checked_at']), self::text($entry['verifier']))];
+            $rows[] = [esc_html__('Checked', 'tracefern-image-check-for-c2pa'), sprintf(esc_html__('%1$s, c2pa-verifier %2$s', 'tracefern-image-check-for-c2pa'), self::checkedAt($entry['checked_at']), self::text($entry['verifier']))];
         }
 
         if ($entry['trust'] !== null) {
-            $rows[] = [esc_html__('Trust list', 'provemark-c2pa-check'), self::trustList($entry['trust'])];
+            $rows[] = [esc_html__('Trust list', 'tracefern-image-check-for-c2pa'), self::trustList($entry['trust'])];
         }
 
         return $rows;

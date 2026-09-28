@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -18,9 +18,9 @@ use wpdb;
  */
 final class Index
 {
-    public const string STATE_KEY = '_provemark_c2pa_state';
+    public const string STATE_KEY = '_tracefern_state';
 
-    public const string AI_KEY = '_provemark_c2pa_ai';
+    public const string AI_KEY = '_tracefern_ai';
 
     public static function write(int $attachmentId, mixed $entry): void
     {

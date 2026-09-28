@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Provemark\C2paCheck\Outcome;
+use Tracefern\ImageCheck\Outcome;
 
 /**
  * The file's tokens without whitespace and comments, as text.
@@ -18,7 +18,7 @@ function codeTokens(string $file): array
 }
 
 it('AC5: below PHP 8.3 the main file returns before loading anything bundled', function (): void {
-    $tokens = codeTokens(dirname(__DIR__, 2).'/provemark-c2pa-check.php');
+    $tokens = codeTokens(dirname(__DIR__, 2).'/tracefern-image-check-for-c2pa.php');
     $version = array_search('version_compare', $tokens, true);
     $require = array_search('require_once', $tokens, true);
     $return = is_int($version) ? array_search('return', array_slice($tokens, $version, null, true), true) : false;
@@ -97,7 +97,7 @@ it('SPEC-018 AC6: invalid UTF-8 is stored scrubbed', function (): void {
 })->group('SPEC-018');
 
 it('SPEC-018 AC7: the main file parses before PHP 8.1, and its notices are for administrators', function (): void {
-    $file = dirname(__DIR__, 2).'/provemark-c2pa-check.php';
+    $file = dirname(__DIR__, 2).'/tracefern-image-check-for-c2pa.php';
     $tokens = array_values(array_filter(PhpToken::tokenize((string) file_get_contents($file)), fn (PhpToken $t): bool => ! $t->is([T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])));
     $firstClass = 0;
     foreach ($tokens as $i => $token) {

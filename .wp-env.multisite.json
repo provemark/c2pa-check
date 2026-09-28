@@ -6,11 +6,11 @@
   "multisite": true,
   "plugins": [],
   "mappings": {
-    "wp-content/plugins/provemark-c2pa-check": ".",
+    "wp-content/plugins/tracefern-image-check-for-c2pa": ".",
     "fixtures": "./tests/Fixtures"
   },
   "testsEnvironment": false,
   "lifecycleScripts": {
-    "afterStart": "wp-env run --config .wp-env.multisite.json cli wp plugin activate provemark-c2pa-check --network"
+    "afterStart": "wp-env run --config .wp-env.multisite.json cli wp plugin activate tracefern-image-check-for-c2pa --network"
   }
 }

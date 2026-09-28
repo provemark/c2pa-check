@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -19,13 +19,13 @@ use Throwable;
  */
 final class SettingsPage
 {
-    public const string SLUG = 'provemark-c2pa-check';
+    public const string SLUG = 'tracefern-image-check-for-c2pa';
 
-    public const string GROUP = 'provemark_c2pa_check';
+    public const string GROUP = 'tracefern_check';
 
-    public const string DIGICERT_OPTION = 'provemark_c2pa_digicert';
+    public const string DIGICERT_OPTION = 'tracefern_digicert';
 
-    public const string CUSTOM_OPTION = 'provemark_c2pa_custom_trust';
+    public const string CUSTOM_OPTION = 'tracefern_custom_trust';
 
     public function register(): void
     {
@@ -53,8 +53,8 @@ final class SettingsPage
     public function addPage(): void
     {
         add_options_page(
-            __('C2PA Check', 'provemark-c2pa-check'),
-            __('C2PA Check', 'provemark-c2pa-check'),
+            __('C2PA Check', 'tracefern-image-check-for-c2pa'),
+            __('C2PA Check', 'tracefern-image-check-for-c2pa'),
             'manage_options',
             self::SLUG,
             $this->render(...),
@@ -103,7 +103,7 @@ final class SettingsPage
                 self::CUSTOM_OPTION,
                 'invalid',
                 /* translators: %s: the verifier's reason */
-                sprintf(esc_html__('These are not trust settings; the previous settings are kept. %s', 'provemark-c2pa-check'), esc_html($e->getMessage())),
+                sprintf(esc_html__('These are not trust settings; the previous settings are kept. %s', 'tracefern-image-check-for-c2pa'), esc_html($e->getMessage())),
             );
             $previous = get_option(self::CUSTOM_OPTION, '');
 
@@ -120,34 +120,34 @@ final class SettingsPage
         $custom = get_option(self::CUSTOM_OPTION, '');
         $digiCert = (bool) get_option(self::DIGICERT_OPTION, true);
 
-        echo '<div class="wrap"><h1>'.esc_html__('C2PA Check', 'provemark-c2pa-check').'</h1>';
+        echo '<div class="wrap"><h1>'.esc_html__('C2PA Check', 'tracefern-image-check-for-c2pa').'</h1>';
 
         if (TrustConfig::isStale(new DateTimeImmutable)) {
             echo '<div class="notice notice-warning inline"><p>'
                 /* translators: %s: date of the bundled trust list */
-                .sprintf(esc_html__('The bundled C2PA trust list is from %s, older than six months. A plugin update brings a newer copy.', 'provemark-c2pa-check'), esc_html(TrustConfig::LIST_DATE))
+                .sprintf(esc_html__('The bundled C2PA trust list is from %s, older than six months. A plugin update brings a newer copy.', 'tracefern-image-check-for-c2pa'), esc_html(TrustConfig::LIST_DATE))
                 .'</p></div>';
         }
 
         echo '<p>'
             /* translators: 1: list date, 2: commit */
-            .sprintf(esc_html__('Bundled C2PA trust list: %1$s (commit %2$s of c2pa-org/conformance-public, CC BY 4.0).', 'provemark-c2pa-check'), esc_html(TrustConfig::LIST_DATE), esc_html(TrustConfig::LIST_COMMIT))
+            .sprintf(esc_html__('Bundled C2PA trust list: %1$s (commit %2$s of c2pa-org/conformance-public, CC BY 4.0).', 'tracefern-image-check-for-c2pa'), esc_html(TrustConfig::LIST_DATE), esc_html(TrustConfig::LIST_COMMIT))
             .'</p><p>'
-            .esc_html__('Settings apply to new uploads only; images already in the Media Library keep the result of their check.', 'provemark-c2pa-check')
+            .esc_html__('Settings apply to new uploads only; images already in the Media Library keep the result of their check.', 'tracefern-image-check-for-c2pa')
             .'</p>';
 
         echo '<form method="post" action="options.php">';
         settings_fields(self::GROUP);
         echo '<table class="form-table" role="presentation"><tr><th scope="row">'
-            .esc_html__('DigiCert timestamps', 'provemark-c2pa-check')
+            .esc_html__('DigiCert timestamps', 'tracefern-image-check-for-c2pa')
             .'</th><td><label><input type="checkbox" name="'.esc_attr(self::DIGICERT_OPTION).'" value="1"'.checked($digiCert, true, false).' /> '
-            .esc_html__('Accept the time DigiCert\'s timestamp authorities put on a signature (Adobe Firefly, Microsoft Bing and Amazon Titan use them).', 'provemark-c2pa-check')
+            .esc_html__('Accept the time DigiCert\'s timestamp authorities put on a signature (Adobe Firefly, Microsoft Bing and Amazon Titan use them).', 'tracefern-image-check-for-c2pa')
             .'</label></td></tr><tr><th scope="row"><label for="'.esc_attr(self::CUSTOM_OPTION).'">'
-            .esc_html__('Custom trust settings', 'provemark-c2pa-check')
+            .esc_html__('Custom trust settings', 'tracefern-image-check-for-c2pa')
             .'</label></th><td><textarea id="'.esc_attr(self::CUSTOM_OPTION).'" name="'.esc_attr(self::CUSTOM_OPTION).'" rows="12" class="large-text code">'
             .esc_textarea(is_string($custom) ? $custom : '')
             .'</textarea><p class="description">'
-            .esc_html__('Trust settings JSON in the format c2patool and c2pa-verifier read. When set, they replace the bundled lists and the DigiCert option entirely. Leave empty to use the bundled lists.', 'provemark-c2pa-check')
+            .esc_html__('Trust settings JSON in the format c2patool and c2pa-verifier read. When set, they replace the bundled lists and the DigiCert option entirely. Leave empty to use the bundled lists.', 'tracefern-image-check-for-c2pa')
             .'</p></td></tr></table>';
         submit_button();
         echo '</form></div>';
@@ -160,7 +160,7 @@ final class SettingsPage
         }
 
         echo '<div class="notice notice-warning"><p>'
-            .esc_html__('Provemark C2PA Check: the last image was checked without trust settings, because they could not be read. See Settings → C2PA Check.', 'provemark-c2pa-check')
+            .esc_html__('Tracefern Image Check for C2PA: the last image was checked without trust settings, because they could not be read. See Settings → C2PA Check.', 'tracefern-image-check-for-c2pa')
             .'</p></div>';
     }
 }

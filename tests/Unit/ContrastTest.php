@@ -30,7 +30,7 @@ function contrastRatio(string $a, string $b): float
 
 it('keeps every badge at WCAG AA contrast (4.5:1; the badges are 12 px text)', function (): void {
     $css = (string) file_get_contents(dirname(__DIR__, 2).'/assets/admin.css');
-    preg_match_all('/\.provemark-c2pa-badge(--[a-z]+)?[^{]*\{[^}]*?color:\s*(#[0-9a-f]{3,6});[^}]*?background:\s*(#[0-9a-f]{3,6});/', $css, $pairs, PREG_SET_ORDER);
+    preg_match_all('/\.tracefern-badge(--[a-z]+)?[^{]*\{[^}]*?color:\s*(#[0-9a-f]{3,6});[^}]*?background:\s*(#[0-9a-f]{3,6});/', $css, $pairs, PREG_SET_ORDER);
 
     expect(count($pairs))->toBeGreaterThanOrEqual(6);
     foreach ($pairs as [$rule, $modifier, $color, $background]) {

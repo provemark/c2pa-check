@@ -5,14 +5,14 @@ declare(strict_types=1);
 // The plugin's classes refuse to load without WordPress (SPEC-012); the unit
 // tests load them without it. Nothing is read from this path.
 if (! defined('ABSPATH')) {
-    define('ABSPATH', sys_get_temp_dir().'/provemark-c2pa-no-wordpress/');
+    define('ABSPATH', sys_get_temp_dir().'/tracefern-no-wordpress/');
 }
 
 // The integration suite starts from an empty test environment (never the
 // development one): no attachments, no plugin data. Otherwise it grows with
 // every local run, and `--all` in RecheckTest checks everything left over.
 uses()->beforeAll(fn () => emptyTestEnvironment())->in('Integration');
-use Provemark\C2paCheck\TrustConfig;
+use Tracefern\ImageCheck\TrustConfig;
 
 /**
  * The name of this project's running wp-env "cli" container: the
@@ -75,11 +75,11 @@ function fixturePath(string $name): string
 
 /**
  * The same file as the WordPress container sees it: the plugin directory
- * is mapped to wp-content/plugins/provemark-c2pa-check (.wp-env.json).
+ * is mapped to wp-content/plugins/tracefern-image-check-for-c2pa (.wp-env.json).
  */
 function containerPath(string $hostPath): string
 {
-    return '/var/www/html/wp-content/plugins/provemark-c2pa-check/'.substr($hostPath, strlen(dirname(__DIR__)) + 1);
+    return '/var/www/html/wp-content/plugins/tracefern-image-check-for-c2pa/'.substr($hostPath, strlen(dirname(__DIR__)) + 1);
 }
 
 /**
@@ -234,7 +234,7 @@ function setOption(string $name, mixed $value): void
     // (they are on admin_init, SPEC-012) update_option() to false on a
     // missing option stores nothing. The custom settings keep autoload off,
     // as the plugin adds them.
-    $autoload = $name === 'provemark_c2pa_custom_trust' ? 'false' : 'null';
+    $autoload = $name === 'tracefern_custom_trust' ? 'false' : 'null';
     wpEval("delete_option('$name'); add_option('$name', json_decode(base64_decode('$payload'), true), '', $autoload);");
 }
 
@@ -249,7 +249,7 @@ const REGISTER_SETTINGS_ON = <<<'PHP'
                 $function = $callback['function'];
                 if ($function instanceof Closure) {
                     $reflection = new ReflectionFunction($function);
-                    if ($reflection->getName() === 'registerSettings' && $reflection->getClosureScopeClass()?->getName() === Provemark\C2paCheck\SettingsPage::class) {
+                    if ($reflection->getName() === 'registerSettings' && $reflection->getClosureScopeClass()?->getName() === Tracefern\ImageCheck\SettingsPage::class) {
                         return $function;
                     }
                 }
@@ -265,7 +265,7 @@ const REGISTER_SETTINGS_ON = <<<'PHP'
  */
 function resetTrustOptions(): void
 {
-    wpEval("delete_option('provemark_c2pa_custom_trust'); delete_option('provemark_c2pa_digicert'); delete_option('provemark_c2pa_trust_failed');");
+    wpEval("delete_option('tracefern_custom_trust'); delete_option('tracefern_digicert'); delete_option('tracefern_trust_failed');");
 }
 
 /**
@@ -368,17 +368,17 @@ function importWithoutChecking(string $hostPath): int
  */
 const RUN_PENDING_CHECKS = <<<'PHP'
     global $wpdb;
-    $pending = fn (): int => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_pending'");
+    $pending = fn (): int => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_tracefern_pending'");
     $before = $pending();
     $queued = false;
     foreach (_get_cron_array() ?: [] as $timestamp => $hooks) {
-        foreach ($hooks['provemark_c2pa_check'] ?? [] as $event) {
-            wp_unschedule_event($timestamp, 'provemark_c2pa_check', $event['args']);
+        foreach ($hooks['tracefern_check'] ?? [] as $event) {
+            wp_unschedule_event($timestamp, 'tracefern_check', $event['args']);
             $queued = true;
         }
     }
     if ($queued) {
-        do_action('provemark_c2pa_check');
+        do_action('tracefern_check');
     }
     echo 'RAN:', $before - $pending();
     PHP;
@@ -411,18 +411,18 @@ function runPendingChecks(string $variant = 'test', ?string $url = null): int
  */
 function scheduledChecks(int $id): int
 {
-    return (int) wpEval("echo get_post_meta($id, '_provemark_c2pa_pending', true) !== '' && wp_next_scheduled('provemark_c2pa_check') !== false ? 1 : 0;");
+    return (int) wpEval("echo get_post_meta($id, '_tracefern_pending', true) !== '' && wp_next_scheduled('tracefern_check') !== false ? 1 : 0;");
 }
 
 /**
- * How many provemark_c2pa_check events are scheduled, and how many of them
+ * How many tracefern_check events are scheduled, and how many of them
  * carry arguments.
  *
  * @return array{events: int, with_args: int}
  */
 function queueEvents(): array
 {
-    $out = json_decode(wpEval("\$n = 0; \$a = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['provemark_c2pa_check'] ?? [] as \$event) { \$n++; \$a += (\$event['args'] ?? []) === [] ? 0 : 1; } } echo json_encode(['events' => \$n, 'with_args' => \$a]);"), true);
+    $out = json_decode(wpEval("\$n = 0; \$a = 0; foreach (_get_cron_array() ?: [] as \$hooks) { foreach (\$hooks['tracefern_check'] ?? [] as \$event) { \$n++; \$a += (\$event['args'] ?? []) === [] ? 0 : 1; } } echo json_encode(['events' => \$n, 'with_args' => \$a]);"), true);
 
     return ['events' => is_array($out) && is_int($out['events'] ?? null) ? $out['events'] : -1, 'with_args' => is_array($out) && is_int($out['with_args'] ?? null) ? $out['with_args'] : -1];
 }
@@ -432,7 +432,7 @@ function queueEvents(): array
  */
 function pendingMarker(int $id): ?int
 {
-    $value = wpEval("echo get_post_meta($id, '_provemark_c2pa_pending', true);");
+    $value = wpEval("echo get_post_meta($id, '_tracefern_pending', true);");
 
     return is_numeric($value) ? (int) $value : null;
 }
@@ -498,7 +498,7 @@ function hostCopyOfOriginal(int $id): string
 }
 
 /** Runs the plugin's uninstall.php as deleting the plugin does. */
-const UNINSTALL_PLUGIN_PHP = "require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');";
+const UNINSTALL_PLUGIN_PHP = "require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');";
 
 const TEST_SITE = 'http://localhost:8892';
 
@@ -565,12 +565,12 @@ function withCheckThatDies(callable $test): mixed
 {
     wpEval(<<<'PHP'
         if (! is_dir(WPMU_PLUGIN_DIR)) { mkdir(WPMU_PLUGIN_DIR, 0777, true); }
-        file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-check-dies.php', '<?php add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("add_attachment") || doing_action("provemark_c2pa_check")) { $a = []; while (true) { $a[] = str_repeat("x", 1 << 20); } } return $v; });');
+        file_put_contents(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies.php', '<?php add_filter("pre_option_tracefern_digicert", static function ($v) { if (doing_action("add_attachment") || doing_action("tracefern_check")) { $a = []; while (true) { $a[] = str_repeat("x", 1 << 20); } } return $v; });');
         PHP);
     try {
         return $test();
     } finally {
-        wpEval('@unlink(WPMU_PLUGIN_DIR."/provemark-test-check-dies.php");');
+        wpEval('@unlink(WPMU_PLUGIN_DIR."/tracefern-test-check-dies.php");');
     }
 }
 
@@ -581,7 +581,7 @@ function withCheckThatDies(callable $test): mixed
  */
 function storedEntry(int $id): ?array
 {
-    $result = wpCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json']);
+    $result = wpCli(['post', 'meta', 'get', (string) $id, '_tracefern_result', '--format=json']);
     $lines = array_values(array_filter(explode("\n", $result['output']), fn (string $l): bool => str_starts_with($l, '{')));
     $entry = $lines === [] ? null : json_decode($lines[0], true);
 
@@ -609,8 +609,8 @@ function attachmentWithEntry(mixed $entry): int
         \$id = wp_insert_attachment(['post_mime_type' => 'image/jpeg', 'post_title' => 'entry', 'post_status' => 'inherit'], '/nonexistent.jpg');
         \$entry = json_decode(base64_decode('$payload'), true);
         // Made here, not uploaded: no pending marker, no scheduled check (SPEC-013).
-        delete_post_meta(\$id, '_provemark_c2pa_pending');
-        if (\$entry === null) { delete_post_meta(\$id, '_provemark_c2pa_result'); delete_post_meta(\$id, '_provemark_c2pa_state'); delete_post_meta(\$id, '_provemark_c2pa_ai'); } else { update_post_meta(\$id, '_provemark_c2pa_result', wp_slash(\$entry)); if (class_exists('Provemark\\C2paCheck\\Index')) { Provemark\\C2paCheck\\Index::write(\$id, \$entry); } }
+        delete_post_meta(\$id, '_tracefern_pending');
+        if (\$entry === null) { delete_post_meta(\$id, '_tracefern_result'); delete_post_meta(\$id, '_tracefern_state'); delete_post_meta(\$id, '_tracefern_ai'); } else { update_post_meta(\$id, '_tracefern_result', wp_slash(\$entry)); if (class_exists('Tracefern\\ImageCheck\\Index')) { Tracefern\\ImageCheck\\Index::write(\$id, \$entry); } }
         echo 'ID:', \$id, "\n";
         PHP);
     $id = (int) preg_replace('/.*ID:(\d+).*/s', '$1', $out);
@@ -623,7 +623,7 @@ function attachmentWithEntry(mixed $entry): int
  */
 function columnHtml(int $id): string
 {
-    return wpEval("do_action('manage_media_custom_column', 'provemark_c2pa', $id);");
+    return wpEval("do_action('manage_media_custom_column', 'tracefern', $id);");
 }
 
 /**
@@ -674,7 +674,7 @@ function activeMarkup(string $html): array
  */
 function releaseZip(): string
 {
-    return dirname(__DIR__).'/build/provemark-c2pa-check.zip';
+    return dirname(__DIR__).'/build/tracefern-image-check-for-c2pa.zip';
 }
 
 /**
@@ -683,7 +683,7 @@ function releaseZip(): string
  */
 function installReleaseZip(): void
 {
-    $result = wpCli(['plugin', 'install', '/var/www/html/release/provemark-c2pa-check.zip', '--force', '--activate'], 'release');
+    $result = wpCli(['plugin', 'install', '/var/www/html/release/tracefern-image-check-for-c2pa.zip', '--force', '--activate'], 'release');
     if ($result['exit'] !== 0) {
         throw new RuntimeException('could not install the release zip: '.$result['output']);
     }
@@ -741,7 +741,7 @@ function removeReleaseUploads(): void
  */
 function releaseEntry(int $id): ?array
 {
-    $out = wpCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json'], 'release')['output'];
+    $out = wpCli(['post', 'meta', 'get', (string) $id, '_tracefern_result', '--format=json'], 'release')['output'];
     $entry = json_decode($out, true);
 
     return is_array($entry) ? $entry : null;
@@ -806,7 +806,7 @@ function beyondBaseline(array $findings, array $baseline): array
  */
 function indexOf(int $id): array
 {
-    $out = wpEval("echo json_encode(['state' => get_post_meta($id, '_provemark_c2pa_state', true), 'ai' => get_post_meta($id, '_provemark_c2pa_ai', true)]);");
+    $out = wpEval("echo json_encode(['state' => get_post_meta($id, '_tracefern_state', true), 'ai' => get_post_meta($id, '_tracefern_ai', true)]);");
     $decoded = json_decode($out, true);
 
     return [
@@ -829,7 +829,7 @@ function listedIds(array $ids, array $request): array
     $payload = base64_encode((string) json_encode($request));
     $out = wpEval(<<<PHP
         \$request = json_decode(base64_decode('$payload'), true);
-        add_action('pre_get_posts', function (WP_Query \$q) use (\$request): void { Provemark\\C2paCheck\\MediaSort::apply(\$q, \$request); });
+        add_action('pre_get_posts', function (WP_Query \$q) use (\$request): void { Tracefern\\ImageCheck\\MediaSort::apply(\$q, \$request); });
         \$q = new WP_Query(['post_type' => 'attachment', 'post_status' => 'inherit', 'posts_per_page' => -1, 'post__in' => [$in], 'fields' => 'ids']);
         echo json_encode(['ids' => array_map('intval', \$q->posts), 'sql' => \$q->request]);
         PHP);
@@ -854,12 +854,12 @@ function emptyTestEnvironment(): void
             $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE post_id IN ($in)");
             $wpdb->query("DELETE FROM {$wpdb->posts} WHERE ID IN ($in)");
         }
-        $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '\_provemark\_c2pa\_%'");
-        foreach (['provemark_c2pa_digicert', 'provemark_c2pa_custom_trust', 'provemark_c2pa_trust_failed', 'provemark_c2pa_index_done'] as $option) {
+        $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '\_tracefern\_%'");
+        foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done'] as $option) {
             delete_option($option);
         }
-        wp_unschedule_hook('provemark_c2pa_check');
-        @unlink(WPMU_PLUGIN_DIR.'/provemark-test-check-dies.php');
+        wp_unschedule_hook('tracefern_check');
+        @unlink(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies.php');
         $uploads = wp_get_upload_dir()['basedir'];
         if (is_dir($uploads)) {
             $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($uploads, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
@@ -917,7 +917,7 @@ function networkImport(string $fixture, string $url = NETWORK_MAIN): int
  */
 function networkEntry(int $id, string $url = NETWORK_MAIN): ?array
 {
-    $entry = json_decode(networkCli(['post', 'meta', 'get', (string) $id, '_provemark_c2pa_result', '--format=json'], $url)['output'], true);
+    $entry = json_decode(networkCli(['post', 'meta', 'get', (string) $id, '_tracefern_result', '--format=json'], $url)['output'], true);
 
     return is_array($entry) ? $entry : null;
 }

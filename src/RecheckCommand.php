@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Provemark\C2paCheck;
+namespace Tracefern\ImageCheck;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -62,9 +62,9 @@ final class RecheckCommand
      *
      * ## EXAMPLES
      *
-     *     wp provemark-c2pa check 123 456
-     *     wp provemark-c2pa check --state=Invalid,error
-     *     wp provemark-c2pa check --all --dry-run
+     *     wp tracefern check 123 456
+     *     wp tracefern check --state=Invalid,error
+     *     wp tracefern check --all --dry-run
      *
      * @param  list<string>  $args
      * @param  array<string, mixed>  $assocArgs

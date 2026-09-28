@@ -8,7 +8,7 @@ reply. Line numbers are those of verifier v0.2.5 in the build
 ## What is bundled, and how it is checked
 
 The plugin bundles one library, `provemark/c2pa-verifier` (MIT, same
-author), prefixed with Strauss to `Provemark\C2paCheck\Vendor\` so it
+author), prefixed with Strauss to `Tracefern\ImageCheck\Vendor\` so it
 cannot collide with another copy (SPEC-009). Only its `src/`, `LICENSE`
 and `composer.json` ship; its command-line tool does not (SPEC-006
 amendment 4). `composer.json` ships so the dependency can be seen.
@@ -119,12 +119,16 @@ certificate WordPress ships in `wp-includes/certificates/ca-bundle.crt`.
 
 ## The name and slug
 
-The slug `provemark-c2pa-check` starts with the author's own brand,
-Provemark (the GitHub organisation `provemark`, which also publishes the
-bundled verifier `provemark/c2pa-verifier`), as guideline 17 asks.
-"C2PA" is used descriptively: the plugin checks C2PA Content Credentials;
-it is not made or endorsed by the Coalition for Content Provenance and
-Authenticity.
+"Tracefern" is a coined name for this plugin; there is no company or
+project behind it, so there is no owner to verify. "C2PA" comes after
+"for": the plugin checks C2PA Content Credentials; it is not made or
+endorsed by the Coalition for Content Provenance and Authenticity.
+
+The first submission was "Provemark C2PA Check" (`provemark-c2pa-check`);
+the first review (2026-09-28) read "ProveMark" as someone else's brand,
+and Blockchain Commons does publish "Provenance Marks" under
+`/provemark/`. Renamed in SPEC-020; the new slug
+`tracefern-image-check-for-c2pa` must be requested in the reply.
 
 ## Hook callbacks
 

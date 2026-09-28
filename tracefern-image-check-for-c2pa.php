@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name:       Provemark C2PA Check
+ * Plugin Name:       Tracefern Image Check for C2PA
  * Description:       Verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.
  * Version:           0.1.0
  * Requires at least: 7.1
@@ -9,17 +9,17 @@
  * Author:            Maurice van Loon
  * License:           MIT
  * License URI:       https://opensource.org/licenses/MIT
- * Text Domain:       provemark-c2pa-check
+ * Text Domain:       tracefern-image-check-for-c2pa
  */
 
 declare(strict_types=1);
-use Provemark\C2paCheck\Checker;
-use Provemark\C2paCheck\MediaScreens;
-use Provemark\C2paCheck\MediaSort;
-use Provemark\C2paCheck\PrivacyPolicy;
-use Provemark\C2paCheck\RecheckCommand;
-use Provemark\C2paCheck\SettingsPage;
-use Provemark\C2paCheck\UploadHook;
+use Tracefern\ImageCheck\Checker;
+use Tracefern\ImageCheck\MediaScreens;
+use Tracefern\ImageCheck\MediaSort;
+use Tracefern\ImageCheck\PrivacyPolicy;
+use Tracefern\ImageCheck\RecheckCommand;
+use Tracefern\ImageCheck\SettingsPage;
+use Tracefern\ImageCheck\UploadHook;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -33,7 +33,7 @@ if (version_compare(PHP_VERSION, '8.3.0', '<')) {
             return;
         }
         echo '<div class="notice notice-error"><p>'
-            .esc_html__('Provemark C2PA Check needs PHP 8.3 or later and is not running.', 'provemark-c2pa-check')
+            .esc_html__('Tracefern Image Check for C2PA needs PHP 8.3 or later and is not running.', 'tracefern-image-check-for-c2pa')
             .'</p></div>';
     });
 
@@ -47,7 +47,7 @@ if (! is_readable(__DIR__.'/vendor/autoload.php')) {
             return;
         }
         echo '<div class="notice notice-error"><p>'
-            .esc_html__('Provemark C2PA Check cannot run: its bundled libraries are missing. Reinstall the plugin.', 'provemark-c2pa-check')
+            .esc_html__('Tracefern Image Check for C2PA cannot run: its bundled libraries are missing. Reinstall the plugin.', 'tracefern-image-check-for-c2pa')
             .'</p></div>';
     });
 
@@ -70,6 +70,6 @@ register_deactivation_hook(__FILE__, [UploadHook::class, 'deactivate']);
     (new PrivacyPolicy)->register();
 
     if (defined('WP_CLI') && WP_CLI) {
-        WP_CLI::add_command('provemark-c2pa', new RecheckCommand($hook));
+        WP_CLI::add_command('tracefern', new RecheckCommand($hook));
     }
 })();

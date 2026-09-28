@@ -9,10 +9,10 @@ it('AC1: puts the suggested text in the Privacy Policy Guide', function (): void
         require_once ABSPATH.'wp-admin/includes/admin.php';
         set_current_screen('options-privacy');
         remove_all_actions('admin_init');
-        (new Provemark\C2paCheck\PrivacyPolicy)->register();
+        (new Tracefern\ImageCheck\PrivacyPolicy)->register();
         do_action('admin_init');
         $entries = WP_Privacy_Policy_Content::get_suggested_policy_text();
-        echo json_encode(array_values(array_filter($entries, fn ($e) => ($e['plugin_name'] ?? '') === 'Provemark C2PA Check')));
+        echo json_encode(array_values(array_filter($entries, fn ($e) => ($e['plugin_name'] ?? '') === 'Tracefern Image Check for C2PA')));
         PHP);
     $entries = json_decode($out, true);
     $policy = is_array($entries) && is_array($entries[0] ?? null) && is_string($entries[0]['policy_text'] ?? null) ? $entries[0]['policy_text'] : '';
@@ -32,13 +32,13 @@ it('AC2: adds nothing outside the admin, and raises no notice', function (): voi
         require_once ABSPATH.'wp-admin/includes/admin.php';
         $notices = [];
         add_action('doing_it_wrong_run', function ($function) use (&$notices) { $notices[] = $function; });
-        $privacy = new Provemark\C2paCheck\PrivacyPolicy;
+        $privacy = new Tracefern\ImageCheck\PrivacyPolicy;
         $privacy->register();
         $privacy->addText();
         // What this request registered (get_suggested_policy_text() also
         // lists texts of earlier requests, marked as removed).
         global $wp_privacy_policy_content;
-        $added = count($wp_privacy_policy_content['Provemark C2PA Check'] ?? []);
+        $added = count($wp_privacy_policy_content['Tracefern Image Check for C2PA'] ?? []);
         echo json_encode(['admin' => is_admin(), 'hooked' => has_action('admin_init', [$privacy, 'addText']) !== false, 'notices' => $notices, 'added' => $added]);
         PHP);
 
@@ -54,5 +54,5 @@ it('AC3: removes its data when the image is deleted', function (): void {
 
     wpEval("wp_delete_attachment($id, true);");
 
-    expect((int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\$wpdb->prepare(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE post_id = %d AND meta_key IN ('_provemark_c2pa_result', '_provemark_c2pa_state', '_provemark_c2pa_ai')\", $id));"))->toBe(0);
+    expect((int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\$wpdb->prepare(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE post_id = %d AND meta_key IN ('_tracefern_result', '_tracefern_state', '_tracefern_ai')\", $id));"))->toBe(0);
 })->group('SPEC-010');

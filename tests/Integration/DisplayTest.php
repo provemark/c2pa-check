@@ -9,7 +9,7 @@ const HEADLINES = [
 
 it('registers a Content Credentials column in the Media Library', function (): void {
     expect(wpEval("echo json_encode(apply_filters('manage_media_columns', []));"))
-        ->toContain('"provemark_c2pa":"Content Credentials"');
+        ->toContain('"tracefern":"Content Credentials"');
 })->group('SPEC-002');
 
 it('AC1: shows one headline per state in the column', function (mixed $stored, string $headline): void {
@@ -115,13 +115,13 @@ it('amendment 1: loads its stylesheet in the admin, with Dashicons', function ()
     // Only the plugin's own callback: firing the whole hook in WP-CLI runs
     // core callbacks that expect an admin screen.
     $out = wpEval(<<<'PHP'
-        $screens = new Provemark\C2paCheck\MediaScreens;
+        $screens = new Tracefern\ImageCheck\MediaScreens;
         $screens->enqueueStyle();
         echo json_encode([
             'hooked' => has_action('admin_enqueue_scripts') !== false,
-            'enqueued' => wp_style_is('provemark-c2pa-check', 'enqueued'),
-            'deps' => wp_styles()->registered['provemark-c2pa-check']->deps ?? [],
-            'src' => wp_styles()->registered['provemark-c2pa-check']->src ?? '',
+            'enqueued' => wp_style_is('tracefern-image-check-for-c2pa', 'enqueued'),
+            'deps' => wp_styles()->registered['tracefern-image-check-for-c2pa']->deps ?? [],
+            'src' => wp_styles()->registered['tracefern-image-check-for-c2pa']->src ?? '',
         ]);
         PHP);
     $result = json_decode($out, true);
@@ -130,14 +130,14 @@ it('amendment 1: loads its stylesheet in the admin, with Dashicons', function ()
         ->and(is_array($result) ? $result['enqueued'] ?? null : null)->toBeTrue()
         ->and(is_array($result) ? $result['hooked'] ?? null : null)->toBeTrue()
         ->and(is_array($result) ? $result['deps'] ?? null : null)->toBe(['dashicons'])
-        ->and(is_array($result) ? $result['src'] ?? null : null)->toEndWith('/provemark-c2pa-check/assets/admin.css');
+        ->and(is_array($result) ? $result['src'] ?? null : null)->toEndWith('/tracefern-image-check-for-c2pa/assets/admin.css');
 })->group('SPEC-002');
 
 it('amendment 1: shows the verdict as a badge, and the facts as rows', function (): void {
     $html = detailsHtml(attachmentWithEntry(sampleEntry(['state' => 'Trusted', 'ai' => true, 'trust' => 'c2pa-2026-08-14+digicert'])), true);
 
-    expect($html)->toContain('provemark-c2pa-badge--trusted')
-        ->toContain('provemark-c2pa-badge--ai')
-        ->toContain('<dl class="provemark-c2pa-facts">')
+    expect($html)->toContain('tracefern-badge--trusted')
+        ->toContain('tracefern-badge--ai')
+        ->toContain('<dl class="tracefern-facts">')
         ->and(visibleText($html))->toContain('Verified: trusted signer AI-generated (signed)');
 })->group('SPEC-002');

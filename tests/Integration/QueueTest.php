@@ -43,9 +43,9 @@ it('AC4: a run that dies loses nothing', function (): void {
     // Dies in the first check only, quickly: a limit 8 MB above what is in
     // use (a fixed 32M was refused when more was in use, and the run then
     // filled memory until Docker stopped it, over 60 s in CI), then filled.
-    $mu = '<?php add_filter("pre_option_provemark_c2pa_digicert", static function ($v) { if (doing_action("provemark_c2pa_check") && get_option("provemark_test_die_once")) { delete_option("provemark_test_die_once"); ini_set("memory_limit", (string) (memory_get_usage(true) + (8 << 20))); $a = []; while (true) { $a[] = str_repeat("x", 1 << 20); } } return $v; });';
+    $mu = '<?php add_filter("pre_option_tracefern_digicert", static function ($v) { if (doing_action("tracefern_check") && get_option("tracefern_test_die_once")) { delete_option("tracefern_test_die_once"); ini_set("memory_limit", (string) (memory_get_usage(true) + (8 << 20))); $a = []; while (true) { $a[] = str_repeat("x", 1 << 20); } } return $v; });';
     $payload = base64_encode($mu);
-    wpEval("file_put_contents(WPMU_PLUGIN_DIR.'/provemark-test-die-once.php', base64_decode('$payload')); update_option('provemark_test_die_once', 1, false);");
+    wpEval("file_put_contents(WPMU_PLUGIN_DIR.'/tracefern-test-die-once.php', base64_decode('$payload')); update_option('tracefern_test_die_once', 1, false);");
     try {
         $start = time();
         $died = runPendingChecksOutput();
@@ -60,27 +60,27 @@ it('AC4: a run that dies loses nothing', function (): void {
             ->and(queueEvents()['events'])->toBe(1)
             // The safety run, SAFETY_DELAY after the run began; compared with
             // that start, not with "now", so a slow death cannot make it due.
-            ->and((int) wpEval("echo wp_next_scheduled('provemark_c2pa_check');"))->toBeGreaterThanOrEqual($start + 60)
+            ->and((int) wpEval("echo wp_next_scheduled('tracefern_check');"))->toBeGreaterThanOrEqual($start + 60)
             ->and(runPendingChecks())->toBe(2);
         foreach ($ids as $id) {
             expect(storedEntry($id)['state'] ?? null)->toBeIn(['error', 'Valid']);
         }
         expect(count(array_filter($ids, fn (int $id): bool => (storedEntry($id)['state'] ?? null) === 'Valid')))->toBe(2);
     } finally {
-        wpEval("@unlink(WPMU_PLUGIN_DIR.'/provemark-test-die-once.php'); delete_option('provemark_test_die_once');");
+        wpEval("@unlink(WPMU_PLUGIN_DIR.'/tracefern-test-die-once.php'); delete_option('tracefern_test_die_once');");
     }
 })->group('SPEC-017');
 
 it('AC6: pending while the queue runs', function (): void {
     runPendingChecks();
     $id = attachmentWithEntry(null);
-    wpEval("update_post_meta($id, '_provemark_c2pa_pending', time() - 7200); wp_schedule_single_event(time() + 3600, 'provemark_c2pa_check');");
+    wpEval("update_post_meta($id, '_tracefern_pending', time() - 7200); wp_schedule_single_event(time() + 3600, 'tracefern_check');");
 
     expect(visibleText(columnHtml($id)))->toContain('Check pending')
-        ->and(listedIds([$id], ['provemark_c2pa' => 'pending'])['ids'])->toBe([$id]);
+        ->and(listedIds([$id], ['tracefern' => 'pending'])['ids'])->toBe([$id]);
 
-    wpEval("wp_unschedule_hook('provemark_c2pa_check');");
+    wpEval("wp_unschedule_hook('tracefern_check');");
 
     expect(visibleText(columnHtml($id)))->toContain('Not checked')
-        ->and(listedIds([$id], ['provemark_c2pa' => 'unchecked'])['ids'])->toBe([$id]);
+        ->and(listedIds([$id], ['tracefern' => 'unchecked'])['ids'])->toBe([$id]);
 })->group('SPEC-017');

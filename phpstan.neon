@@ -8,7 +8,7 @@ parameters:
     scanFiles:
         - vendor/wp-cli/wp-cli/php/utils.php
     paths:
-        - provemark-c2pa-check.php
+        - tracefern-image-check-for-c2pa.php
         - uninstall.php
         - src
         - tests

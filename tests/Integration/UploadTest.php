@@ -61,7 +61,7 @@ it('AC6: stores `error` / `unreadable` when the file is gone, and keeps the atta
 
 it('AC7: stores `error` / `exception` when verifying throws', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(fn () => throw new RuntimeException('secret'))))->runScheduled($id);");
+    wpEval("(new Tracefern\\ImageCheck\\UploadHook(new Tracefern\\ImageCheck\\Checker(fn () => throw new RuntimeException('secret'))))->runScheduled($id);");
 
     expect(storedEntry($id)['state'] ?? null)->toBe('error')
         ->and(storedEntry($id)['reason'] ?? null)->toBe('exception');
@@ -69,7 +69,7 @@ it('AC7: stores `error` / `exception` when verifying throws', function (): void 
 
 it('AC8: leaves `error` / `interrupted` when the check is stopped midway', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    wpEval("(new Provemark\\C2paCheck\\UploadHook(new Provemark\\C2paCheck\\Checker(function () { exit(0); })))->runScheduled($id);");
+    wpEval("(new Tracefern\\ImageCheck\\UploadHook(new Tracefern\\ImageCheck\\Checker(function () { exit(0); })))->runScheduled($id);");
 
     expect(storedEntry($id)['state'] ?? null)->toBe('error')
         ->and(storedEntry($id)['reason'] ?? null)->toBe('interrupted');

@@ -7,16 +7,16 @@ declare(strict_types=1);
 // deletes nothing itself. Never `wp plugin uninstall` here: without
 // --skip-delete it removes the plugin folder, which in wp-env is the
 // working tree.
-const UNINSTALL = "require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('provemark-c2pa-check/provemark-c2pa-check.php');";
+const UNINSTALL = "require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');";
 
 function entryCount(): int
 {
-    return (int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key = '_provemark_c2pa_result'\");");
+    return (int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key = '_tracefern_result'\");");
 }
 
 function indexCount(): int
 {
-    return (int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key IN ('_provemark_c2pa_state', '_provemark_c2pa_ai')\");");
+    return (int) wpEval("global \$wpdb; echo (int) \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->postmeta} WHERE meta_key IN ('_tracefern_state', '_tracefern_ai')\");");
 }
 
 /**
@@ -31,7 +31,7 @@ function indexCount(): int
  */
 function optionRowsAfter(string $php): array
 {
-    $out = wpEval($php." global \$wpdb; \$rows = []; foreach (['provemark_c2pa_digicert', 'provemark_c2pa_custom_trust', 'provemark_c2pa_trust_failed', 'provemark_c2pa_index_done', 'm5_unrelated'] as \$o) { \$row = \$wpdb->get_row(\$wpdb->prepare(\"SELECT option_value FROM {\$wpdb->options} WHERE option_name = %s\", \$o), ARRAY_A); \$rows[\$o] = \$row === null ? null : (string) \$row['option_value']; } echo json_encode(\$rows);");
+    $out = wpEval($php." global \$wpdb; \$rows = []; foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done', 'm5_unrelated'] as \$o) { \$row = \$wpdb->get_row(\$wpdb->prepare(\"SELECT option_value FROM {\$wpdb->options} WHERE option_name = %s\", \$o), ARRAY_A); \$rows[\$o] = \$row === null ? null : (string) \$row['option_value']; } echo json_encode(\$rows);");
     $decoded = json_decode($out, true);
 
     return is_array($decoded) ? array_map(fn (mixed $v): ?string => is_string($v) ? $v : null, $decoded) : [];
@@ -44,11 +44,11 @@ afterEach(function (): void {
 
 it('AC1: removes the plugin\'s entries and options on uninstall, and nothing else', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    setOption('provemark_c2pa_digicert', false);
-    setOption('provemark_c2pa_custom_trust', customSettingsJson());
-    setOption('provemark_c2pa_trust_failed', true);
+    setOption('tracefern_digicert', false);
+    setOption('tracefern_custom_trust', customSettingsJson());
+    setOption('tracefern_trust_failed', true);
     setOption('m5_unrelated', 'keep me');
-    setOption('provemark_c2pa_index_done', true);
+    setOption('tracefern_index_done', true);
     wpEval("add_post_meta($id, '_m5_unrelated', 'keep me');");
     $file = wpEval("echo get_attached_file($id);");
 
@@ -59,10 +59,10 @@ it('AC1: removes the plugin\'s entries and options on uninstall, and nothing els
     expect(entryCount())->toBe(0)
         ->and(indexCount())->toBe(0)
         ->and($rows)->toBe([
-            'provemark_c2pa_digicert' => null,
-            'provemark_c2pa_custom_trust' => null,
-            'provemark_c2pa_trust_failed' => null,
-            'provemark_c2pa_index_done' => null,
+            'tracefern_digicert' => null,
+            'tracefern_custom_trust' => null,
+            'tracefern_trust_failed' => null,
+            'tracefern_index_done' => null,
             'm5_unrelated' => 'keep me',
         ])
         ->and(wpEval("echo get_post_type($id);"))->toBe('attachment')
@@ -72,12 +72,12 @@ it('AC1: removes the plugin\'s entries and options on uninstall, and nothing els
 
 it('AC2: keeps everything on deactivation', function (): void {
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    setOption('provemark_c2pa_digicert', false);
+    setOption('tracefern_digicert', false);
     $before = [entryCount(), visibleText(columnHtml($id))];
 
-    wpCli(['plugin', 'deactivate', 'provemark-c2pa-check']);
-    wpCli(['plugin', 'activate', 'provemark-c2pa-check']);
+    wpCli(['plugin', 'deactivate', 'tracefern-image-check-for-c2pa']);
+    wpCli(['plugin', 'activate', 'tracefern-image-check-for-c2pa']);
 
     expect([entryCount(), visibleText(columnHtml($id))])->toBe($before)
-        ->and(optionRowsAfter('')['provemark_c2pa_digicert'])->toBe('');
+        ->and(optionRowsAfter('')['tracefern_digicert'])->toBe('');
 })->group('SPEC-005');
