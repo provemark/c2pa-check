@@ -31,3 +31,17 @@ it('AC1: is well formed and pinned', function (): void {
         expect($exit)->toBe(0, $file.' is not in tests/Fixtures/ at tag v0.1.0');
     }
 })->group('SPEC-024');
+
+it('AC1 (amendment 1): writes one must-use plugin that runs the queue on admin pages', function (): void {
+    $muPlugins = array_values(array_filter(
+        blueprintSteps(blueprint(), 'writeFile'),
+        fn (array $step): bool => is_string($step['path'] ?? null) && str_starts_with($step['path'], '/wordpress/wp-content/mu-plugins/'),
+    ));
+
+    expect($muPlugins)->toHaveCount(1);
+    $code = $muPlugins[0]['data'] ?? null;
+    expect($code)->toBeString()
+        ->and(is_string($code) ? $code : '')->toStartWith('<?php')
+        ->toContain("'tracefern_check'")
+        ->toContain("'admin_init'");
+})->group('SPEC-024');

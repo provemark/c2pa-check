@@ -177,7 +177,7 @@ Illustrative; the tamper step is the one from `tests/Pest.php`.
 
 ## Amendments
 
-1. **2026-09-28, proposed (draft).** Checks for a visitor's own upload
+1. **2026-09-28, approved by Maurice van Loon.** Checks for a visitor's own upload
    in the preview.
 
    *Why.* Measured 2026-09-28 in Chrome, with the link the directory's
@@ -222,7 +222,10 @@ Illustrative; the tamper step is the one from `tests/Pest.php`.
        local build zip
      - When an image is imported without running cron
        (`fixture-signed.jpg`), and then `/wp-admin/upload.php` is
-       requested as the logged-in admin (Playground's `request` step)
+       loaded through `wp-admin/admin.php` as the logged-in admin (a
+       `runPHP` step; Playground CLI 3.1.55 no longer runs the `request`
+       step, measured 2026-09-28; corrected with Maurice's approval, same
+       day)
      - Then that attachment has a stored result equal to the verifier
        CLI's with the default settings (`Valid`), and no
        `tracefern_check` event is left due.
@@ -255,3 +258,6 @@ least one test; every source file maps back to this spec.
 | AC3                  | `tests/Release/PreviewTest.php` :: AC3 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (the plugin's own column) |
 | AC4                  | `tests/Release/PreviewTest.php` :: AC4 / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (`--caption`) |
 | AC5                  | `tests/Release/PreviewTest.php` :: AC5 / SPEC-024 | Playground CLI's own step error |
+| AC1 (amendment 1)    | `tests/Unit/BlueprintTest.php` :: AC1 (amendment 1) / SPEC-024 | `.wordpress-org/blueprints/blueprint.json` (`writeFile` of `mu-plugins/tracefern-preview-checks.php`) |
+| AC6 (amendment 1)    | `tests/Release/PreviewTest.php` :: AC6 (amendment 1) / SPEC-024; harness `previewAdminRequest()`, `previewRequestLog()` | `mu-plugins/tracefern-preview-checks.php` in the blueprint (`admin_init` → `tracefern_check` when due) |
+| AC7 (amendment 1)    | `tests/Release/PreviewTest.php` :: AC7 (amendment 1) / SPEC-024 | the same must-use plugin (only calls the action, only when due) |

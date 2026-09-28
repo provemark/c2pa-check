@@ -185,6 +185,10 @@ rebuilds every version's zip.
       after more than 2 minutes and several page loads; `wp-cron.php`
       called directly answers 503. WP-Cron does not run in the browser
       Playground; the five demo images are unaffected.
+- [ ] SPEC-024 amendment 1 (a visitor's upload checked on admin page
+      loads) to SVN: the updated `assets/blueprints/blueprint.json`.
+      Committed by Maurice; then measure again in the browser that an
+      upload in the preview gets a verdict.
 - [ ] The preview set to "public" in the plugin's Advanced view: Maurice's
       decision, after the test.
 

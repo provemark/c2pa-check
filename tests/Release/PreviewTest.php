@@ -23,15 +23,17 @@ function previewImages(): array
 
 /**
  * Runs a blueprint in Playground CLI with the plugin from the local build
- * instead of the directory, and returns the exit code, the output and what
- * the run left in /out/results.json: per attachment title, the stored
- * result, the Media Library column, the caption and the SHA-256 of the
- * original file.
+ * instead of the directory, then $extraSteps, and returns the exit code,
+ * the output and what the run left in /out: per attachment title, the
+ * stored result, the Media Library column, the caption and the SHA-256 of
+ * the original file; when the plugin's queue is next scheduled, and the
+ * time then; and one line per admin request logged by previewRequestLog().
  *
  * @param  array<mixed>  $blueprint
- * @return array{exit: int, output: string, results: array<mixed>}
+ * @param  list<array<mixed>>  $extraSteps
+ * @return array{exit: int, output: string, results: array<mixed>, next_check: mixed, now: mixed, requests: list<mixed>, out: string}
  */
-function runPreview(array $blueprint): array
+function runPreview(array $blueprint, array $extraSteps = []): array
 {
     $root = dirname(__DIR__, 2);
     $out = tmpDir().'/preview-'.bin2hex(random_bytes(4));
@@ -43,6 +45,7 @@ function runPreview(array $blueprint): array
             ? ['step' => 'activatePlugin', 'pluginPath' => 'tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php']
             : $step;
     }
+    array_push($steps, ...$extraSteps);
     $steps[] = ['step' => 'runPHP', 'code' => <<<'PHP'
         <?php
         require '/wordpress/wp-load.php';
@@ -58,6 +61,7 @@ function runPreview(array $blueprint): array
             ];
         }
         file_put_contents('/out/results.json', json_encode($results));
+        file_put_contents('/out/cron.json', json_encode(['next_check' => wp_next_scheduled('tracefern_check'), 'now' => time()]));
         PHP];
     $blueprint['steps'] = $steps;
     file_put_contents($out.'/blueprint.json', json_encode($blueprint));
@@ -69,19 +73,105 @@ function runPreview(array $blueprint): array
         .' 2>&1';
     exec($command, $lines, $exit);
     $decoded = is_file($out.'/results.json') ? json_decode((string) file_get_contents($out.'/results.json'), true) : null;
+    $cron = is_file($out.'/cron.json') ? json_decode((string) file_get_contents($out.'/cron.json'), true) : null;
+    $requests = [];
+    foreach (is_file($out.'/requests.jsonl') ? (file($out.'/requests.jsonl', FILE_IGNORE_NEW_LINES) ?: []) : [] as $line) {
+        $requests[] = json_decode($line, true);
+    }
 
-    return ['exit' => $exit, 'output' => implode("\n", $lines), 'results' => is_array($decoded) ? $decoded : []];
+    return [
+        'exit' => $exit,
+        'output' => implode("\n", $lines),
+        'results' => is_array($decoded) ? $decoded : [],
+        'next_check' => is_array($cron) ? ($cron['next_check'] ?? null) : null,
+        'now' => is_array($cron) ? ($cron['now'] ?? null) : null,
+        'requests' => $requests,
+        'out' => $out,
+    ];
+}
+
+/**
+ * A test-only must-use plugin: for each wp-admin request it appends the
+ * URI, the response code, the user, any PHP warning, notice or fatal
+ * error, and when the plugin's queue is next scheduled at the end of the
+ * request, to /out/requests.jsonl. Loaded after the preview's own must-use
+ * plugin (the name sorts last), before any admin hook runs.
+ *
+ * @return array<mixed>
+ */
+function previewRequestLog(): array
+{
+    return ['step' => 'writeFile', 'path' => '/wordpress/wp-content/mu-plugins/zz-tracefern-test-log.php', 'data' => <<<'PHP'
+        <?php
+        if (! is_admin()) {
+            return;
+        }
+        $GLOBALS['tracefern_test_errors'] = [];
+        set_error_handler(static function (int $no, string $message, string $file, int $line): bool {
+            if (($no & (E_WARNING | E_NOTICE | E_USER_WARNING | E_USER_NOTICE | E_USER_ERROR)) !== 0) {
+                $GLOBALS['tracefern_test_errors'][] = "$message at $file:$line";
+            }
+
+            return false;
+        });
+        register_shutdown_function(static function (): void {
+            $last = error_get_last();
+            if ($last !== null && in_array($last['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                $GLOBALS['tracefern_test_errors'][] = $last['message'];
+            }
+            file_put_contents('/out/requests.jsonl', json_encode([
+                'uri' => $_SERVER['REQUEST_URI'] ?? '',
+                'status' => http_response_code(),
+                'user' => get_current_user_id(),
+                'errors' => $GLOBALS['tracefern_test_errors'],
+                'next_check' => wp_next_scheduled('tracefern_check'),
+                'now' => time(),
+            ])."\n", FILE_APPEND);
+        });
+        PHP];
+}
+
+/**
+ * A load of the Media Library as the logged-in admin, through WordPress's
+ * own wp-admin/admin.php, so admin_init runs as for a visitor. Playground
+ * CLI 3.1.55 no longer runs the `request` step (measured 2026-09-28: "The
+ * "request" Blueprint is no longer supported"), so this is a runPHP step:
+ * it skips Playground's auto-login (which redirects on init without its
+ * cookie), sets the admin's auth cookies, and resolves the user again
+ * from them before admin.php checks them.
+ *
+ * @return array<mixed>
+ */
+function previewAdminRequest(): array
+{
+    return ['step' => 'runPHP', 'code' => <<<'PHP'
+        <?php
+        define('WP_ADMIN', true);
+        $_SERVER['REQUEST_URI'] = '/wp-admin/upload.php?mode=list';
+        $_SERVER['PHP_SELF'] = '/wp-admin/upload.php';
+        $_GET['mode'] = 'list';
+        $_COOKIE['playground_auto_login_already_happened'] = '1';
+        require '/wordpress/wp-load.php';
+        $expires = time() + HOUR_IN_SECONDS;
+        $_COOKIE[AUTH_COOKIE] = wp_generate_auth_cookie(1, $expires, 'auth');
+        $_COOKIE[LOGGED_IN_COOKIE] = wp_generate_auth_cookie(1, $expires, 'logged_in');
+        $GLOBALS['current_user'] = null;
+        wp_get_current_user();
+        ob_start();
+        require ABSPATH.'wp-admin/upload.php';
+        ob_end_clean();
+        PHP];
 }
 
 /**
  * The run of the blueprint as committed; once per test file, as it takes
  * a while.
  *
- * @return array{exit: int, output: string, results: array<mixed>}
+ * @return array{exit: int, output: string, results: array<mixed>, next_check: mixed, now: mixed, requests: list<mixed>, out: string}
  */
 function previewRun(): array
 {
-    /** @var array{exit: int, output: string, results: array<mixed>}|null $run */
+    /** @var array{exit: int, output: string, results: array<mixed>, next_check: mixed, now: mixed, requests: list<mixed>, out: string}|null $run */
     static $run = null;
 
     return $run ??= runPreview(blueprint());
@@ -168,4 +258,68 @@ it('AC5: stops at a missing image', function (): void {
         ->and($run['output'])->toContain('Error when executing the blueprint step #')
         ->toContain('Could not download "'.$missing.'"')
         ->and($run['results'])->toBe([]);
+})->group('SPEC-024');
+
+/**
+ * The run for amendment 1: the preview after setup, then (a) an admin page
+ * with nothing scheduled; a visitor's upload, imported without running
+ * cron, and an admin page; then the plugin deactivated, an event
+ * scheduled in the past, its time noted in /out/scheduled.json, and (b)
+ * an admin page.
+ *
+ * @return array{exit: int, output: string, results: array<mixed>, next_check: mixed, now: mixed, requests: list<mixed>, out: string, scheduled: mixed}
+ */
+function visitorRun(): array
+{
+    /** @var array{exit: int, output: string, results: array<mixed>, next_check: mixed, now: mixed, requests: list<mixed>, out: string, scheduled: mixed}|null $run */
+    static $run = null;
+    if ($run !== null) {
+        return $run;
+    }
+
+    $result = runPreview(blueprint(), [
+        previewRequestLog(),
+        previewAdminRequest(),
+        ['step' => 'writeFile', 'path' => '/tmp/visitor-upload.jpg', 'data' => ['resource' => 'url', 'url' => 'https://raw.githubusercontent.com/provemark/tracefern-image-check/v0.1.0/tests/Fixtures/fixture-signed.jpg']],
+        ['step' => 'wp-cli', 'command' => 'wp media import /tmp/visitor-upload.jpg --title=visitor-upload'],
+        previewAdminRequest(),
+        ['step' => 'wp-cli', 'command' => 'wp plugin deactivate tracefern-image-check-for-c2pa'],
+        ['step' => 'runPHP', 'code' => "<?php require '/wordpress/wp-load.php'; \$at = time() - 10; wp_schedule_single_event(\$at, 'tracefern_check'); file_put_contents('/out/scheduled.json', json_encode(wp_next_scheduled('tracefern_check')));"],
+        previewAdminRequest(),
+    ]);
+    $scheduled = is_file($result['out'].'/scheduled.json') ? json_decode((string) file_get_contents($result['out'].'/scheduled.json'), true) : null;
+
+    return $run = $result + ['scheduled' => $scheduled];
+}
+
+it('AC6 (amendment 1): checks a visitor\'s upload on the next admin page', function (): void {
+    $run = visitorRun();
+    $visitor = $run['results']['visitor-upload'] ?? null;
+    $entry = is_array($visitor) ? ($visitor['entry'] ?? null) : null;
+    $requests = $run['requests'];
+    $afterUpload = is_array($requests[1] ?? null) ? $requests[1] : [];
+
+    expect($run['exit'])->toBe(0, $run['output'])
+        ->and($afterUpload['user'] ?? null)->toBe(1)
+        ->and($afterUpload['status'] ?? null)->toBe(200)
+        ->and(is_array($entry) ? ($entry['state'] ?? null) : null)->toBe('Valid')
+        ->and(is_int($afterUpload['next_check'] ?? null) && $afterUpload['next_check'] <= ($afterUpload['now'] ?? 0))->toBeFalse()
+        ->and(stable(is_array($entry) ? $entry : []))->toBe(expectedEntry(fixturePath('fixture-signed.jpg'), defaultSettingsFile()));
+})->group('SPEC-024');
+
+it('AC7 (amendment 1): does nothing when there is nothing to do, or no plugin', function (): void {
+    $run = visitorRun();
+    $requests = $run['requests'];
+
+    expect($run['exit'])->toBe(0, $run['output'])
+        ->and($requests)->toHaveCount(3);
+    foreach ($requests as $request) {
+        expect(is_array($request) ? $request : [])->toMatchArray(['status' => 200, 'user' => 1, 'errors' => []]);
+    }
+
+    // (b): with the plugin inactive, the event scheduled in the past is
+    // still there, at the same time.
+    expect($run['scheduled'])->toBeInt()
+        ->and($run['next_check'])->toBe($run['scheduled'])
+        ->and($run['next_check'] < $run['now'])->toBeTrue();
 })->group('SPEC-024');

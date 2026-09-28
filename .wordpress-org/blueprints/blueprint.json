@@ -22,6 +22,11 @@
             }
         },
         {
+            "step": "writeFile",
+            "path": "/wordpress/wp-content/mu-plugins/tracefern-preview-checks.php",
+            "data": "<?php\n/**\n * Live Preview only (SPEC-024 amendment 1): WP-Cron does not run in the\n * browser Playground, so Tracefern Image Check for C2PA's own queue runs on\n * admin page loads when it is due. Nothing else runs; nothing is sent.\n */\nadd_action('admin_init', static function (): void {\n    $next = wp_next_scheduled('tracefern_check');\n    if ($next !== false && $next <= time()) {\n        do_action('tracefern_check');\n    }\n});\n"
+        },
+        {
             "step": "mkdir",
             "path": "/tmp/tracefern-demo"
         },

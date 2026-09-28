@@ -2186,3 +2186,26 @@ README are where the disclosure lives.
   next admin page; that `admin_init` runs before the upload creates the
   attachment.
 - Decided by Maurice: write the amendment. Not approved yet; not pushed.
+
+## 2026-09-28 — SPEC-024 amendment 1 built: checks in the preview
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: approve amendment 1; tests, then the must-use plugin; correct
+  AC6's wording (approved by Maurice).
+- Produced: the blueprint writes `mu-plugins/tracefern-preview-checks.php`
+  (on `admin_init`, runs `tracefern_check` when it is due); tests for AC1
+  (amendment), AC6 and AC7 with a harness that loads `wp-admin/upload.php`
+  through `admin.php` as the logged-in admin and logs each admin load;
+  AC6's wording corrected; Traceability; checklist in
+  `notes/wporg-submission.md`.
+- Measured: Playground CLI 3.1.55 skips the `request` step ("no longer
+  supported"); inside `runPHP`, Playground's auto-login redirects on
+  `init` unless its cookie is set, and the user must be resolved again
+  after setting the auth cookies. AC1 (amendment) and AC6 red first for
+  the right reason, AC7 green before and after (it guards against harm);
+  all green after; `composer check` (68 tests) and the Release suite (17
+  tests) green; the committed blueprint runs on its own.
+- Reasoned: that the browser Playground behaves like the CLI here; to be
+  measured after the SVN commit.
+- Decided by Maurice: amendment 1 approved; AC6 wording corrected. Not
+  pushed.
