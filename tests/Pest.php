@@ -238,6 +238,16 @@ function setOption(string $name, mixed $value): void
     wpEval("delete_option('$name'); add_option('$name', json_decode(base64_decode('$payload'), true), '', $autoload);");
 }
 
+// Makes WP-CLI's request an admin screen, as the trust notice shows only on
+// some (SPEC-022); prefix with a screen id in a variable $screen.
+const ON_SCREEN = <<<'PHP'
+    require_once ABSPATH.'wp-admin/includes/class-wp-screen.php';
+    require_once ABSPATH.'wp-admin/includes/screen.php';
+    set_current_screen($screen);
+    PHP;
+
+const ON_MEDIA_LIBRARY = '$screen = "upload"; '.ON_SCREEN;
+
 // Finds the plugin's registerSettings callback on a hook, so a test can run
 // it the way options.php does (through admin_init) without firing all of
 // core's admin_init callbacks in WP-CLI.

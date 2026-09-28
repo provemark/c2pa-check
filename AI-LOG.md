@@ -1991,3 +1991,18 @@ README are where the disclosure lives.
   `[self::class, 'sanitizeCustom']`; SPEC-021, SPEC-004 and SPEC-012
   tests 20 passed; `composer check` 65.
 - Decided by Maurice: the fix. Not pushed.
+
+## 2026-09-28 — The trust notice only on its screens (SPEC-022)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the review's guideline 11 point (notices limited in scope).
+- Tests first, seen red: SPEC-022 AC2 (the notice on the dashboard, the
+  posts list and the plugins screen); AC1 green before and after, as a
+  guard. SPEC-004 AC6's test now sets the Media Library screen.
+- Produced: `trustNotice()` returns unless the screen is `upload`,
+  `media`, `attachment` or the settings page; `ON_SCREEN` and
+  `ON_MEDIA_LIBRARY` in `tests/Pest.php`.
+- Measured: SPEC-022 and SPEC-004 tests 22 passed; `composer check` 65.
+  The full suites follow with SPEC-023.
+- Decided by Maurice: the notice on those screens; no dismiss button. Not
+  pushed.

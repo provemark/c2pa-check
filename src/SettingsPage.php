@@ -153,8 +153,17 @@ final class SettingsPage
         echo '</form></div>';
     }
 
+    /**
+     * Only on the screens where images are uploaded, shown or the trust
+     * settings are changed (guideline 11, SPEC-022).
+     */
     public function trustNotice(): void
     {
+        $screen = get_current_screen();
+        $screens = ['upload', 'media', 'attachment', 'settings_page_'.self::SLUG];
+        if ($screen === null || ! in_array($screen->id, $screens, true)) {
+            return;
+        }
         if (! get_option(UploadHook::TRUST_FAILED_OPTION) || ! current_user_can('manage_options')) {
             return;
         }

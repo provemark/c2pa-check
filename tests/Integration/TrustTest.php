@@ -73,7 +73,7 @@ it('AC5: refuses custom text that is not trust settings, and keeps the old value
 it('AC6: checks without settings it cannot build, says so, and clears the notice after', function (): void {
     wpEval("remove_all_filters('sanitize_option_tracefern_custom_trust'); update_option('tracefern_custom_trust', '{not json');");
     $id = importMedia(fixturePath('fixture-signed.jpg'));
-    $notice = wpEval("do_action('admin_notices');");
+    $notice = wpEval(ON_MEDIA_LIBRARY."do_action('admin_notices');");
 
     expect(storedEntry($id)['trust'] ?? null)->toBe('none')
         ->and(storedEntry($id)['state'] ?? null)->toBe(expectedEntry(fixturePath('fixture-signed.jpg'))['state'])
@@ -82,7 +82,7 @@ it('AC6: checks without settings it cannot build, says so, and clears the notice
     wpEval("delete_option('tracefern_custom_trust');");
     importMedia(fixturePath('fixture-signed.jpg'));
 
-    expect(visibleText(wpEval("do_action('admin_notices');")))->not->toContain('without trust settings');
+    expect(visibleText(wpEval(ON_MEDIA_LIBRARY."do_action('admin_notices');")))->not->toContain('without trust settings');
 })->group('SPEC-004');
 
 it('AC7: names the trust source in the details', function (?string $trust, string $ending): void {
