@@ -2032,3 +2032,17 @@ README are where the disclosure lives.
   where it was still active; screenshot 3 taken again in Chrome (menu
   "Tracefern", the new heading; looked at, no cursor).
 - Decided by Maurice: SPEC-022, SPEC-023 and the Composer name. Not pushed.
+
+## 2026-09-28 — Pushed; the Provemark sites follow the new name
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: push, and update the two other repositories.
+- Produced, pushed on Maurice's go: the organisation profile
+  (`provemark/.github` `ccae384`) and the homepage card
+  (`provemark.github.io` `d483304`) name "Tracefern Image Check for C2PA"
+  and link to `provemark/tracefern-image-check`; both still say it awaits
+  review. This repository pushed up to `432a64b`.
+- Measured: both remotes at those commits; the GitHub Pages build of
+  `d483304` built, and the live homepage links to the new repository.
+- Decided by Maurice: push and update both. The upload of the new zip and
+  the reply to the reviewer are his.
