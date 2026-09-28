@@ -2027,6 +2027,8 @@ README are where the disclosure lives.
   `mauricevanloon/tracefern-image-check`; the release test expects the new
   heading.
 - Measured after: `composer check` 66, integration 152 (SPEC-021 and
-  SPEC-022 included), multisite 7; the release suite and screenshot 3
-  after the commit.
+  SPEC-022 included), multisite 7; the release suite after the commit, 11 passed (Plugin Check clean),
+  with the old `provemark-c2pa-check` removed from the release environment,
+  where it was still active; screenshot 3 taken again in Chrome (menu
+  "Tracefern", the new heading; looked at, no cursor).
 - Decided by Maurice: SPEC-022, SPEC-023 and the Composer name. Not pushed.
