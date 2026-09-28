@@ -55,14 +55,32 @@ Items marked *reasoned* are not stated on those pages; check them then.
       began: the zip of `3566af8`, with verifier v0.2.5 (four wrong
       `Trusted` fixed there), 286,674 bytes, SHA-256
       `8c7d7548e4aa1193729cd48aa9813249f8255b41b5c34e24a3507933a50b693e`
-      (CI green on every job; kept in `build/submitted/`). This is the
-      version under review.
+      (CI green on every job; kept in `build/submitted/`). Reviewed in the
+      first round (below).
 - [x] **Frozen until the reviewer replies** (decided by Maurice,
       2026-09-27): no more uploads before the review, as repeated uploads
       would look unsettled. Changes wait for the reviewer's reply (then one
       new version with them) or for 0.1.1: first SPEC-019, the Development
       section in `readme.txt`. `build/provemark-c2pa-check.zip` may be newer
       than what is under review; the submitted zips are in `build/submitted/`.
+- [x] **First review received 2026-09-28** (automated pre-review, Review ID
+      `P0TDX376861HGN`): the name ("ProveMark" possibly a third-party brand,
+      "C2PA" not after "for"), ownership, guideline 11 (notices), the
+      `.pem` files, `register_setting()` sanitization. Handled in SPEC-020
+      to SPEC-023: renamed to Tracefern Image Check for C2PA, the GitHub
+      repository renamed, named sanitize callbacks, the trust notice on
+      four screens, the settings page called Tracefern.
+- [x] **The corrected version uploaded and the reply sent by Maurice on
+      2026-09-28**: the zip of `432a64b` (CI green on every job; release
+      suite and Plugin Check clean), `tracefern-image-check-for-c2pa.zip`,
+      290,831 bytes, SHA-256
+      `66335707d04476b30757469b646ad8322f69a35b2e1de3e89f97c01307a804af`
+      (kept in `build/submitted/`). The reply, in the same thread, asked for
+      the slug `tracefern-image-check-for-c2pa` and explained "provemark"
+      (own GitHub organisation and library) and the `.pem` files. Not sent,
+      kept for a question: the paragraph on the bundled library in
+      `notes/wporg-review.md`. This is the version under review; the thread
+      now waits in the reviewer's queue.
 - [x] https://wordpress.org/plugins/developers/add/ (read 2026-09-27,
       logged in): eight confirmations to tick, each a statement by the
       account owner (the FAQ and the guidelines read; Plugin Check run; the

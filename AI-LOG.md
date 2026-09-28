@@ -2060,3 +2060,15 @@ README are where the disclosure lives.
   reason, `src/SettingsPage.php` escapes the one message it shows; the
   counts in `tests/wpcs-verifier-baseline.json` (v0.2.5).
 - Decided by Maurice: prepare the paragraph. Pushed on his earlier go.
+
+## 2026-09-28 — The corrected version uploaded, the reply sent
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: put the reply on the clipboard; then record the upload and the
+  reply (both done by Maurice).
+- Measured: the zip in `build/` still had the SHA-256 of `432a64b`'s build
+  (`66335707…07a804af`, 290,831 bytes); CI of `432a64b` green. A copy
+  kept in `build/submitted/`.
+- Produced: the first review and the second upload recorded in
+  `notes/wporg-submission.md`.
+- Decided by Maurice: the upload and the reply (done by him). Not pushed.
