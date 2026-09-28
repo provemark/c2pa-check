@@ -1978,3 +1978,16 @@ README are where the disclosure lives.
   Maurice's go needed); the reply to the reviewer.
 - Decided by Maurice: the name Tracefern (not his own name; not "Keel…",
   which means throat in Dutch); rename the repository. Not pushed.
+
+## 2026-09-28 — Named sanitize callbacks (SPEC-021)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the review's "Sanitization for register_setting()" point.
+- Reasoned: both settings already had a sanitize callback, a closure and
+  a first-class callable; the review's scanner recognises a callback by
+  name.
+- Tests first, seen red: SPEC-021 AC1 (neither callback named), AC2
+  (`'false'` gave `true`). After: `'rest_sanitize_boolean'` and
+  `[self::class, 'sanitizeCustom']`; SPEC-021, SPEC-004 and SPEC-012
+  tests 20 passed; `composer check` 65.
+- Decided by Maurice: the fix. Not pushed.

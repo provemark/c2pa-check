@@ -66,7 +66,7 @@ final class SettingsPage
         register_setting(self::GROUP, self::DIGICERT_OPTION, [
             'type' => 'boolean',
             'default' => true,
-            'sanitize_callback' => static fn (mixed $value): bool => (bool) $value,
+            'sanitize_callback' => 'rest_sanitize_boolean',
         ]);
         // No registered default: with one, update_option() takes a value equal
         // to it for a missing option and re-adds the option with autoload
@@ -74,7 +74,7 @@ final class SettingsPage
         // Every get_option() here passes its own default.
         register_setting(self::GROUP, self::CUSTOM_OPTION, [
             'type' => 'string',
-            'sanitize_callback' => self::sanitizeCustom(...),
+            'sanitize_callback' => [self::class, 'sanitizeCustom'],
         ]);
 
         // Up to about 70 KB: never loaded on every request.
