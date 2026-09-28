@@ -2072,3 +2072,15 @@ README are where the disclosure lives.
 - Produced: the first review and the second upload recorded in
   `notes/wporg-submission.md`.
 - Decided by Maurice: the upload and the reply (done by him). Not pushed.
+
+## 2026-09-28 — SPEC-019 to SPEC-023 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: mark the specs in the uploaded zip implemented, note that
+  SPEC-019 went along, and push.
+- Produced: the status lines of SPEC-019 to SPEC-023 (Traceability was
+  filled when each was built); the frozen item in
+  `notes/wporg-submission.md` updated.
+- Measured: CI of `81187f2` and `975d295` green; the verifier, demo and
+  Content Credentials repositories no longer name the old plugin.
+- Decided by Maurice: SPEC-019 to SPEC-023 implemented; push.

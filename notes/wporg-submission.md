@@ -63,6 +63,9 @@ Items marked *reasoned* are not stated on those pages; check them then.
       new version with them) or for 0.1.1: first SPEC-019, the Development
       section in `readme.txt`. `build/provemark-c2pa-check.zip` may be newer
       than what is under review; the submitted zips are in `build/submitted/`.
+      Update 2026-09-28: the reviewer replied; SPEC-019 went along in the
+      corrected upload below, with SPEC-020 to SPEC-023. Frozen again until
+      the next reply.
 - [x] **First review received 2026-09-28** (automated pre-review, Review ID
       `P0TDX376861HGN`): the name ("ProveMark" possibly a third-party brand,
       "C2PA" not after "for"), ownership, guideline 11 (notices), the
