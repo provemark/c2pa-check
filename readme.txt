@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -32,9 +32,8 @@ upload and shows the verdict where you already work with media.
 * **A verdict per image** in a Media Library column and in the attachment
   details: who signed it, when, and against which trust list.
 * **"AI-generated (signed)"** when a manifest that verifies says the image
-  was made by generative AI, also when the AI image was processed later.
-  **"AI-edited (signed)"** when it says generative AI edited the image or
-  was part of it. Never on a file that does not verify.
+  was made by generative AI, also after later edits, and **"AI-edited
+  (signed)"** when AI edited it. Never on a file that does not verify.
 * **Sort and filter** the Media Library list by verdict, including all
   AI-generated images.
 * **Check existing images again** with WP-CLI:
@@ -109,10 +108,8 @@ when an image is shared or downloaded.
 
 = Does "AI-generated (signed)" detect AI images? =
 
-No. It shows what a verified manifest in the file says about itself, or
-about the earlier versions it was made from; each earlier version counts
-only when its own signature and hash hold. The same goes for "AI-edited
-(signed)". An
+No. It shows what a verified manifest says about the image or the
+earlier versions it was made from, each of which must verify too. An
 AI image without Content Credentials gets no label. Next to "Intact: signer
 not trusted" the claim comes from a signer nobody on the trust list vouches
 for.
@@ -204,6 +201,11 @@ Authenticity (C2PA), from https://github.com/c2pa-org/conformance-public,
 licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
+
+= 0.1.3 =
+
+* The AI label follows an image's history: an AI image that was later watermarked or converted is still "AI-generated (signed)".
+* New label "AI-edited (signed)", and `ai_edited` in the `tracefern_verdict` filter.
 
 = 0.1.2 =
 

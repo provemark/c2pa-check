@@ -2420,3 +2420,18 @@ README are where the disclosure lives.
   References).
 - Decided by Maurice: approval with the proposals and his own fixture;
   amendments 1 and 2. Release as 0.1.3 still to come.
+
+## 2026-09-28 — Prepare 0.1.3
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ga door", after the offer to prepare 0.1.3 for SPEC-027.
+- Produced: `Version: 0.1.3` in the plugin header, `Stable tag: 0.1.3`,
+  and a 0.1.3 changelog entry. The SPEC-027 readme text was shortened to
+  keep `readme.txt` under the 10 KB its test enforces (10,549 → 10,140
+  bytes).
+- Measured: `composer check` green (95 unit tests); integration 172
+  passed; `composer test:release` 17 passed; `composer test:multisite` 7
+  passed. The zip is built from this commit, because `tools/build.sh`
+  packs `HEAD`.
+- Decided by Maurice: preparing the release. The SVN commit, push, tag
+  and GitHub release are his, or wait for his go.
