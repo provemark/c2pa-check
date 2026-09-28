@@ -2155,3 +2155,18 @@ README are where the disclosure lives.
 - Reasoned: the browser Playground behind the button; measured with "Test
   Preview" after the SVN commit.
 - Decided by Maurice: SPEC-024 approved; build it. Not pushed.
+
+## 2026-09-28 — The Live Preview measured in the browser
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: check the Test Preview once the blueprint was committed (r3716729).
+- Measured: the directory imported the blueprint (served content equals
+  git); no Test Preview button on the page while the account asks for
+  two-factor authentication; the preview link opened in Chrome shows the
+  five verdicts after about 12 s; an image uploaded in the preview stays
+  "Check pending" (WP-Cron does not run there, `wp-cron.php` answers 503).
+- Reasoned: that the missing two-factor authentication hides the button,
+  from the directory's `Template::is_preview_available()`.
+- Produced: section 4a of `notes/wporg-submission.md` updated.
+- Decided by Maurice: nothing yet; how to handle uploads in the preview
+  is open (SPEC-024, open question 1). Not pushed.

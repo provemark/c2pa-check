@@ -164,13 +164,27 @@ rebuilds every version's zip.
 
 ## 4a. The Live Preview (SPEC-024)
 
-- [ ] `.wordpress-org/blueprints/blueprint.json` to SVN as
+- [x] `.wordpress-org/blueprints/blueprint.json` to SVN as
       `assets/blueprints/blueprint.json` (not in `trunk/`; no new
-      version needed). Committed by Maurice.
-- [ ] "Test Preview" on the plugin page (committers only). Measure there:
-      the time until the Media Library shows, the five verdicts, and
-      whether an image uploaded in the preview gets checked (WP-Cron in
-      the browser Playground).
+      version needed). Committed by Maurice, r3716729 (2026-09-28).
+      Imported by the directory about 20 minutes later; the blueprint
+      endpoint serves it with the same content as git (a request without
+      a query string kept a cached 404 for a while).
+- [ ] "Test Preview" on the plugin page (committers only). Not shown yet
+      (2026-09-28): the directory shows it to users with
+      `plugin_admin_edit`, and the account shows "Your account has
+      elevated privileges and requires extra security before you can
+      continue. Please enable two-factor authentication." That this
+      hides the button is *reasoned*, not measured.
+- [x] Measured in Chrome instead, with the link the button opens
+      (`playground.wordpress.net/?plugin=…&blueprint-url=…blueprint.json?lang=nl_NL`,
+      as `Template::preview_link()` builds it), 2026-09-28: the Media
+      Library with all five verdicts about 12 s after opening; order
+      Pixel, OpenAI, altered copy, Amazon, unsigned. An image uploaded in
+      the preview through Media → Add New stays "Check pending": still so
+      after more than 2 minutes and several page loads; `wp-cron.php`
+      called directly answers 503. WP-Cron does not run in the browser
+      Playground; the five demo images are unaffected.
 - [ ] The preview set to "public" in the plugin's Advanced view: Maurice's
       decision, after the test.
 
