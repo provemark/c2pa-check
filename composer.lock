@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "32282b9b354bdbd1232eacc2a58d307b",
+    "content-hash": "ca885f5f54aeac46c7f8b8519a501d37",
     "packages": [
         {
             "name": "provemark/c2pa-verifier",
-            "version": "v0.2.5",
+            "version": "v0.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/provemark/c2pa-verifier.git",
-                "reference": "0e1da23b0d8a27c872cd4b60f269347602a3bf68"
+                "reference": "32ab4eb6ee14e182c27b173d8f8ace36ef62d123"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/provemark/c2pa-verifier/zipball/0e1da23b0d8a27c872cd4b60f269347602a3bf68",
-                "reference": "0e1da23b0d8a27c872cd4b60f269347602a3bf68",
+                "url": "https://api.github.com/repos/provemark/c2pa-verifier/zipball/32ab4eb6ee14e182c27b173d8f8ace36ef62d123",
+                "reference": "32ab4eb6ee14e182c27b173d8f8ace36ef62d123",
                 "shasum": ""
             },
             "require": {
@@ -66,9 +66,9 @@
             ],
             "support": {
                 "issues": "https://github.com/provemark/c2pa-verifier/issues",
-                "source": "https://github.com/provemark/c2pa-verifier/tree/v0.2.5"
+                "source": "https://github.com/provemark/c2pa-verifier/tree/v0.2.6"
             },
-            "time": "2026-09-27T13:30:25+00:00"
+            "time": "2026-09-28T08:16:47+00:00"
         }
     ],
     "packages-dev": [

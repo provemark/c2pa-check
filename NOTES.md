@@ -145,7 +145,8 @@ When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
 and every suite, the release suite included. **Done 2026-09-27 for
 v0.2.4** (SPEC-006 amendment 5), **and for v0.2.5** (SPEC-006 amendment
-7; SPEC-015 amendment 1 made AC2 follow the bundled version). Point 2 was resolved by SPEC-013: v0.2.4
+7; SPEC-015 amendment 1 made AC2 follow the bundled version), **and for
+v0.2.6 on 2026-09-28** (SPEC-006 amendment 8). Point 2 was resolved by SPEC-013: v0.2.4
 bounds the known files, the background check the next unknown one.
 
 ## To measure before a spec relies on it

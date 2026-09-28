@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": "^8.3",
-        "provemark/c2pa-verifier": "^0.2.5"
+        "provemark/c2pa-verifier": "^0.2.6"
     },
     "autoload": {
         "psr-4": {

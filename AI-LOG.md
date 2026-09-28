@@ -2308,3 +2308,21 @@ README are where the disclosure lives.
   public download unpacks to the same files as the build.
 - Decided by Maurice: the SVN commit (done by him), the tag and the
   GitHub release. Not pushed.
+
+## 2026-09-28 — The bundled verifier to v0.2.6
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the verifier's "ja, breng de plugin en de demo naar 0.2.6"; after
+  the review, "baseline naar 4 akkoord".
+- Produced: `composer.json` requires `^0.2.6`, `composer.lock` at v0.2.6
+  (`32ab4eb`); `tests/wpcs-verifier-baseline.json`
+  (`obfuscation_base64_decode` 4, verifier v0.2.6); SPEC-006 amendment
+  8; `NOTES.md` (the upgrade step done for v0.2.6).
+- Measured: `composer check` (74 passed); `composer test:multisite` (7
+  passed); `composer test:integration` (159 passed);
+  `composer test:release` first 16 passed and AC4 failed
+  (`obfuscation_base64_decode: 4 (baseline 3)`), then 17 passed. The
+  sniff over the bundled verifier's `src/` without `Cli/`: 642 findings,
+  every count equal to the new baseline; the new one is
+  `Trust/Certificate.php:305`, `rsaExponent()`.
+- Decided by Maurice: baseline 4 reviewed and accepted.

@@ -207,6 +207,16 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    They are exception messages, not output. The plugin shows no verifier
    exception message except `TrustException`'s, through `esc_html`.
 
+8. **2026-09-28, approved by Maurice van Loon after his review.** The
+   bundled verifier moves to v0.2.6, a security release. AC4's baseline
+   rises from 641 to 642 findings in the same 6 sniffs:
+   `obfuscation_base64_decode` 3 → 4, every other count unchanged,
+   verifier v0.2.6. The new finding is `Trust/Certificate.php`'s
+   `rsaExponent()` (the verifier's SPEC-049), which decodes the PEM of a
+   certificate's public key to read its RSA exponent from the DER, as the
+   three existing findings decode PEM. It decodes key material the file
+   carries; nothing is executed.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
