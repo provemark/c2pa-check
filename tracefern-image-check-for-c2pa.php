@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Tracefern Image Check for C2PA
  * Description:       Verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 7.1
  * Requires PHP:      8.3
  * Author:            Maurice van Loon
@@ -20,6 +20,7 @@ use Tracefern\ImageCheck\PrivacyPolicy;
 use Tracefern\ImageCheck\RecheckCommand;
 use Tracefern\ImageCheck\SettingsPage;
 use Tracefern\ImageCheck\UploadHook;
+use Tracefern\ImageCheck\Verdict;
 
 if (! defined('ABSPATH')) {
     exit;
@@ -68,6 +69,7 @@ register_deactivation_hook(__FILE__, [UploadHook::class, 'deactivate']);
     (new MediaSort)->register();
     (new SettingsPage)->register();
     (new PrivacyPolicy)->register();
+    (new Verdict)->register();
 
     if (defined('WP_CLI') && WP_CLI) {
         WP_CLI::add_command('tracefern', new RecheckCommand($hook));

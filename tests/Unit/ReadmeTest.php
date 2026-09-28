@@ -132,3 +132,14 @@ it('SPEC-025 AC4: links to no other plugin', function (): void {
         expect(array_filter($allowed, fn (string $prefix): bool => str_starts_with($url, $prefix)))->not->toBeEmpty($url.' is not on the allow-list');
     }
 })->group('SPEC-025');
+
+it('SPEC-026 AC8: documents the verdict for other plugins', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*\n= Can other plugins use the verdict\? =\n(.*?)(\n= .*|\n== .*|$)/s', '$1', $readme));
+
+    expect($readme)->toContain("\n= Can other plugins use the verdict? =\n")
+        ->and($faq)->toContain("apply_filters( 'tracefern_verdict', null, \$attachment_id )")
+        ->toContain('not active')
+        ->toContain('escape')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('SPEC-026');

@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-28                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -189,6 +189,8 @@ if ( is_array( $verdict ) && $verdict['ai'] ) {
 
 - **Release**: this is code, so it ships as a new version, proposed
   0.2.0 (a new feature), with a changelog line. Non-blocker for building.
+  **Decided by Maurice, 2026-09-28: 0.1.1** (first said 0.2.0, changed the
+  same day).
 
 ## Traceability
 
@@ -197,11 +199,11 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
+| AC1                  | `tests/Integration/VerdictTest.php` :: AC1 | `src/Verdict.php` `Verdict::filter`, `Verdict::forAttachment`; `src/Display.php` `Display::verdict`; `Verdict::register` in the main file |
+| AC2                  | `tests/Integration/VerdictTest.php` :: AC2 | `Display::verdict` (`intact`, `trusted`) |
+| AC3                  | `tests/Integration/VerdictTest.php` :: AC3 | `Display::verdict` (`ai` from `Display::showsAiLabel`; `codes` for `Invalid` only) |
+| AC4                  | `tests/Integration/VerdictTest.php` :: AC4 | `Display::verdict` (`status` from `Display::pending`); `MediaScreens::entryOf`, `MediaScreens::pendingSince` (now public) |
+| AC5                  | `tests/Integration/VerdictTest.php` :: AC5 | `Display::changed`, `MediaScreens::currentOriginal` (now public) |
+| AC6                  | `tests/Integration/VerdictTest.php` :: AC6 | `Verdict::filter` (default for non-attachments); `Display::read` (`unreadable`); `Display::visible` (split from `Display::text`) |
+| AC7                  | `tests/Integration/VerdictTest.php` :: AC7 | `Display::verdict` shares `read`, `pending`, `showsAiLabel` with `Display::headline` |
+| AC8                  | `tests/Unit/ReadmeTest.php` :: SPEC-026 AC8 | `readme.txt` (FAQ "Can other plugins use the verdict?"; 0.1.1 changelog, Stable tag) |

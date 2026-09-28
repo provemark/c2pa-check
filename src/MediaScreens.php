@@ -95,7 +95,7 @@ final class MediaScreens
      *
      * @return array{path: string, size: int|false, modified: int|false}|null
      */
-    private static function currentOriginal(int $attachmentId): ?array
+    public static function currentOriginal(int $attachmentId): ?array
     {
         $original = UploadHook::fileToCheck($attachmentId);
         if ($original === '') {
@@ -113,7 +113,7 @@ final class MediaScreens
     /**
      * When the attachment's background check was scheduled (SPEC-013), or null.
      */
-    private static function pendingSince(int $attachmentId): ?int
+    public static function pendingSince(int $attachmentId): ?int
     {
         $since = get_post_meta($attachmentId, UploadHook::PENDING_KEY, true);
         if (! is_numeric($since)) {
@@ -128,7 +128,7 @@ final class MediaScreens
     /**
      * The stored value, or null when the attachment has none.
      */
-    private static function entryOf(int $attachmentId): mixed
+    public static function entryOf(int $attachmentId): mixed
     {
         return metadata_exists('post', $attachmentId, UploadHook::META_KEY)
             ? get_post_meta($attachmentId, UploadHook::META_KEY, true)

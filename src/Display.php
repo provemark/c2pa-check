@@ -131,13 +131,78 @@ final class Display
      */
     public static function text(string $untrusted): string
     {
-        $scrubbed = mb_scrub($untrusted, 'UTF-8');
-        $visible = preg_replace(self::UNSAFE_CHARACTERS, "\u{FFFD}", $scrubbed);
-
         // htmlspecialchars() with double encoding, not esc_html(): esc_html()
         // keeps an existing entity such as &#x202E;, which the browser then
         // turns into the very character removed above (SPEC-015).
-        return htmlspecialchars($visible ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', true);
+        return htmlspecialchars(self::visible($untrusted), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', true);
+    }
+
+    /**
+     * Untrusted text with controls and direction characters replaced by
+     * U+FFFD, not escaped for HTML.
+     */
+    private static function visible(string $untrusted): string
+    {
+        return preg_replace(self::UNSAFE_CHARACTERS, "\u{FFFD}", mb_scrub($untrusted, 'UTF-8')) ?? '';
+    }
+
+    /**
+     * The verdict other plugins read through the `tracefern_verdict` filter
+     * (SPEC-026), built from the same reading of the entry as the column,
+     * so the two cannot disagree. Text from the file is made visible, not
+     * escaped: the caller escapes it for where it puts it.
+     *
+     * @param  mixed  $entry  the stored value, or null when there is none
+     * @param  int|null  $pendingSince  when the background check was scheduled (SPEC-013)
+     * @return array{schema: int, status: string, state: ?string, intact: bool, trusted: bool, ai: bool, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, checked_at: ?string, codes: list<string>, reason: ?string, verifier: ?string, trust: ?string}
+     */
+    public static function verdict(mixed $entry, ?int $pendingSince, int $now, bool $changed): array
+    {
+        $read = self::read($entry);
+        $verdict = [
+            'schema' => 1,
+            'status' => match (true) {
+                $read === false => 'unreadable',
+                $read === null => self::pending($entry, $pendingSince, $now) ? 'pending' : 'not_checked',
+                $changed => 'changed',
+                default => 'checked',
+            },
+            'state' => null,
+            'intact' => false,
+            'trusted' => false,
+            'ai' => false,
+            'signer' => null,
+            'signed_at' => null,
+            'checked_at' => null,
+            'codes' => [],
+            'reason' => null,
+            'verifier' => null,
+            'trust' => null,
+        ];
+        if (! is_array($read) || $changed) {
+            // No verdict on bytes that are no longer there (SPEC-014), nor
+            // on a value that is not an entry.
+            return $verdict;
+        }
+
+        $signer = $read['signer'];
+
+        return [
+            'state' => $read['state'],
+            'intact' => in_array($read['state'], ['Trusted', 'Valid'], true),
+            'trusted' => $read['state'] === 'Trusted',
+            'ai' => self::showsAiLabel($read),
+            'signer' => $signer === null ? null : [
+                'issuer' => $signer['issuer'] === null ? null : self::visible($signer['issuer']),
+                'common_name' => self::visible($signer['common_name']),
+            ],
+            'signed_at' => $read['signed_at'],
+            'checked_at' => $read['checked_at'],
+            'codes' => $read['state'] === 'Invalid' ? $read['codes'] : [],
+            'reason' => $read['reason'],
+            'verifier' => $read['verifier'],
+            'trust' => $read['trust'],
+        ] + $verdict;
     }
 
     /**

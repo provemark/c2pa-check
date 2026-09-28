@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.0
+Stable tag: 0.1.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -153,6 +153,17 @@ Yes. Each site checks its own uploads and has its own settings. Deleting
 the plugin removes its data from every site of the network, in one
 request; on a network of thousands of sites, prefer WP-CLI.
 
+= Can other plugins use the verdict? =
+
+Yes, through a filter, with no dependency on this plugin:
+`apply_filters( 'tracefern_verdict', null, $attachment_id )`. It returns
+`null` when the plugin is not active or the ID is not an attachment, and
+otherwise an array: `status` (`checked`, `pending`, `not_checked`,
+`changed`, `unreadable`), `state`, `intact`, `trusted`, `ai` (true
+exactly when the Media Library shows "AI-generated (signed)"), `signer`,
+`signed_at`, `codes` and more. `signer` comes from the file: escape it
+where you output it.
+
 = Why PHP 8.3? =
 
 The bundled verifier requires PHP 8.3 or later.
@@ -187,6 +198,10 @@ Authenticity (C2PA), from https://github.com/c2pa-org/conformance-public,
 licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
+
+= 0.1.1 =
+
+* Other plugins can read the verdict through the `tracefern_verdict` filter.
 
 = 0.1.0 =
 

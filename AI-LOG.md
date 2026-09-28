@@ -2274,3 +2274,21 @@ README are where the disclosure lives.
 - Reasoned: that a filter with a `null` default needs no dependency; that
   the Monitor or label plugins could use it.
 - Decided by Maurice: write the spec. Not approved yet; not pushed.
+
+## 2026-09-28 — SPEC-026 built: other plugins can read the verdict (0.1.1)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: approve SPEC-026 (version 0.2.0, changed the same day to
+  0.1.1); tests, then the code.
+- Produced: `src/Verdict.php` (the `tracefern_verdict` filter);
+  `Display::verdict()` built from the column's own reading of the entry,
+  and `Display::visible()` split from `Display::text()`; three
+  `MediaScreens` helpers made public; the FAQ entry; version 0.1.1 in the
+  header, `Stable tag` and changelog; `tests/Integration/VerdictTest.php`
+  and a readme test; the spec's Traceability.
+- Measured: the eight tests red first (no filter, no FAQ), then green
+  after one fix in the test code (a message passed to `toContain()`,
+  which takes several needles, became a second needle); `composer check`
+  (74 tests), the integration suite (159), the Release suite with Plugin
+  Check (17) and the multisite suite (7) green locally.
+- Decided by Maurice: SPEC-026 approved; 0.1.1. Not pushed; not released.
