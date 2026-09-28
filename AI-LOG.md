@@ -2435,3 +2435,19 @@ README are where the disclosure lives.
   packs `HEAD`.
 - Decided by Maurice: preparing the release. The SVN commit, push, tag
   and GitHub release are his, or wait for his go.
+
+## 2026-09-28 — 0.1.3 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push en zet SVN klaar"; then "akkoord, leg vast en
+  maak tag v0.1.3 met release".
+- Produced: `main` pushed to `0737d8f` (and the verifier to `0cf13e4`).
+  The SVN working copy had `trunk/` replaced by the build and
+  `tags/0.1.3` copied. The annotated tag `v0.1.3` on `0737d8f`; the
+  GitHub release 0.1.3 with the zip; the record in
+  `notes/wporg-submission.md`.
+- Measured: CI green on `0737d8f`. SVN r3717745 by Maurice (20:26). The
+  plugin API reported 0.1.3 by 20:36. The public download, the build and
+  SVN `tags/0.1.3` hold the same files (`diff -r` empty).
+- Decided by Maurice: the push, the SVN commit (done by him), the tag and
+  the release.

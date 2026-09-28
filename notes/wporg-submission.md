@@ -237,3 +237,17 @@ Releases after 0.1.0:
   `ebbcb62` and a GitHub release, on Maurice's go (about 16:10); the
   release's zip holds exactly the files of SVN `tags/0.1.2` (SHA-256
   `5ad5a395…`, 294,929 bytes).
+- **0.1.3, 2026-09-28** (SPEC-027, the AI label follows an image's
+  history; new label "AI-edited (signed)"): built from `0737d8f` (SHA-256
+  `0351b6d2…a481b4c5`, kept in `build/submitted/`). Before the build:
+  `composer check`, integration (172), multisite (7) and the Release
+  suite (17) green, and CI green on `0737d8f`. `trunk/` was replaced by
+  the build (`diff -r` empty) and `tags/0.1.3` copied; Maurice committed
+  them (r3717745, 20:26). Measured: the plugin API reported 0.1.3 (last
+  updated 18:26 GMT) by 20:36. The public download
+  (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.3.zip`)
+  unpacks to the same files as the build, and SVN `tags/0.1.3` holds the
+  same files. Git tag `v0.1.3` on `0737d8f`, and a GitHub release with
+  the same zip (296,391 bytes), on Maurice's go. Found on the way: the
+  readme is 10,140 bytes, about 100 below the 10 KB its test enforces.
+  The next release must move older changelog entries out first.
