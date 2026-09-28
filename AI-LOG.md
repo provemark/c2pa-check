@@ -2110,3 +2110,13 @@ README are where the disclosure lives.
   `vendor/composer/installed.php`); the checklist item ticked.
 - Measured: `c6cdbfc` and the tag on `origin`.
 - Decided by Maurice: push and tag.
+
+## 2026-09-28 — GitHub release 0.1.0
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: a GitHub release for v0.1.0.
+- Produced: the release, its notes from the `readme.txt` changelog, and
+  the approved zip attached; the checklist item updated.
+- Measured: the attached zip is 290,831 bytes, the same file as in
+  `build/submitted/`.
+- Decided by Maurice: make the release. Not pushed.
