@@ -2338,3 +2338,22 @@ README are where the disclosure lives.
   committed build (see the next entry).
 - Decided by Maurice: prepare 0.1.2. The SVN commit, tag and GitHub
   release wait for him.
+
+## 2026-09-28 — 0.1.2 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "svn commit gedaan, controleer de release"; then "probeer
+  opnieuw" after the session's tool check failed four times.
+- Produced: the release recorded in `notes/wporg-submission.md`.
+- Measured: `svn log` (r3717314 by Maurice, 15:58); `svn ls tags/` (0.1.0,
+  0.1.1, 0.1.2); `Stable tag: 0.1.2` in `trunk/` and `tags/0.1.2/`; the
+  plugin API reports 0.1.2; the public download unpacks to the same files
+  as the build (`diff -r` empty) and names verifier v0.2.6; the plugin
+  page returns 200.
+- Found done by Maurice: `main` pushed to `ebbcb62`, the annotated tag
+  `v0.1.2` on `ebbcb62` and the GitHub release 0.1.2 with its zip. The
+  release asset differs in bytes from `build/submitted/`'s copy
+  (rebuilt at 16:07, 15:55 for the copy) but unpacks to the same files
+  (`diff -r` empty).
+- Decided by Maurice: the SVN commit, the push, the tag and the GitHub
+  release (all done by him).

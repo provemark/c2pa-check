@@ -222,3 +222,16 @@ Releases after 0.1.0:
   0.1.1 at 14:53; the public download
   (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.1.zip`)
   unpacks to the same files as the build.
+- **0.1.2, 2026-09-28** (bundles c2pa-verifier 0.2.6, a security
+  release: an RSA key with public exponent 1 no longer comes out
+  `Trusted`): built from `ebbcb62` (SHA-256 `9bf8b88a…d1d56c2`, kept in
+  `build/submitted/`), the Release suite green on that build; `trunk/`
+  replaced by the build and `tags/0.1.2` copied, committed by Maurice
+  (r3717314, 15:58). Measured: the plugin API reported 0.1.2 (last
+  updated 13:58 GMT); `trunk/readme.txt` and `tags/0.1.2/readme.txt`
+  say `Stable tag: 0.1.2`; the public download
+  (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.2.zip`)
+  unpacks to the same files as the build and names verifier v0.2.6; the
+  plugin page returns 200; Git tag `v0.1.2` on
+  `ebbcb62` and a GitHub release with the rebuilt zip (same files,
+  different timestamps), by Maurice.
