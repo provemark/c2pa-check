@@ -2046,3 +2046,17 @@ README are where the disclosure lives.
   `d483304` built, and the live homepage links to the new repository.
 - Decided by Maurice: push and update both. The upload of the new zip and
   the reply to the reviewer are his.
+
+## 2026-09-28 — A paragraph on the bundled library, ready to paste
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: whether the plugin will pass review (no: the manual review is
+  still to come); then a short paragraph on the verifier's WPCS findings,
+  to send only if the reviewer asks.
+- Produced: that paragraph at the top of `notes/wporg-review.md`; in the
+  same file, the options renamed, `tracefern_index_done` dropped (nothing
+  reads it since SPEC-015), the verifier no longer called "third-party".
+- Measured, for the paragraph's claims: `src/Checker.php` stores a fixed
+  reason, `src/SettingsPage.php` escapes the one message it shows; the
+  counts in `tests/wpcs-verifier-baseline.json` (v0.2.5).
+- Decided by Maurice: prepare the paragraph. Pushed on his earlier go.

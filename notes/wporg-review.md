@@ -5,6 +5,26 @@ Not shipped (`notes/` is export-ignored). Each section can be pasted as a
 reply. Line numbers are those of verifier v0.2.5 in the build
 (`vendor-prefixed/provemark/c2pa-verifier/src/`).
 
+## Ready to paste: the bundled library, in one paragraph
+
+Prepared 2026-09-28 for a reviewer who asks about the WPCS findings in
+`vendor-prefixed/`. Send only when asked; the sections below give the
+detail per finding.
+
+> About the bundled library: vendor-prefixed/ holds
+> provemark/c2pa-verifier (MIT, written by me), a plain PHP library that
+> is also used outside WordPress, prefixed with Strauss so it cannot
+> collide with another copy. WPCS reports ExceptionNotEscaped on its throw
+> statements, but the plugin never outputs those messages: an exception
+> during a check is caught and stored as a fixed reason from a closed
+> list, and the only message shown (why pasted trust settings were
+> rejected, on the admin-only settings page) goes through esc_html(). Its
+> other findings are fread() on the read-only image stream,
+> base64_encode()/base64_decode() for PEM and DER certificates,
+> set_error_handler() around OpenSSL calls (restored right after each
+> call), and json_encode() in toJson() methods the plugin does not call. I
+> can give the file and line of each finding if that helps.
+
 ## What is bundled, and how it is checked
 
 The plugin bundles one library, `provemark/c2pa-verifier` (MIT, same
@@ -96,14 +116,14 @@ From a read-through as a reviewer (2026-09-27, SPEC-012 fixed the rest):
   and `is_readable()` first; the `@` keeps a race (the file removed in
   between) from printing a warning into an upload response. The failure
   is then stored as state `error`, reason `unreadable`.
-- **`provemark_c2pa_index_done` and `provemark_c2pa_trust_failed` are not
-  autoloaded.** Both are read only in the admin (`admin_init` and
-  `admin_notices`); one small query each there, none on the front end.
+- **`tracefern_trust_failed` is not autoloaded.** It is read only in the
+  admin (`admin_notices`, on four screens since SPEC-022); one small query
+  there, none on the front end.
 - **No size limit on custom trust settings.** Only a user with
   `manage_options` can save them, the verifier must accept them, and they
   are never autoloaded.
-- **The verifier's files have no direct-access guard.** It is a
-  third-party library, loaded only through Composer's autoloader; its
+- **The verifier's files have no direct-access guard.** It is a separate
+  library, loaded only through Composer's autoloader; its
   files only declare classes.
 
 ## The `.pem` files in `trust/`
