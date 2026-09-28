@@ -2209,3 +2209,21 @@ README are where the disclosure lives.
   measured after the SVN commit.
 - Decided by Maurice: amendment 1 approved; AC6 wording corrected. Not
   pushed.
+
+## 2026-09-28 — SPEC-025 drafted: say what sets the plugin apart
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: make it clear on the plugin page that this plugin differs from
+  plugins that label AI images without verifying; write the spec.
+- Produced: `specs/SPEC-025-say-what-sets-it-apart.md` (draft): a new
+  short description, a first Description paragraph and a first FAQ
+  question, no other plugin named.
+- Measured: four AI-label plugins from the directory in Playground with
+  the SPEC-024 fixtures (the changed AI image labelled as the intact one
+  by three; the camera photo labelled AI by two); a code search of
+  thirteen that read C2PA (no signature or hash check found); the
+  handbook pages on the stable tag and on Subversion.
+- Reasoned: that a readme-only edit of the stable tag needs no new
+  version.
+- Decided by Maurice: write the spec; do not write the measurements into
+  `notes/`. Not approved yet; not pushed.
