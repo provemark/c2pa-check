@@ -59,7 +59,7 @@ C2PA verifier written in PHP, bundled with the plugin.
    the `openssl` and `mbstring` extensions.
 2. Upload images as usual. Each JPEG, PNG and WebP is checked in the
    background, usually within seconds; until then it shows "Check pending".
-3. Optional: under Settings → C2PA Check, choose whether to trust
+3. Optional: under Settings → Tracefern, choose whether to trust
    DigiCert timestamps, or paste your own trust settings.
 4. Images uploaded before the plugin was active show "Not checked". Check
    them with `wp tracefern check --unchecked` (WP-CLI).
@@ -149,7 +149,7 @@ verifier itself is developed at https://github.com/provemark/c2pa-verifier.
 
 1. The Content Credentials column in the Media Library list.
 2. The attachment details of a verified, AI-generated image.
-3. Settings → C2PA Check: the bundled trust list, DigiCert timestamps and custom trust settings.
+3. Settings → Tracefern: the bundled trust list, DigiCert timestamps and custom trust settings.
 4. The Media Library list filtered to AI-generated images, with the verdict filter above the list.
 
 == Trust lists ==
@@ -157,7 +157,7 @@ verifier itself is developed at https://github.com/provemark/c2pa-verifier.
 By default the plugin trusts the certificate authorities on the C2PA
 conformance programme's trust lists, bundled with the plugin (see
 `trust/README.md` for the date and source), and, optionally, the DigiCert
-Trusted Root G4 for timestamps. Settings → C2PA Check shows the date of the
+Trusted Root G4 for timestamps. Settings → Tracefern shows the date of the
 bundled copy and lets an administrator replace the lists with their own
 trust settings. The plugin never downloads a list; a new copy comes with a
 plugin update.

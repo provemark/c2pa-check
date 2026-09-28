@@ -15,6 +15,20 @@ it('carries the Tracefern name in the main file and readme.txt', function (): vo
         ->and(strtok($readme, "\n"))->toBe('=== Tracefern Image Check for C2PA ===');
 });
 
+it('SPEC-023: calls the settings page Tracefern, never C2PA Check', function (): void {
+    $root = dirname(__DIR__, 2);
+    $files = explode("\n", trim((string) shell_exec('git -C '.escapeshellarg($root).' ls-files')));
+    $history = '#^(AI-LOG\.md|specs/|notes/|tests/Unit/NameTest\.php$)#';
+    $found = array_values(array_filter($files, fn (string $f): bool => $f !== '' && preg_match($history, $f) !== 1
+        && is_file($root.'/'.$f) && str_contains((string) file_get_contents($root.'/'.$f), 'C2PA Check')));
+    $settings = (string) file_get_contents($root.'/src/SettingsPage.php');
+    $composer = json_decode((string) file_get_contents($root.'/composer.json'), true);
+
+    expect($found)->toBe([])
+        ->and($settings)->toContain("__('Tracefern', 'tracefern-image-check-for-c2pa'),")
+        ->and(is_array($composer) ? $composer['name'] ?? null : null)->toBe('mauricevanloon/tracefern-image-check');
+});
+
 it('uses the old name only for the bundled verifier and in the history', function (): void {
     $root = dirname(__DIR__, 2);
     $files = explode("\n", trim((string) shell_exec('git -C '.escapeshellarg($root).' ls-files')));

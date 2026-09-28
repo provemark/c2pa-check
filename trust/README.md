@@ -3,7 +3,7 @@
 These files are what Tracefern Image Check for C2PA trusts by default (SPEC-004).
 Nothing here is fetched at run time; a new copy arrives with a plugin
 release. An administrator can replace all of it with custom trust settings
-on Settings → C2PA Check.
+on Settings → Tracefern.
 
 | file | source | what it anchors |
 |---|---|---|

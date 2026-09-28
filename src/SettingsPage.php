@@ -13,7 +13,7 @@ use Provemark\C2paVerifier\Trust\TrustSettings;
 use Throwable;
 
 /**
- * Settings → C2PA Check (SPEC-004): the bundled list's date, the DigiCert
+ * Settings → Tracefern (SPEC-004): the bundled list's date, the DigiCert
  * option, and custom trust settings that replace the bundled lists. Also
  * the notice shown while the last check ran without trust settings.
  */
@@ -53,8 +53,8 @@ final class SettingsPage
     public function addPage(): void
     {
         add_options_page(
-            __('C2PA Check', 'tracefern-image-check-for-c2pa'),
-            __('C2PA Check', 'tracefern-image-check-for-c2pa'),
+            __('Tracefern Image Check for C2PA', 'tracefern-image-check-for-c2pa'),
+            __('Tracefern', 'tracefern-image-check-for-c2pa'),
             'manage_options',
             self::SLUG,
             $this->render(...),
@@ -120,7 +120,7 @@ final class SettingsPage
         $custom = get_option(self::CUSTOM_OPTION, '');
         $digiCert = (bool) get_option(self::DIGICERT_OPTION, true);
 
-        echo '<div class="wrap"><h1>'.esc_html__('C2PA Check', 'tracefern-image-check-for-c2pa').'</h1>';
+        echo '<div class="wrap"><h1>'.esc_html__('Tracefern Image Check for C2PA', 'tracefern-image-check-for-c2pa').'</h1>';
 
         if (TrustConfig::isStale(new DateTimeImmutable)) {
             echo '<div class="notice notice-warning inline"><p>'
@@ -169,7 +169,7 @@ final class SettingsPage
         }
 
         echo '<div class="notice notice-warning"><p>'
-            .esc_html__('Tracefern Image Check for C2PA: the last image was checked without trust settings, because they could not be read. See Settings → C2PA Check.', 'tracefern-image-check-for-c2pa')
+            .esc_html__('Tracefern Image Check for C2PA: the last image was checked without trust settings, because they could not be read. See Settings → Tracefern.', 'tracefern-image-check-for-c2pa')
             .'</p></div>';
     }
 }

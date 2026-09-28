@@ -2006,3 +2006,27 @@ README are where the disclosure lives.
   The full suites follow with SPEC-023.
 - Decided by Maurice: the notice on those screens; no dismiss button. Not
   pushed.
+
+## 2026-09-28 — A code review as the reviewer would; the settings page renamed (SPEC-023)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: review the whole plugin for what the (pre-)reviewer may find;
+  then (Maurice) "ga maar door".
+- Measured (read: the main file, `uninstall.php`, all of `src/`,
+  `readme.txt`, `trust/README.md`): the settings page was still "C2PA
+  Check", C2PA first; the shipped `composer.json` named the package
+  `provemark/…`. Nothing new on escaping, sanitizing, nonces, prefixes or
+  direct access. Points left as they are, with reasons: the stylesheet on
+  every admin screen (the media modal opens anywhere), no `ABSPATH` guard
+  in the bundled verifier (classes only), `$_GET` without a nonce in the
+  read-only list filter, `@fopen`.
+- Tests first, seen red: SPEC-023 in `tests/Unit/NameTest.php` (four files
+  with "C2PA Check"; the menu label; the Composer name).
+- Produced: menu label "Tracefern", heading "Tracefern Image Check for
+  C2PA", "Settings → Tracefern" everywhere, `composer.json` name
+  `mauricevanloon/tracefern-image-check`; the release test expects the new
+  heading.
+- Measured after: `composer check` 66, integration 152 (SPEC-021 and
+  SPEC-022 included), multisite 7; the release suite and screenshot 3
+  after the commit.
+- Decided by Maurice: SPEC-022, SPEC-023 and the Composer name. Not pushed.

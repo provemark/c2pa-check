@@ -1,5 +1,5 @@
 {
-    "name": "provemark/tracefern-image-check",
+    "name": "mauricevanloon/tracefern-image-check",
     "description": "WordPress plugin that verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.",
     "type": "wordpress-plugin",
     "license": "MIT",

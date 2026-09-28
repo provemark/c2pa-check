@@ -29,7 +29,7 @@ and `ext-mbstring`.
   image was made by generative AI; never on a file that does not verify.
 - Trusts the C2PA conformance programme's trust lists by default (bundled,
   with their date; see [`trust/README.md`](trust/README.md)); Settings →
-  C2PA Check lets an administrator replace them.
+  Tracefern lets an administrator replace them.
 - Sorts and filters the Media Library list by verdict, including all
   AI-generated images and the images still waiting for their check.
 - Re-checks existing images with WP-CLI: `wp tracefern check`.
@@ -42,7 +42,7 @@ The user-facing documentation, with the FAQ, is [`readme.txt`](readme.txt).
 
 ![The attachment details of a verified, AI-generated image](.wordpress-org/screenshot-2.png)
 
-![Settings → C2PA Check](.wordpress-org/screenshot-3.png)
+![Settings → Tracefern](.wordpress-org/screenshot-3.png)
 
 ![The list filtered to AI-generated images](.wordpress-org/screenshot-4.png)
 

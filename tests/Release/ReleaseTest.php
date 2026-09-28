@@ -38,7 +38,7 @@ it('AC2: installs and works on a clean WordPress', function (string $fixture, st
 
     expect($entry['state'] ?? null)->toBe($state)
         ->and(stable((array) $entry))->toBe(expectedEntry(fixturePath($fixture), defaultSettingsFile()))
-        ->and(releaseEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();"))->toContain('C2PA Check');
+        ->and(releaseEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();"))->toContain('Tracefern Image Check for C2PA</h1>');
 })->with([
     ['fixture-signed.jpg', 'Valid'],
     ['google-20250919-pixel10-npld-picnic-table.jpg', 'Trusted'],
