@@ -185,10 +185,14 @@ rebuilds every version's zip.
       after more than 2 minutes and several page loads; `wp-cron.php`
       called directly answers 503. WP-Cron does not run in the browser
       Playground; the five demo images are unaffected.
-- [ ] SPEC-024 amendment 1 (a visitor's upload checked on admin page
-      loads) to SVN: the updated `assets/blueprints/blueprint.json`.
-      Committed by Maurice; then measure again in the browser that an
-      upload in the preview gets a verdict.
+- [x] SPEC-024 amendment 1 (a visitor's upload checked on admin page
+      loads) to SVN: the updated `assets/blueprints/blueprint.json`,
+      committed by Maurice, r3716856 (2026-09-28 12:11); served by the
+      directory from 12:43, same content as git. Measured in Chrome with
+      the preview link: the five verdicts after about 25 s; an image
+      uploaded through Media → Add New (browser uploader) shows "Intact:
+      signer not trusted" on the Media Library page WordPress redirects
+      to. The drag-and-drop uploader is not measured.
 - [ ] The preview set to "public" in the plugin's Advanced view: Maurice's
       decision, after the test.
 

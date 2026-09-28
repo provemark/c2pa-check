@@ -2227,3 +2227,17 @@ README are where the disclosure lives.
   version.
 - Decided by Maurice: write the spec; do not write the measurements into
   `notes/`. Not approved yet; not pushed.
+
+## 2026-09-28 — The preview checks a visitor's upload (measured)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: check the preview in the browser after the SVN commit r3716856.
+- Measured: the directory served the new blueprint from 12:43 (32
+  minutes after the commit), same content as git; in Chrome, the five
+  verdicts after about 25 s; an image uploaded through the browser
+  uploader got "Intact: signer not trusted" (`Valid`) on the redirect to
+  the Media Library.
+- Reasoned: the drag-and-drop uploader (checked on the next admin page);
+  not measured.
+- Produced: the checklist item in `notes/wporg-submission.md`.
+- Decided by Maurice: the SVN commit (done by him). Not pushed.
