@@ -2357,3 +2357,15 @@ README are where the disclosure lives.
   (`diff -r` empty).
 - Decided by Maurice: the SVN commit, the push, the tag and the GitHub
   release (all done by him).
+
+## 2026-09-28 — The 0.1.2 record corrected
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: correct the 0.1.2 entry in `notes/wporg-submission.md` and push.
+- Produced: the entry now says the tag and the GitHub release were made
+  on Maurice's go, after the entry was written, and that the release's
+  zip holds exactly the files of SVN `tags/0.1.2` (SHA-256 `5ad5a395…`).
+- Measured: the public 0.1.2 download unpacks to the same files as SVN
+  `tags/0.1.2` (16:08); a rebuild of `ebbcb62` differs from it only in
+  Composer's autoloader class name, which changes with every build.
+- Decided by Maurice: the correction and the push.

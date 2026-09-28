@@ -232,6 +232,8 @@ Releases after 0.1.0:
   say `Stable tag: 0.1.2`; the public download
   (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.2.zip`)
   unpacks to the same files as the build and names verifier v0.2.6; the
-  plugin page returns 200; Git tag `v0.1.2` on
-  `ebbcb62` and a GitHub release with the rebuilt zip (same files,
-  different timestamps), by Maurice.
+  plugin page returns 200. Measured afterwards: the public download
+  unpacks to exactly the files of SVN `tags/0.1.2`. Git tag `v0.1.2` on
+  `ebbcb62` and a GitHub release, on Maurice's go (about 16:10); the
+  release's zip holds exactly the files of SVN `tags/0.1.2` (SHA-256
+  `5ad5a395…`, 294,929 bytes).
