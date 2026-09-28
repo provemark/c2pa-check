@@ -2084,3 +2084,19 @@ README are where the disclosure lives.
 - Measured: CI of `81187f2` and `975d295` green; the verifier, demo and
   Content Credentials repositories no longer name the old plugin.
 - Decided by Maurice: SPEC-019 to SPEC-023 implemented; push.
+
+## 2026-09-28 — 0.1.0 released in the plugin directory
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: after the approval, install Subversion, prepare the SVN working
+  copy, and check the public page once Maurice had committed.
+- Produced: the working copy (outside the repository): `trunk/` from the
+  approved zip, `tags/0.1.0/` by `svn cp`, the eight images in `assets/`;
+  section 3 and 4 of `notes/wporg-submission.md` updated.
+- Measured: the approved zip (downloaded from the review's link) equals
+  the zip kept in `build/submitted/`; no shipped file changed between
+  `432a64b` and `c3c972d`; after r3716634 the public download unpacks to
+  the same files as the approved zip, and the plugin API reports 0.1.0
+  with four screenshots, two banners and two icons.
+- Reasoned: search results can take up to 72 hours (the approval email).
+- Decided by Maurice: the SVN commit (done by him). Not pushed.

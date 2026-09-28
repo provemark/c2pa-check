@@ -97,10 +97,15 @@ Items marked *reasoned* are not stated on those pages; check them then.
       not on a Provemark domain. Decided by Maurice (2026-09-27): submit
       as is, and show the GitHub organisation `provemark` (which also
       publishes `provemark/c2pa-verifier`) if the reviewer asks.
-- [ ] Review: the page said 185 plugins awaited a first review and gave
+- [x] Review: the page said 185 plugins awaited a first review and gave
       1 to 10 days (2026-09-27), by email. For questions about the bundled
       verifier's WPCS findings: `notes/wporg-review.md`. For the licences:
       `NOTES.md` (Measured, 2026-09-27).
+- [x] **Approved 2026-09-28** under the slug `tracefern-image-check-for-c2pa`
+      (Review ID `APPROVED tracefern-image-check-for-c2pa/mauricevanloon/28Sep26/T3`),
+      the zip uploaded that morning (SHA-256 `66335707…07a804af`, kept in
+      `build/submitted/`). SVN:
+      https://plugins.svn.wordpress.org/tracefern-image-check-for-c2pa
 
 The zip prepared for submission (2026-09-27): built from `d938e6c`
 (CI green on every job), 279,526 bytes, SHA-256
@@ -126,18 +131,28 @@ The approval email gives the SVN address. The SVN password is separate
 from the account password:
 https://profiles.wordpress.org/me/profile/edit/group/3/?screen=svn-password
 
-- [ ] `trunk/`: the **contents of the build**
-      (`build/provemark-c2pa-check/`), not the git repository. The main
-      file at the top of `trunk/`, not in a subfolder. Anything in SVN is
-      shipped to every user, so only what the zip holds.
-- [ ] `assets/` (top level, beside `trunk/` and `tags/`): the eight files
+- [x] `trunk/`: the **contents of the build**, not the git repository.
+      The main file at the top of `trunk/`, not in a subfolder. Anything in
+      SVN is shipped to every user, so only what the zip holds.
+- [x] `assets/` (top level, beside `trunk/` and `tags/`): the eight files
       in `.wordpress-org/` (`icon-128x128.png`, `icon-256x256.png`,
       `banner-772x250.png`, `banner-1544x500.png`, `screenshot-1..4.png`),
-      not `.wordpress-org/source/`. One screenshot per caption line in
-      `readme.txt` (tested: `tests/Unit/ReadmeTest.php`). Limits: icons
-      1 MB, banners 4 MB, screenshots 10 MB; ours are all under 250 KB.
-- [ ] `svn cp trunk tags/<version>`; `Stable tag` in `trunk/readme.txt`
+      not `.wordpress-org/source/`, with `svn:mime-type image/png`. One
+      screenshot per caption line in `readme.txt` (tested:
+      `tests/Unit/ReadmeTest.php`). Limits: icons 1 MB, banners 4 MB,
+      screenshots 10 MB; ours are all under 250 KB.
+- [x] `svn cp trunk tags/<version>`; `Stable tag` in `trunk/readme.txt`
       equal to that version; commit both together.
+- [x] **0.1.0 released 2026-09-28**, SVN r3716634, committed by Maurice.
+      `trunk/` is the unpacked approved zip itself: a fresh build of
+      `c3c972d` differed only in the commit hash and Composer's autoloader
+      class name, and no shipped file changed after `432a64b`. Measured
+      afterwards: `diff -r` of the public download
+      (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.0.zip`)
+      against the approved zip is empty (the zip itself differs in bytes,
+      as wordpress.org packs it again); the plugin API reports version
+      0.1.0, requires 7.1, PHP 8.3, four screenshots, both banners and
+      both icons; the public page returns 200.
 - [ ] A matching git tag and, if wanted, a GitHub release (each on
       Maurice's go).
 
