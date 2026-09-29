@@ -2603,3 +2603,20 @@ README are where the disclosure lives.
 - Measured: `hash_file('sha256', …)` in the wp-env container (PHP 8.3.35,
   aarch64), best of five: 26.7 ms for 5.6 MB, 242 ms for 50 MB.
 - Decided by Maurice: approval of SPEC-028 is his.
+
+## 2026-09-29 — No Composer time limit for the test scripts
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "kan de integratiesuite niet wat sneller, het duurt lang
+  altijd"; then "akkoord, doe 1 en 2" (1: run only the affected groups
+  while building, the full suite once before a commit; 2: this).
+- Produced: `"process-timeout": 0` in `composer.json`'s `config`, so
+  `composer test:integration` is no longer stopped after 300 seconds.
+- Measured: before, `composer test:integration` was stopped by Composer's
+  300-second limit locally while Pest alone passed in 295 s; after,
+  through Composer, 187 passed in 317 s. A WP-CLI call in the test
+  container costs 0.2–0.3 s; that is where the time goes.
+- Reasoned: CI runs the same command, so it would have hit the limit as
+  the suite grew. Parallel runs are unsafe (one shared database and
+  check queue).
+- Decided by Maurice: 1 and 2; a faster harness is left for later.

@@ -21,6 +21,7 @@
         "platform": {
             "php": "8.3.0"
         },
+        "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
