@@ -2804,3 +2804,18 @@ README are where the disclosure lives.
   bytes.
 - Decided by Maurice: the amendment. The SVN readme update is his to
   commit.
+
+## 2026-09-29 — Draft SPEC-031: check existing images from the settings page
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "maar maak ook iets voor die knop" (a way to check existing
+  images without WP-CLI).
+- Produced: `specs/SPEC-031-check-existing-images.md`, status `draft`: a
+  section on Settings → Tracefern with "Check images that were never
+  checked" and "Check all images again", run in the existing queue from
+  one option (no per-image writes up front), uploads first, each image
+  claimed before its check so one that dies does not stop the run,
+  progress and a Stop button. Nine criteria, two open questions.
+- Measured: nothing new; read `SettingsPage`, `RecheckCommand::select()`
+  and the queue in `UploadHook`, and the SPEC-015 test hook.
+- Decided by Maurice: to draft this spec. Approval is his.
