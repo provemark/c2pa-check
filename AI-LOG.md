@@ -2777,3 +2777,17 @@ README are where the disclosure lives.
   no issue and no label created. The branch that opens an issue, and its
   duplicate search, did not run, because nothing is behind today.
 - Decided by Maurice: the push and the manual run.
+
+## 2026-09-29 — SPEC-025: proposed amendment 1
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, stel wijziging 1 op SPEC-025 op" (after comparing the
+  plugins a directory search for "c2pa" returns).
+- Produced: a proposed amendment in `specs/SPEC-025-say-what-sets-it-apart.md`:
+  a second paragraph for the first FAQ answer on what sets the
+  verification apart (server, every upload, trust lists, "Verified"),
+  and a new AC6. No other plugin named.
+- Measured: the plugin API's 28 results for "c2pa" and the descriptions
+  of the twelve that mention C2PA; one, added that day, verifies in the
+  browser without a trust list (by its own description; not installed).
+- Decided by Maurice: to draft the amendment. Approval is his.

@@ -181,6 +181,49 @@ Not applicable: text in `readme.txt` and a Unit test in
   site gets an update for a text change. Proposal: (a).
   **Decided by Maurice, 2026-09-28: (a).**
 
+## Proposed amendment 1 (2026-09-29; not approved)
+
+**Why.** On 2026-09-29 the directory search for "c2pa" gave 28 plugins
+(plugin API, `query_plugins`, read that day). From their own
+descriptions: most label images for the EU AI Act; several "detect" AI
+through C2PA or IPTC metadata and say they do not check the signature.
+One plugin, added to the directory that same day, does check it
+cryptographically, in the administrator's browser, with the CAI's
+`c2pa-web` library and without a trust list (its description: at best
+"Valid / untrusted"). The FAQ answer below still describes the labelling
+plugins correctly, but it now reads as if no other plugin verifies at
+all. (Measured: the search and the descriptions. Not installed or run;
+what the plugins do is what they say.)
+
+**Change**, `readme.txt` only; no other plugin is named or linked (Out
+of scope and AC4 unchanged):
+
+- The answer to "How is this different from plugins that label AI
+  images?" keeps its first paragraph, without its last sentence, and
+  gains a second paragraph:
+
+  > A few plugins verify too. Tracefern does it on the server, by itself,
+  > for every upload, and checks the signer against the bundled C2PA
+  > trust lists, so it can say "Verified" rather than only that the
+  > signature holds. It adds no badges to your pages; it gives you the
+  > verdict a label can rely on.
+
+  (The last sentence moves from the first paragraph to the second.)
+- It goes live as before: `readme.txt` in `trunk/` and in the stable
+  tag's folder, no new version (Open questions, decided 2026-09-28).
+- `readme.txt` stays under the 10,240 bytes its test enforces (about
+  10,060 after this change).
+
+**Criteria.** AC3 unchanged. New AC6 — *the answer names what sets the
+verification apart*: the FAQ answer's second paragraph starts with "A
+few plugins verify too." and names the server, every upload, the C2PA
+trust lists and "Verified".
+
+**Reasoned, not measured:** that a verdict made on the server at upload
+is more useful to a site than one made in a browser when someone scans
+(it is there for every image without anyone acting, and other code on
+the server can use it, SPEC-026).
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at
