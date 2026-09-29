@@ -2558,3 +2558,37 @@ README are where the disclosure lives.
   core 7.1.2 (`sideload_item()`, `finalize_item()`,
   `filter_wp_unique_filename()`, `upload-media.js`).
 - Decided by Maurice: to draft this spec. Approval is his.
+
+## 2026-09-29 — SPEC-029 built (tests first), with two amendments
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, SPEC-029 approved, bouw hem"; then, after each finding
+  while building, "akkoord, wijziging 1 approved, bouw hem", "akkoord,
+  doe die meting" and "akkoord, wijziging 2 approved, bouw hem".
+- Produced: `UploadHook` notes the block editor's `sideload` and
+  `finalize` requests (`rest_request_before_callbacks`); a finalize
+  metadata update no longer moves the kept path; copies attached in those
+  requests are recorded in `_tracefern_browser_copies`, and
+  `fileToCheck()` uses the kept upload for them (display and
+  `wp tracefern check`); uninstall removes the new key. Tests:
+  `tests/Integration/BrowserCopyTest.php` and a REST replay of the
+  browser, `browserUpload()`, in `tests/Pest.php`. Fixtures
+  `c2pa-rs-no_alg.jpg` and `truepic-20230212-camera.jpg` with their rows
+  in `tests/Fixtures/README.md`. SPEC-029 status `implemented`, with
+  Traceability; `notes/exif-rotation.md` extended; `NOTES.md` point 6
+  closed.
+- Measured: amendment 1 — the approved name rule picked another
+  attachment's file for two uploads with the same name (test environment,
+  attachments 34093/34096). Amendment 2 — in Chrome 153 the browser sent
+  its sideloads twice and no `finalize` for the large rotated photo
+  (temporary server probe, removed). Red first: AC1, AC2, AC5, AC6, AC8
+  and then AC9 failed before the code, AC3 and AC4 passed (unchanged
+  behaviour). Green: the 8 SPEC-029 tests; integration 180 passed;
+  `composer check` green (97 unit tests). By hand in Chrome 153: both
+  fixtures stored `Invalid` with the CLI's codes on the upload, column
+  "Does not verify".
+- Reasoned: that the REST replay matches the browser for the cases it
+  replays (checked by hand for two uploads only).
+- Decided by Maurice: the spec and both amendments. The fixture name in
+  the spec was changed after approval (`no_alg.jpg` →
+  `c2pa-rs-no_alg.jpg`) and reported to him.

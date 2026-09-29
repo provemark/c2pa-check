@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 
 use Closure;
 use Throwable;
+use WP_REST_Request;
 
 /**
  * Checks an uploaded image in the background (SPEC-013): the upload only
@@ -46,6 +47,12 @@ final class UploadHook
     /** The file to check: the original, relative to the uploads folder (SPEC-014). */
     public const string SOURCE_KEY = '_tracefern_source';
 
+    /** The copies the block editor's browser made of an upload, relative to the uploads folder (SPEC-029). */
+    public const string COPIES_KEY = '_tracefern_browser_copies';
+
+    /** The block editor's media request WordPress now serves: 'sideload', 'finalize' or null (SPEC-029). */
+    private static ?string $browserRequest = null;
+
     /** @var Closure(): TrustConfig */
     private readonly Closure $trustConfig;
 
@@ -61,7 +68,56 @@ final class UploadHook
     {
         add_action('add_attachment', $this->onAddAttachment(...));
         add_filter('wp_update_attachment_metadata', $this->onMetadataUpdate(...), 10, 2);
+        add_filter('rest_request_before_callbacks', self::noteBrowserRequest(...), 10, 3);
+        add_filter('rest_request_after_callbacks', self::endBrowserRequest(...));
+        add_filter('update_attached_file', self::onAttachedFileUpdate(...), 10, 2);
         add_action(self::EVENT, $this->runQueue(...));
+    }
+
+    /**
+     * Notes whether WordPress now serves `POST /wp/v2/media/<id>/sideload`
+     * or `/finalize`: with client-side media processing, the requests in
+     * which the block editor stores the rotated and scaled copies its browser
+     * made of an upload, and records them (SPEC-029). Returns the response
+     * unchanged.
+     */
+    public static function noteBrowserRequest(mixed $response, mixed $handler, mixed $request): mixed
+    {
+        self::$browserRequest = $request instanceof WP_REST_Request
+            && $request->get_method() === 'POST'
+            && preg_match('#^/wp/v2/media/\d+/(sideload|finalize)$#', $request->get_route(), $match) === 1
+            ? $match[1] : null;
+
+        return $response;
+    }
+
+    /** The REST request is served. Returns the response unchanged. */
+    public static function endBrowserRequest(mixed $response): mixed
+    {
+        self::$browserRequest = null;
+
+        return $response;
+    }
+
+    /**
+     * A sideload that makes its copy the attached file (as the browser's
+     * `original` and `scaled` copies do, with or without a finalize after
+     * them, notes/exif-rotation.md) records that copy (SPEC-029 amendment
+     * 2). Returns the file unchanged.
+     */
+    public static function onAttachedFileUpdate(mixed $file, mixed $attachmentId): mixed
+    {
+        try {
+            $id = is_int($attachmentId) ? $attachmentId : 0;
+            $kept = $id > 0 ? get_post_meta($id, self::SOURCE_KEY, true) : '';
+            if (self::$browserRequest === 'sideload' && is_string($file) && $file !== '' && is_string($kept) && $kept !== '') {
+                self::recordCopies($id, $kept, [$file]);
+            }
+        } catch (Throwable) {
+            // The sideload always proceeds.
+        }
+
+        return $file;
     }
 
     /**
@@ -215,6 +271,15 @@ final class UploadHook
             if (! is_string($attached) || $attached === '') {
                 return $data;
             }
+            // The finalize request names the browser's copies of the upload,
+            // which was kept at add_attachment: they are recorded, and the
+            // kept path stays (SPEC-029).
+            $kept = get_post_meta($id, self::SOURCE_KEY, true);
+            if (self::$browserRequest === 'finalize' && is_string($kept) && $kept !== '') {
+                self::recordCopies($id, $kept, [$attached, is_array($data) ? ($data['original_image'] ?? null) : null]);
+
+                return $data;
+            }
             $relative = self::relativeToUploads(self::shownFile($attached, is_array($data) ? ($data['original_image'] ?? null) : null));
             if ($relative === get_post_meta($id, self::SOURCE_KEY, true)) {
                 return $data;
@@ -257,8 +322,44 @@ final class UploadHook
             return '';
         }
         $metadata = wp_get_attachment_metadata($attachmentId);
+        $shown = self::shownFile($attached, is_array($metadata) ? ($metadata['original_image'] ?? null) : null);
 
-        return self::shownFile($attached, is_array($metadata) ? ($metadata['original_image'] ?? null) : null);
+        // A copy the browser made of the upload is not what a verdict
+        // describes; the kept upload is (SPEC-029).
+        $recorded = get_post_meta($attachmentId, self::COPIES_KEY, true);
+        $copies = is_array($recorded) ? array_filter($recorded, is_string(...)) : [];
+        if (array_intersect([self::relativeToUploads($attached), self::relativeToUploads($shown)], $copies) !== []) {
+            $kept = self::uploadedFile(get_post_meta($attachmentId, self::SOURCE_KEY, true));
+            if ($kept !== null) {
+                return $kept;
+            }
+        }
+
+        return $shown;
+    }
+
+    /**
+     * Adds the files a finalize request names for an attachment, other than
+     * its kept upload, to the attachment's recorded browser copies.
+     *
+     * @param  list<mixed>  $files  absolute paths, or names next to the first
+     */
+    private static function recordCopies(int $attachmentId, string $kept, array $files): void
+    {
+        $recorded = get_post_meta($attachmentId, self::COPIES_KEY, true);
+        $copies = is_array($recorded) ? array_values(array_filter($recorded, is_string(...))) : [];
+        $first = is_string($files[0] ?? null) ? $files[0] : '';
+        foreach ($files as $file) {
+            if (! is_string($file) || $file === '') {
+                continue;
+            }
+            $path = str_contains($file, '/') ? $file : dirname($first).'/'.$file;
+            $relative = self::relativeToUploads($path);
+            if ($relative !== $kept && ! in_array($relative, $copies, true)) {
+                $copies[] = $relative;
+            }
+        }
+        update_post_meta($attachmentId, self::COPIES_KEY, $copies);
     }
 
     /**

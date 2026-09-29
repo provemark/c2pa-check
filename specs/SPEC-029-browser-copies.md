@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-29                      |
 | Supersedes | SPEC-014 in part: a metadata update from the finalize endpoint does not move the kept path |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -75,7 +75,7 @@ finalize update moves the kept path to the browser's copy.
   `wp tracefern check --state=none`.
 - *Edits stay as they are* (SPEC-014 AC1–AC3): `wp_save_image()` and
   `wp_restore_image()` do not go through the finalize route.
-- Fixtures: `no_alg.jpg` (480×270, orientation 6; from `c2pa-rs`, MIT or
+- Fixtures: `c2pa-rs-no_alg.jpg` (`no_alg.jpg`, 480×270, orientation 6; from `c2pa-rs`, MIT or
   Apache-2.0, via the verifier) and `truepic-20230212-camera.jpg`
   (4032×3024, orientation 6, 2.2 MB; C2PA public test files, CC BY-SA 4.0,
   via the verifier), each with its row in `tests/Fixtures/README.md`.
@@ -108,7 +108,7 @@ made in the test with WordPress's image editor, so without a manifest);
 `/finalize` with the collected `sub_sizes`.
 
 - **AC1 — a rotated upload on the browser route is checked on the upload**
-  - Given `no_alg.jpg` uploaded that way, with its rotated copy sideloaded
+  - Given `c2pa-rs-no_alg.jpg` uploaded that way, with its rotated copy sideloaded
     as `original`, and finalized
   - When the check has run
   - Then the kept path is the upload, and the entry equals the CLI on the
@@ -187,16 +187,93 @@ final class UploadHook
   credentials, not only the affected ones. Acceptable, or a narrower
   option? Non-blocker.
 
+## Amendment 1 (2026-09-29, while building; approved by Maurice van Loon, 2026-09-29)
+
+**Why.** The name rule in Scope ("the name without the suffixes") picks
+another attachment's file when two uploads share a name. Measured in the
+test environment with the REST replay: attachment 34096's rotated copy is
+`c2pa-rs-no_alg-rotated-2.jpg`, whose stripped name `c2pa-rs-no_alg.jpg` is
+attachment 34093's upload (34096's own is `c2pa-rs-no_alg-1.jpg`); two
+Truepic uploads (34097, 34098) both have a scaled copy named on
+`truepic-20230212-camera-1`. The browser names its rotated copy after the
+file the user picked (`upload-media.js`), not after the attachment. A
+verdict of one image shown on another is worse than the bug.
+
+**Change.**
+
+1. Kept: the finalize request does not move the kept path (Scope, first
+   bullet; AC1–AC4 unchanged).
+2. Replaced: the name rule. Instead, during the finalize request the
+   plugin records the files that request names for the attachment (its
+   attached file and its `original_image`, relative to the uploads folder,
+   when they are not the kept path) in post meta
+   `_tracefern_browser_copies`. `fileToCheck()` (the display's "Changed
+   since its check" and `wp tracefern check`) returns the kept path when
+   the attached file, or the file `shownFile()` gives, is one of them. An
+   edit or a restore attaches another file, so they work as before.
+3. Dropped: repairing images stored wrongly before this version. Nothing in
+   their metadata says which file was their upload, safely. The changelog
+   says instead: images with EXIF rotation uploaded in the block editor
+   before this version may show "No Content Credentials" wrongly; upload
+   them again.
+4. Uninstall also removes `_tracefern_browser_copies`.
+
+**Criteria.** AC1–AC4 as they are. AC5 becomes: *two uploads with the same
+name each check their own upload* (the second's copies strip to the
+first's file; the entry equals the CLI on its own source). AC6 becomes:
+*the display and `wp tracefern check` use the kept path for a browser
+copy* (the column shows the verdict, not "Changed since its check";
+the command's entry equals the background check's). AC7 (the name rule)
+is dropped. New AC8: uninstall removes `_tracefern_browser_copies`.
+
+## Amendment 2 (2026-09-29, while building; approved by Maurice van Loon, 2026-09-29)
+
+**Why.** Measured in the real browser (`notes/exif-rotation.md`, "The
+browser's requests for a large rotated image"): for the Truepic photo the
+block editor sent its sideloads twice and no `finalize` request at all;
+each copy became the attached file inside a `sideload` request, through
+`update_attached_file`, with no metadata update after it. Amendment 1
+records copies only during `finalize`, so nothing was recorded, and the
+column said "Changed since its check" although the stored verdict was
+right. The REST replay in the tests sent one round and a `finalize`, so it
+did not show this.
+
+**Change.**
+
+1. The plugin also notes `POST /wp/v2/media/<id>/sideload`. When, during
+   that request, the attachment's attached file is changed
+   (`update_attached_file` filter), the new file is recorded as a browser
+   copy (unless it is the kept path). The finalize recording and the kept
+   path rule of amendment 1 stay.
+2. The REST replay gains a variant as measured: two rounds of `original`
+   and `scaled` sideloads, and no `finalize`.
+
+**Criteria.** New AC9: *the browser's sequence without finalize* — the
+Truepic photo replayed with two rounds and no `finalize`: the entry equals
+the CLI on the upload, and the column shows the verdict, not "Changed
+since its check". AC1–AC8 unchanged.
+
 ## Traceability
 
-Filled when status becomes `implemented`.
+Filled at implementation (2026-09-29). AC7 was dropped by amendment 1.
+Tests in `tests/Integration/BrowserCopyTest.php`, group `SPEC-029`; the
+REST replay is `browserUpload()` in `tests/Pest.php`. Source in
+`src/UploadHook.php` unless named.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
+| AC1                  | BrowserCopyTest :: AC1      | `noteBrowserRequest()`, `onMetadataUpdate()` (finalize keeps the kept path), `recordCopies()` |
+| AC2                  | BrowserCopyTest :: AC2      | as AC1 |
+| AC3                  | BrowserCopyTest :: AC3      | unchanged: `shownFile()` |
+| AC4                  | BrowserCopyTest :: AC4      | unchanged: `onMetadataUpdate()` outside the browser's requests |
+| AC5                  | BrowserCopyTest :: AC5      | the kept path from `onAddAttachment()`, kept through finalize |
+| AC6                  | BrowserCopyTest :: AC6      | `fileToCheck()` (used by `MediaScreens::currentOriginal()` and `RecheckCommand::check()`) |
+| AC8                  | BrowserCopyTest :: AC8      | `uninstall.php` (`_tracefern_browser_copies`) |
+| AC9                  | BrowserCopyTest :: AC9      | `onAttachedFileUpdate()` (amendment 2) |
+
+Checked by hand on 2026-09-29 in Chrome 153 on the block editor route
+(client-side processing on): `c2pa-rs-no_alg.jpg` and
+`truepic-20230212-camera.jpg` stored `Invalid` with the CLI's failure codes
+on the upload, and the column says "Does not verify", not "Changed since
+its check". The changelog line of amendment 1 (upload again images stored
+wrongly before this version) belongs to the next release's entry.

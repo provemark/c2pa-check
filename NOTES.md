@@ -153,8 +153,9 @@ plugin's part.
    client-side processing, a signed JPEG with EXIF orientation 6 is
    stored as `none`: the kept path moves to the browser's `-rotated-1`
    or `-scaled-1` copy when its sideload updates the metadata. WP-CLI and
-   REST uploads, and the block editor without rotation, are correct. A
-   bug; needs a spec.
+   REST uploads, and the block editor without rotation, are correct.
+   **Fixed 2026-09-29 by SPEC-029** (with amendments 1 and 2); images
+   stored wrongly before are not repaired automatically.
 
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)

@@ -473,6 +473,80 @@ function importWithoutChecking(string $hostPath): int
 }
 
 /**
+ * Uploads a host file the way the block editor does with client-side media
+ * processing (SPEC-029), replayed over REST as `upload-media.js` sends it:
+ * the file as is with `generate_sub_sizes: false`; its EXIF-rotated copy
+ * sideloaded as `original` and, with $scaled, a copy downsized to 2560 as
+ * `scaled`, named `<picked name>-rotated` and `<attachment name>-scaled` as
+ * the browser names them (both made here with WordPress's image editor, so without a
+ * manifest); then `finalize` with the collected sub-sizes. With $rounds 2
+ * and no $finalize, as measured for a large rotated photo in Chrome 153
+ * (notes/exif-rotation.md): the copies twice, and no finalize. Returns the
+ * attachment ID, leaving the scheduled check unrun.
+ */
+function browserUpload(string $hostPath, bool $rotated, bool $scaled, int $rounds = 1, bool $finalize = true): int
+{
+    $source = containerPath($hostPath);
+    $flags = var_export($rotated, true).', '.var_export($scaled, true).', '.$rounds.', '.var_export($finalize, true);
+    $php = <<<PHP
+        require_once ABSPATH.'wp-admin/includes/image.php';
+        require_once ABSPATH.'wp-admin/includes/file.php';
+        // On by default for HTTPS sites; WP-CLI has no host, so say so here
+        // before the REST routes are registered.
+        add_filter('wp_client_side_media_processing_enabled', '__return_true');
+        [\$rotated, \$scaled, \$rounds, \$finalize] = [$flags];
+        \$source = '$source';
+        \$name = basename(\$source);
+        \$base = pathinfo(\$name, PATHINFO_FILENAME);
+        \$send = static function (string \$route, string \$path, string \$filename, array \$params) {
+            \$request = new WP_REST_Request('POST', \$route);
+            \$request->set_header('content-type', 'image/jpeg');
+            \$request->set_header('content-disposition', 'attachment; filename="'.\$filename.'"');
+            foreach (\$params as \$key => \$value) {
+                \$request->set_param(\$key, \$value);
+            }
+            \$request->set_body((string) file_get_contents(\$path));
+            \$response = rest_do_request(\$request);
+            if (\$response->is_error()) {
+                echo 'ERROR:', \$route, ' ', implode(' ', \$response->as_error()->get_error_messages());
+                exit;
+            }
+
+            return \$response->get_data();
+        };
+        \$id = \$send('/wp/v2/media', \$source, \$name, ['generate_sub_sizes' => false])['id'];
+        // The rotated copy is named after the file the user picked, the
+        // scaled one after the attachment's own file name (upload-media.js).
+        \$uploaded = pathinfo((string) get_attached_file(\$id), PATHINFO_FILENAME);
+        \$subSizes = [];
+        for (\$round = 0; \$round < \$rounds; \$round++) {
+        \$editor = wp_get_image_editor(\$source);
+        if (\$rotated) {
+            \$editor->maybe_exif_rotate();
+            \$copy = \$editor->save(get_temp_dir().\$base.'-rotated.jpg', 'image/jpeg')['path'];
+            \$subSizes[] = \$send("/wp/v2/media/\$id/sideload", \$copy, \$base.'-rotated.jpg', ['image_size' => 'original', 'convert_format' => false]);
+        }
+        if (\$scaled) {
+            \$editor->resize(2560, 2560);
+            \$copy = \$editor->save(get_temp_dir().\$base.'-scaled.jpg', 'image/jpeg')['path'];
+            \$subSizes[] = \$send("/wp/v2/media/\$id/sideload", \$copy, \$uploaded.'-scaled.jpg', ['image_size' => 'scaled', 'convert_format' => false]);
+        }
+        }
+        if (! \$finalize) {
+            echo 'ID:'.\$id;
+            exit;
+        }
+        \$request = new WP_REST_Request('POST', "/wp/v2/media/\$id/finalize");
+        \$request->set_param('sub_sizes', \$subSizes);
+        \$response = rest_do_request(\$request);
+        echo \$response->is_error() ? 'ERROR:finalize '.implode(' ', \$response->as_error()->get_error_messages()) : 'ID:'.\$id;
+        PHP;
+    $output = wpEval($php);
+
+    return preg_match('/ID:(\d+)/', $output, $m) === 1 ? (int) $m[1] : throw new RuntimeException('browser upload failed: '.$output);
+}
+
+/**
  * Runs the plugin's check queue once (SPEC-017), as wp-cron.php runs its
  * event: unscheduled first, then its action, in a request of its own.
  * Prints `RAN:<checks>`, the pending markers the run cleared, when the

@@ -97,6 +97,35 @@ new "original", moves the kept path to the copy and checks again. The
 upload's own path was kept first (`add_attachment`); the metadata update
 from the browser's sideload replaced it.
 
+## The browser's requests for a large rotated image (measured, SPEC-029)
+
+Measured 2026-09-29 in Chrome 153 on the dev site, with a temporary
+must-use probe (not in the repository) logging every REST request, every
+`wp_update_attachment_metadata` and every `update_attached_file` with the
+request it ran in; `truepic-20230212-camera.jpg` uploaded through the block
+editor's `mediaUpload` as `probe-truepic.jpg` (attachment 12960):
+
+- `POST /wp/v2/media`: the upload, metadata written with the upload as
+  `file`.
+- Then **two full rounds** of `POST /wp/v2/media/12960/sideload`: each an
+  `original` (the rotated copy; `update_attached_file` → `-rotated-1`, then
+  `-rotated-2`), the image sizes, and a `scaled` (`update_attached_file` →
+  `-scaled-1`, then `-scaled-2`). The browser's own log shows
+  `THUMBNAIL_GENERATION` started twice for the one upload.
+- **No `finalize` request**, and no metadata update after the upload's
+  own. The browser's queue was empty afterwards. The attachment ends with
+  `-scaled-2` attached, metadata still naming the upload as `file`, no
+  `original_image` and no image sizes.
+
+An earlier run of the same upload (12958) did end with metadata
+(`original_image` naming `-scaled-2`), so the browser's sequence for this
+case is not stable between runs. The one thing every run did: each copy
+became the attached file in a `sideload` request, through
+`update_attached_file`. The plugin's kept path stayed on the upload (the
+verdict was right), but the recorded copies were empty, so the display
+compared the `-scaled-2` copy with the verdict and said "Changed since its
+check".
+
 ## Not measured
 
 - Other orientations (3, 8); only 6 was available.
