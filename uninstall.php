@@ -15,7 +15,7 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 $tracefern_clean = static function (): void {
-    foreach (['_tracefern_result', '_tracefern_state', '_tracefern_ai', '_tracefern_pending', '_tracefern_source', '_tracefern_browser_copies'] as $key) {
+    foreach (['_tracefern_result', '_tracefern_state', '_tracefern_ai', '_tracefern_pending', '_tracefern_source', '_tracefern_browser_copies', '_tracefern_upload'] as $key) {
         delete_post_meta_by_key($key);
     }
     // Background checks not yet run (SPEC-013).

@@ -2,23 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * The kept path (`_tracefern_source`), relative to the uploads folder.
- */
-function keptPath(int $id): string
-{
-    return wpEval("echo get_post_meta($id, '_tracefern_source', true);");
-}
-
-/**
- * Whether the file at a path relative to the uploads folder is
- * byte-identical to a host file.
- */
-function sameAsHostFile(string $relative, string $hostPath): bool
-{
-    return hash_file('sha256', hostCopyOfUpload($relative)) === hash_file('sha256', $hostPath);
-}
-
 it('AC1: a rotated upload on the browser route is checked on the upload', function (): void {
     $source = fixturePath('c2pa-rs-no_alg.jpg');
     $id = browserUpload($source, rotated: true, scaled: false);

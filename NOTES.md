@@ -147,7 +147,8 @@ plugin's part.
    in the background after the check, keeps the manifest and breaks its
    hash (shown "Changed since its check"; checked again, "Does not
    verify"). Options to weigh are in the note: a readme warning, a hash
-   of the upload taken early, or an early check.
+   of the upload taken early, or an early check. **Done 2026-09-29**: the
+   readme warning, and SPEC-028 (the hash; "Changed after upload").
 6. **A rotated image on the block editor route is checked on a copy**
    (added 2026-09-29, measured, `notes/exif-rotation.md`). With
    client-side processing, a signed JPEG with EXIF orientation 6 is

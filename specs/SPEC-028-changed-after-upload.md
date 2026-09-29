@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-29                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -187,15 +187,23 @@ final class UploadHook
 
 ## Traceability
 
-Filled when status becomes `implemented`.
+Filled at implementation (2026-09-29). Integration tests in
+`tests/Integration/ChangedAfterUploadTest.php`, unit tests in
+`tests/Unit/ChangedAfterUploadTest.php` and `tests/Unit/ReadmeTest.php`,
+group `SPEC-028`. The stored fingerprint also records the upload's path
+(`file`), so "at the uploaded path" is compared exactly.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
+| AC1                  | ChangedAfterUploadTest :: AC1 | `UploadHook::fingerprint()` (`wp_handle_upload`, priority `PHP_INT_MIN`), `UploadHook::onAddAttachment()` |
+| AC2                  | ChangedAfterUploadTest :: AC2 (helper `recompressedPng()` in `tests/Pest.php`) | `UploadHook::checkAndStore()`; `Display::badges()`, `Display::details()` |
+| AC3                  | ChangedAfterUploadTest :: AC3 | as AC1 and AC2 |
+| AC4                  | ChangedAfterUploadTest :: AC4 | `UploadHook::fingerprint()` (no file, unreadable) |
+| AC5                  | ChangedAfterUploadTest :: AC5 | `UploadHook::checkAndStore()` (compares only at the uploaded path) |
+| AC6                  | ChangedAfterUploadTest :: AC6 | `UploadHook::onAddAttachment()` (stores only for the attachment's own file) |
+| AC7                  | Unit ChangedAfterUploadTest :: AC7 | `Display::badges()`, `Display::details()`; `assets/admin.css` (`--altered`) |
+| AC8                  | ChangedAfterUploadTest :: AC8 | `uninstall.php` (`_tracefern_upload`) |
+| Readme               | ReadmeTest :: SPEC-028      | `readme.txt` FAQ |
+
+`Display::read()` accepts `changed_after_upload` only as a boolean; any
+other value makes the entry unreadable, as for other malformed fields.

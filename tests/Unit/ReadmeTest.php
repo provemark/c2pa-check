@@ -164,3 +164,11 @@ it('the changelog keeps the current version and links earlier ones to the GitHub
     expect($versions[1])->toBe([$stable[1] ?? null])
         ->and($changelog)->toContain('https://github.com/provemark/tracefern-image-check/releases');
 })->group('changelog');
+
+it('SPEC-028: the FAQ names "Changed after upload"', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*\n= Why does a genuine photo say "Does not verify"\? =\n(.*?)(\n= .*|\n== .*|$)/s', '$1', $readme));
+
+    expect($faq)->toContain('"Changed after upload"')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('SPEC-028');

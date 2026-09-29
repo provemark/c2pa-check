@@ -39,7 +39,9 @@
 .tracefern-badge--invalid { color: #b32d2e; background: #fcf0f1; }
 .tracefern-badge--error,
 .tracefern-badge--unreadable,
-.tracefern-badge--changed { color: #8a4b00; background: #fcf9e8; }
+.tracefern-badge--changed,
+.tracefern-badge--altered { color: #8a4b00; background: #fcf9e8; }
+.tracefern-badge--altered { white-space: normal; }
 .tracefern-badge--ai { color: #3c434a; background: #fff; }
 .tracefern-badge--pending { color: #3c434a; background: #f0f0f1; }
 

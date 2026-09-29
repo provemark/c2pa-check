@@ -59,6 +59,9 @@ final class Display
         [$class] = self::headlineOf($read, $pending);
 
         $html = '<div class="tracefern tracefern--'.esc_attr($class).'">'."\n".'<p class="tracefern-badges">'.self::badges($read, $pending).'</p>';
+        if (is_array($read) && $read['changed_after_upload']) {
+            $html .= "\n".'<p class="tracefern-note">'.esc_html__('An image optimizer or another plugin can change a file after it is uploaded.', 'tracefern-image-check-for-c2pa').'</p>';
+        }
         $rows = is_array($read) ? self::rows($read) : [];
         if ($rows !== []) {
             $html .= "\n".'<dl class="tracefern-facts">';
@@ -210,7 +213,7 @@ final class Display
     /**
      * A SPEC-001 entry, null for no entry, false for anything else.
      *
-     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, ai_edited: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string}|false|null
+     * @return array{state: string, signer: array{issuer: ?string, common_name: string}|null, signed_at: ?string, codes: list<string>, codes_omitted: int, ai: bool, ai_edited: bool, trust: ?string, remote_manifest_url: ?string, reason: ?string, verifier: ?string, checked_at: ?string, changed_after_upload: bool}|false|null
      */
     private static function read(mixed $entry): array|false|null
     {
@@ -265,6 +268,11 @@ final class Display
             return false;
         }
 
+        $changedAfterUpload = $entry['changed_after_upload'] ?? false;
+        if (! is_bool($changedAfterUpload)) {
+            return false;
+        }
+
         return [
             'state' => $entry['state'],
             'signer' => $signer,
@@ -278,6 +286,7 @@ final class Display
             'reason' => $reason,
             'verifier' => $text['verifier'],
             'checked_at' => $text['checked_at'],
+            'changed_after_upload' => $changedAfterUpload,
         ];
     }
 
@@ -285,7 +294,7 @@ final class Display
      * The verdict (and the AI label) as badges: an icon that is decoration
      * only, and the words (SPEC-002 amendment 1).
      *
-     * @param  array{state: string, ai: bool, ai_edited: bool}|false|null  $read
+     * @param  array{state: string, ai: bool, ai_edited: bool, changed_after_upload: bool}|false|null  $read
      */
     private static function badges(array|false|null $read, bool $pending = false): string
     {
@@ -302,11 +311,14 @@ final class Display
         $html = '<span class="tracefern-badge tracefern-badge--'.esc_attr($class).'"><span class="dashicons dashicons-'.esc_attr($icon).'" aria-hidden="true"></span>'.esc_html($headline).'</span>';
 
         if (self::showsAiLabel($read)) {
-            return $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-generated (signed)', 'tracefern-image-check-for-c2pa').'</span>';
+            $html .= ' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-generated (signed)', 'tracefern-image-check-for-c2pa').'</span>';
+        } elseif (self::showsAiEditedLabel($read)) {
+            $html .= ' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-edited (signed)', 'tracefern-image-check-for-c2pa').'</span>';
         }
 
-        return self::showsAiEditedLabel($read)
-            ? $html.' <span class="tracefern-badge tracefern-badge--ai">'.esc_html__('AI-edited (signed)', 'tracefern-image-check-for-c2pa').'</span>'
+        // Next to the verdict, which stays the verifier's (SPEC-028).
+        return is_array($read) && $read['changed_after_upload']
+            ? $html.' <span class="tracefern-badge tracefern-badge--altered">'.esc_html__('Changed after upload: this is not the file that was uploaded', 'tracefern-image-check-for-c2pa').'</span>'
             : $html;
     }
 

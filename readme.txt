@@ -100,7 +100,7 @@ The file was changed after it was signed, for example by an editor or an
 image optimizer that kept the old Content Credentials but rewrote the
 image data (`assertion.dataHash.mismatch` in the details). An optimizer
 that resizes the original on upload removes them: the image then shows
-"No Content Credentials".
+"No Content Credentials". Either way it also says "Changed after upload".
 
 = Why do most of my images show "No Content Credentials"? =
 

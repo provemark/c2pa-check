@@ -473,6 +473,61 @@ function importWithoutChecking(string $hostPath): int
 }
 
 /**
+ * The kept path (`_tracefern_source`), relative to the uploads folder.
+ */
+function keptPath(int $id): string
+{
+    return wpEval("echo get_post_meta($id, '_tracefern_source', true);");
+}
+
+/**
+ * Whether the file at a path relative to the uploads folder is
+ * byte-identical to a host file.
+ */
+function sameAsHostFile(string $relative, string $hostPath): bool
+{
+    return hash_file('sha256', hostCopyOfUpload($relative)) === hash_file('sha256', $hostPath);
+}
+
+/**
+ * A copy of a PNG with its image data compressed again at another zlib
+ * level: the same pixels and the same chunks, the manifest kept, other
+ * bytes (as a lossless optimizer writes; SPEC-028).
+ */
+function recompressedPng(string $hostPath): string
+{
+    $png = (string) file_get_contents($hostPath);
+    $chunks = [];
+    $idat = '';
+    for ($at = 8; $at < strlen($png);) {
+        $header = unpack('N', substr($png, $at, 4));
+        $length = is_array($header) && is_int($header[1] ?? null) ? $header[1] : throw new RuntimeException('not a PNG: '.$hostPath);
+        $type = substr($png, $at + 4, 4);
+        $data = substr($png, $at + 8, $length);
+        if ($type === 'IDAT') {
+            $idat .= $data;
+            // Several IDAT chunks become one, where the first was.
+            if (! in_array('IDAT', array_column($chunks, 0), true)) {
+                $chunks[] = ['IDAT', ''];
+            }
+        } else {
+            $chunks[] = [$type, $data];
+        }
+        $at += 12 + $length;
+    }
+    $raw = (string) gzuncompress($idat);
+    $out = substr($png, 0, 8);
+    foreach ($chunks as [$type, $data]) {
+        $data = $type === 'IDAT' ? (string) gzcompress($raw, 1) : $data;
+        $out .= pack('N', strlen($data)).$type.$data.pack('N', crc32($type.$data));
+    }
+    $copy = tmpDir().'/recompressed-'.basename($hostPath);
+    file_put_contents($copy, $out);
+
+    return $copy;
+}
+
+/**
  * Uploads a host file the way the block editor does with client-side media
  * processing (SPEC-029), replayed over REST as `upload-media.js` sends it:
  * the file as is with `generate_sub_sizes: false`; its EXIF-rotated copy

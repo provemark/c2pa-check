@@ -50,6 +50,12 @@ final class UploadHook
     /** The copies the block editor's browser made of an upload, relative to the uploads folder (SPEC-029). */
     public const string COPIES_KEY = '_tracefern_browser_copies';
 
+    /** The upload's fingerprint: its path relative to the uploads folder, SHA-256 and size (SPEC-028). */
+    public const string UPLOAD_KEY = '_tracefern_upload';
+
+    /** @var array<string, array{sha256: string, size: int}> fingerprints taken in this request, by relative path */
+    private static array $fingerprints = [];
+
     /** The block editor's media request WordPress now serves: 'sideload', 'finalize' or null (SPEC-029). */
     private static ?string $browserRequest = null;
 
@@ -66,12 +72,39 @@ final class UploadHook
 
     public function register(): void
     {
+        add_filter('wp_handle_upload', self::fingerprint(...), PHP_INT_MIN);
         add_action('add_attachment', $this->onAddAttachment(...));
         add_filter('wp_update_attachment_metadata', $this->onMetadataUpdate(...), 10, 2);
         add_filter('rest_request_before_callbacks', self::noteBrowserRequest(...), 10, 3);
         add_filter('rest_request_after_callbacks', self::endBrowserRequest(...));
         add_filter('update_attached_file', self::onAttachedFileUpdate(...), 10, 2);
         add_action(self::EVENT, $this->runQueue(...));
+    }
+
+    /**
+     * Takes the SHA-256 and size of an uploaded JPEG, PNG or WebP as it
+     * arrives, before any other plugin on this filter changes it (SPEC-028):
+     * kept for this request, and stored when the upload becomes an
+     * attachment. A file that cannot be read gets none. Returns the upload
+     * unchanged.
+     */
+    public static function fingerprint(mixed $upload): mixed
+    {
+        try {
+            $file = is_array($upload) ? ($upload['file'] ?? null) : null;
+            $type = is_array($upload) ? ($upload['type'] ?? null) : null;
+            if (is_string($file) && $file !== '' && in_array($type, self::MIME_TYPES, true) && is_file($file) && is_readable($file)) {
+                $sha256 = hash_file('sha256', $file);
+                $size = filesize($file);
+                if (is_string($sha256) && $size !== false) {
+                    self::$fingerprints[self::relativeToUploads($file)] = ['sha256' => $sha256, 'size' => $size];
+                }
+            }
+        } catch (Throwable) {
+            // The upload always proceeds.
+        }
+
+        return $upload;
     }
 
     /**
@@ -136,7 +169,14 @@ final class UploadHook
             // may point at -scaled with the metadata not yet naming the
             // original (SPEC-013 amendment 1), so the path is kept now.
             $path = get_attached_file($attachmentId);
-            update_post_meta($attachmentId, self::SOURCE_KEY, is_string($path) ? self::relativeToUploads($path) : '');
+            $relative = is_string($path) ? self::relativeToUploads($path) : '';
+            update_post_meta($attachmentId, self::SOURCE_KEY, $relative);
+
+            // The fingerprint taken as this file arrived (SPEC-028).
+            if (isset(self::$fingerprints[$relative])) {
+                update_post_meta($attachmentId, self::UPLOAD_KEY, wp_slash(['file' => $relative] + self::$fingerprints[$relative]));
+                unset(self::$fingerprints[$relative]);
+            }
 
             update_post_meta($attachmentId, self::PENDING_KEY, time());
             self::scheduleQueue();
@@ -443,6 +483,14 @@ final class UploadHook
         $size = $path !== '' && is_file($path) ? filesize($path) : false;
         $modified = $path !== '' && is_file($path) ? filemtime($path) : false;
         $entry += ['file' => $relative, 'size' => $size === false ? null : $size, 'modified' => $modified === false ? null : $modified];
+
+        // The file at the uploaded path is not the file that was uploaded
+        // (SPEC-028): an optimizer or another plugin rewrote it.
+        $upload = get_post_meta($attachmentId, self::UPLOAD_KEY, true);
+        if (is_array($upload) && $relative !== null && ($upload['file'] ?? null) === $relative && is_string($upload['sha256'] ?? null)
+            && is_file($path) && hash_file('sha256', $path) !== $upload['sha256']) {
+            $entry['changed_after_upload'] = true;
+        }
 
         // Deleted while it was being checked (SPEC-015): leave no rows behind.
         if (get_post_type($attachmentId) !== 'attachment') {

@@ -2620,3 +2620,27 @@ README are where the disclosure lives.
   the suite grew. Parallel runs are unsafe (one shared database and
   check queue).
 - Decided by Maurice: 1 and 2; a faster harness is left for later.
+
+## 2026-09-29 — SPEC-028 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, SPEC-028 approved, bouw hem".
+- Produced: `UploadHook::fingerprint()` on `wp_handle_upload` at
+  `PHP_INT_MIN` (SHA-256 and size of a JPEG, PNG or WebP as it arrives),
+  stored at `add_attachment` in `_tracefern_upload` with its path;
+  `checkAndStore()` records `changed_after_upload` when the file at that
+  path differs; `Display` shows "Changed after upload: this is not the
+  file that was uploaded" next to the verdict, and one sentence in the
+  details; a `--altered` badge style; the readme FAQ names the line;
+  uninstall removes the key. Tests: `ChangedAfterUploadTest` (integration
+  and unit), a readme test, and `recompressedPng()` in `tests/Pest.php`
+  (the shared `keptPath()` and `sameAsHostFile()` moved there too).
+  SPEC-028 status `implemented`; `NOTES.md` point 5 closed.
+- Measured: `recompressedPng()` keeps the pixels and the manifest and
+  gives the CLI's `assertion.dataHash.mismatch`. Red first: 8 of 9
+  SPEC-028 tests failed before the code (AC5, which checks that nothing
+  happens, passed). Green: the 9 tests; `composer check` (99 unit tests);
+  the affected groups (SPEC-001, -002, -005, -008, -014, -018, -028,
+  -029: 83 passed in 139 s); the full integration suite once before this
+  commit (187 passed in 317 s).
+- Decided by Maurice: the spec, its wording and no size limit.
