@@ -2475,3 +2475,18 @@ README are where the disclosure lives.
   before priority 10 would see the uploaded bytes.
 - Decided by Maurice: to measure this. Which option, if any, becomes a
   spec is his.
+
+## 2026-09-29 — Readme: image optimizers
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, doe a en stel b voor als spec" (a: say it in the
+  readme; b: a spec for recording the upload's fingerprint).
+- Produced: the FAQ answer "Why does a genuine photo say "Does not
+  verify"?" names image optimizers, and says that one resizing the
+  original on upload removes the Content Credentials; a readme test
+  for it (group `image-optimizer`). No spec: Maurice asked for the text
+  directly; it follows `notes/image-optimizer.md`.
+- Measured: the new test failed first (no mention of optimizers), then
+  passed; `composer check` green (96 tests). `readme.txt` is 10,205
+  bytes, under the 10,240 its test allows.
+- Decided by Maurice: this readme text.

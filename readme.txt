@@ -96,10 +96,11 @@ vouches for who the signer is.
 
 = Why does a genuine photo say "Does not verify"? =
 
-The file was changed after it was signed, for example by an editor that
-kept the old Content Credentials but not the signature's match with the
-pixels. The details show the status codes; `assertion.dataHash.mismatch`
-means the image data changed.
+The file was changed after it was signed, for example by an editor or an
+image optimizer that kept the old Content Credentials but rewrote the
+image data (`assertion.dataHash.mismatch` in the details). An optimizer
+that resizes the original on upload removes them: the image then shows
+"No Content Credentials".
 
 = Why do most of my images show "No Content Credentials"? =
 

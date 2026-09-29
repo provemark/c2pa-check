@@ -143,3 +143,14 @@ it('SPEC-026 AC8: documents the verdict for other plugins', function (): void {
         ->toContain('escape')
         ->and(strlen($readme))->toBeLessThan(10240);
 })->group('SPEC-026');
+
+it('the FAQ explains what an image optimizer does to Content Credentials', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*\n= Why does a genuine photo say "Does not verify"\? =\n(.*?)(\n= .*|\n== .*|$)/s', '$1', $readme));
+
+    expect($faq)->toContain('image optimizer')
+        ->toContain('assertion.dataHash.mismatch')
+        ->toContain('resizes the original on upload')
+        ->toContain('"No Content Credentials"')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('image-optimizer');
