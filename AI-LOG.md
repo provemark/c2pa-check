@@ -2910,3 +2910,20 @@ README are where the disclosure lives.
   build follow in the release record.
 - Decided by Maurice: preparing the release. The SVN commit, push, tag
   and GitHub release are his, or wait for his go.
+
+## 2026-09-29 — 0.1.5 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push als de suites groen zijn"; "ik heb gecommit";
+  "akkoord, maak tag en release en push".
+- Produced: `63be425` pushed; after CI went green, a fresh SVN working copy
+  with `trunk/` replaced by the build and `tags/0.1.5` copied; the
+  annotated tag `v0.1.5` on `63be425`; the GitHub release 0.1.5 with the
+  zip; the record in `notes/wporg-submission.md`.
+- Measured: CI green on `63be425` (all nine jobs). SVN r3718478 by
+  Maurice (09:42), found in the SVN log. An export of SVN `tags/0.1.5`,
+  the public download and the build hold the same files (`diff -r`
+  empty); the plugin API reported 0.1.5 at once; the plugin page returns
+  200.
+- Decided by Maurice: the push, the SVN commit (done by him), the tag and
+  the release.

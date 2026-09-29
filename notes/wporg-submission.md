@@ -267,3 +267,16 @@ Releases after 0.1.0:
   `tags/0.1.4`; the plugin page returns 200. Git tag `v0.1.4` on
   `10d5f01`, and a GitHub release with the same zip (298,163 bytes), on
   Maurice's go.
+- **0.1.5, 2026-09-29** (SPEC-031, check existing images from the
+  settings page, with amendments 1 and 2; SPEC-025 amendment 1 in the
+  readme): built from `63be425` (SHA-256 `4e70db65…3816a87`, kept in
+  `build/submitted/`). Before the build: `composer check` (119),
+  integration (198), multisite (7) and the Release suite (17) green, run
+  in parallel; CI green on `63be425`. The readme-only SVN update prepared
+  for SPEC-025 amendment 1 was dropped: this release carries it. `trunk/`
+  was replaced by the build (`diff -r` empty) and `tags/0.1.5` copied;
+  Maurice committed them (r3718478, 09:42). Measured: the plugin API
+  reported 0.1.5 (last updated 07:42 GMT) at once; the public download
+  and an export of SVN `tags/0.1.5` hold the same files as the build; the
+  plugin page returns 200. Git tag `v0.1.5` on `63be425`, and a GitHub
+  release with the same zip (301,997 bytes), on Maurice's go.
