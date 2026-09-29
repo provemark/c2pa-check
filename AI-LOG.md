@@ -2451,3 +2451,27 @@ README are where the disclosure lives.
   SVN `tags/0.1.3` hold the same files (`diff -r` empty).
 - Decided by Maurice: the push, the SVN commit (done by him), the tag and
   the release.
+
+## 2026-09-29 — Image optimizers measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "kan je kijken naar wat er nog met deze plugin zou moeten
+  gebeuren?"; then, after the proposal to measure an image optimizer next
+  to the plugin, "akkoord, begin met B".
+- Produced: `notes/image-optimizer.md`; `NOTES.md` "Open" point 5, and
+  the client-side processing item under "To measure" marked resolved (it
+  was measured on 2026-09-26 in `notes/m1-original-file.md`, but never
+  ticked off). No plugin code.
+- Measured: EWWW Image Optimizer 8.8.0 at its defaults in wp-env
+  (WordPress 7.1.2, PHP 8.3.35, aarch64; its x86-64 tools copied in by
+  hand for the second round), six signed fixtures via WP-CLI. Its upload
+  resize replaced the two large JPEGs before the check (stored `none`);
+  its background PNG optimization after the check kept the manifest and
+  broke its hash (shown "Changed since its check"; `wp tracefern check`
+  then stored `Invalid`, `assertion.dataHash.mismatch`, shown "Does not
+  verify"). The small JPEG and the WebP were left alone.
+- Reasoned: the order of the two background queues is a race; other
+  optimizers were not tested; a check or hash in `wp_handle_upload`
+  before priority 10 would see the uploaded bytes.
+- Decided by Maurice: to measure this. Which option, if any, becomes a
+  spec is his.

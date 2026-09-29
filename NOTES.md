@@ -140,6 +140,14 @@ plugin's part.
    compared with the TSA certificate. For a verifier release; the plugin
    takes it with `composer update` as below. To confirm against v0.2.4's
    code and `c2patool` before a spec there.
+5. **Image optimizers** (added 2026-09-29, measured with EWWW Image
+   Optimizer 8.8.0 at its defaults, `notes/image-optimizer.md`). Its
+   upload resize replaces a large original before the plugin sees it
+   (stored `none` for a signed upload); its lossless PNG optimization,
+   in the background after the check, keeps the manifest and breaks its
+   hash (shown "Changed since its check"; checked again, "Does not
+   verify"). Options to weigh are in the note: a readme warning, a hash
+   of the upload taken early, or an early check.
 
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
@@ -151,10 +159,10 @@ bounds the known files, the background check the next unknown one.
 
 ## To measure before a spec relies on it
 
-- Which hook gives the untouched original file (candidates: `add_attachment`
-  with `get_attached_file()` / `wp_get_original_image_path()`), and whether
-  that file is byte-identical to the upload, including with Gutenberg's
-  client-side media processing enabled (measured by hand in a browser).
+- Resolved 2026-09-26 (`notes/m1-original-file.md`): which hook gives the
+  untouched original file, and whether it is byte-identical to the upload,
+  including with client-side media processing enabled. Not measured
+  there: the `-rotated` case.
 - Resolved 2026-09-27 (see Measured): whether wordpress.org accepts the
   CC BY 4.0 trust lists as bundled data.
 - Resolved in M5 (SPEC-006): Plugin Check never scans `vendor/`; the
