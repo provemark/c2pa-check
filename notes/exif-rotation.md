@@ -81,6 +81,12 @@ metadata and the uploads folder:
    the original in the final state; that holds for the routes measured
    there, not for this one.)
 
+Core's own record of sideloaded names, the post meta
+`_wp_sideloaded_file`, does not survive: after finalize, `no_alg` and the
+church upload had no rows left, the Truepic upload two (its `-rotated-1`
+copy and the upload's name). `finalize_item()` deletes the rows it
+consumed right after its metadata update (read in core).
+
 ## Cause (reasoned from the code, not traced)
 
 `UploadHook::shownFile()` treats the attached file as WordPress's own copy

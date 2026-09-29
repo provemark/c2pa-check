@@ -2540,3 +2540,21 @@ README are where the disclosure lives.
   `-scaled` / `-rotated` names, so `onMetadataUpdate()` moves the kept
   path to the copy.
 - Decided by Maurice: to measure this. The fix needs a spec.
+
+## 2026-09-29 — Draft SPEC-029: the browser's copies
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, stel SPEC-029 op".
+- Produced: `specs/SPEC-029-browser-copies.md`, status `draft`: a
+  metadata update made while serving the finalize route does not move
+  the kept path; a kept `-rotated-<n>` / `-scaled-<n>` copy is resolved to
+  its upload when that file exists, so `wp tracefern check` repairs
+  images stored wrongly; two fixtures to add. Seven acceptance criteria.
+  A line added to `notes/exif-rotation.md`.
+- Measured: the `_wp_sideloaded_file` rows after finalize (none, none and
+  two for the three block-editor uploads), so core's own record cannot
+  identify a copy later; a first draft relied on it and was rewritten.
+- Reasoned: the browser's request sequence and the `-1` suffix, read in
+  core 7.1.2 (`sideload_item()`, `finalize_item()`,
+  `filter_wp_unique_filename()`, `upload-media.js`).
+- Decided by Maurice: to draft this spec. Approval is his.
