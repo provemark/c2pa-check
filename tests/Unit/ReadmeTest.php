@@ -187,3 +187,14 @@ it('SPEC-025 AC6 (amendment 1): the answer names what sets the verification apar
         ->toContain('"Verified"')
         ->and(strlen($readme))->toBeLessThan(10240);
 })->group('SPEC-025');
+
+it('SPEC-031: the readme points at the buttons before WP-CLI', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = trim((string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*\n= How do I check images again after changing the trust settings\? =\n(.*?)(\n= .*|\n== .*|$)/s', '$1', $readme)));
+    $install = (string) preg_replace('/\s+/', ' ', (string) preg_replace('/.*\n== Installation ==\n(.*?)(\n== .*|$)/s', '$1', $readme));
+
+    expect($faq)->toStartWith('Under Settings → Tracefern, press "Check all images again"')
+        ->toContain('wp tracefern check --all')
+        ->and($install)->toContain('"Check images that were never checked"')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('SPEC-031');

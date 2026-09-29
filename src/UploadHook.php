@@ -214,12 +214,42 @@ final class UploadHook
                 $this->runScheduled($id);
             }
 
+            // Then the images of a run over existing ones (SPEC-031), each
+            // claimed before its check, with what is left of the batch.
+            while ($checked < self::BATCH && ($checked === 0 || $limit <= 0 || timer_float() <= $limit / 2)) {
+                $id = ExistingImages::claim();
+                if ($id === null) {
+                    break;
+                }
+                $checked++;
+                $this->runExisting($id);
+            }
+
             wp_clear_scheduled_hook(self::EVENT);
-            if (self::pending(1) !== []) {
+            if (self::pending(1) !== [] || ExistingImages::isActive()) {
                 wp_schedule_single_event(time(), self::EVENT);
             }
         } catch (Throwable) {
             // The safety run stays.
+        }
+    }
+
+    /**
+     * Checks an image of a run over existing ones (SPEC-031) as
+     * `wp tracefern check` does (SPEC-008): on the file the verdict
+     * describes now. An ID that is no longer a JPEG, PNG or WebP attachment
+     * is skipped.
+     */
+    private function runExisting(int $id): void
+    {
+        try {
+            if (get_post_type($id) !== 'attachment' || ! in_array(get_post_mime_type($id), self::MIME_TYPES, true)) {
+                return;
+            }
+            wp_raise_memory_limit('admin');
+            $this->checkAndStore($id, self::fileToCheck($id));
+        } catch (Throwable) {
+            // Whatever was stored last stays.
         }
     }
 

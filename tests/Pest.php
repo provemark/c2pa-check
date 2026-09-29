@@ -1096,11 +1096,12 @@ function emptyTestEnvironment(): void
             $wpdb->query("DELETE FROM {$wpdb->posts} WHERE ID IN ($in)");
         }
         $wpdb->query("DELETE FROM {$wpdb->postmeta} WHERE meta_key LIKE '\_tracefern\_%'");
-        foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done'] as $option) {
+        foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done', 'tracefern_existing_images'] as $option) {
             delete_option($option);
         }
         wp_unschedule_hook('tracefern_check');
         @unlink(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies.php');
+        @unlink(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies-for.php');
         $uploads = wp_get_upload_dir()['basedir'];
         if (is_dir($uploads)) {
             $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($uploads, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);

@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-29                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -172,25 +172,44 @@ final class Backfill
 
 ## Open questions
 
-- The two buttons, or only "never checked" first? Proposal: both; "all
-  again" is the only way to apply new trust settings without WP-CLI.
-  Non-blocker.
-- Should "Check all images again" ask for confirmation (a JavaScript
-  `confirm()`), since on a large library it runs for a long time?
-  Proposal: no; it can be stopped, and nothing is lost. Non-blocker.
+- Approved as proposed (2026-09-29): both buttons, and no confirmation
+  for "Check all images again".
+
+## Amendment 1 (2026-09-29, while building; approved by Maurice van Loon, 2026-09-29)
+
+**Why.** SPEC-015 AC11 requires that the word "backfill" appears nowhere
+in `src/` (an earlier mechanism of that name was removed, and its test
+keeps it out). This spec named the option `tracefern_backfill` and
+sketched a class `Backfill`; built that way, SPEC-015's test fails
+(measured: `Backfill.php`, `SettingsPage.php`, `UploadHook.php`).
+
+**Change**, names only; behaviour unchanged:
+
+- option `tracefern_existing_images` instead of `tracefern_backfill`
+  (also in uninstall);
+- class `ExistingImages` instead of `Backfill`;
+- admin-post actions `tracefern_existing_start` and
+  `tracefern_existing_stop`, nonce action `tracefern_existing_images`.
+
+AC9 then reads "no `tracefern_existing_images` option on any site".
 
 ## Traceability
 
-Filled when status becomes `implemented`.
+Filled at implementation (2026-09-29), with the names of amendment 1.
+Integration tests in `tests/Integration/ExistingImagesTest.php`, unit test
+in `tests/Unit/ExistingImagesTest.php`, group `SPEC-031`. "The run is
+gone" in AC1 is read as finished: the run stays with its `finished` time,
+so the section can say when it finished (Scope).
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
+| AC1                  | ExistingImagesTest :: AC1   | `ExistingImages::start()`, `claim()`, `next()` ('unchecked'); `UploadHook::runQueue()`, `runExisting()` |
+| AC2                  | ExistingImagesTest :: AC2   | `ExistingImages::next()` ('all'); `UploadHook::runExisting()` (`fileToCheck()`, current trust settings) |
+| AC3                  | ExistingImagesTest :: AC3   | `UploadHook::runQueue()` (pending uploads first) |
+| AC4                  | ExistingImagesTest :: AC4   | `SettingsPage::existingImages()`, `stopExistingRun()`; `ExistingImages::progress()`, `stop()` |
+| AC5                  | ExistingImagesTest :: AC5 (`withCheckThatDiesFor()`) | `ExistingImages::claim()` (cursor moves first); SPEC-013's provisional entry; SPEC-017's safety run |
+| AC6                  | ExistingImagesTest :: AC6   | `SettingsPage::guardExistingRun()`; `ExistingImages::start()` (unknown mode) |
+| AC7                  | ExistingImagesTest :: AC7   | `ExistingImages::start()` (one option, `count()` in SQL) |
+| AC8                  | Unit ExistingImagesTest :: AC8 | `SettingsPage::existingImages()` |
+| AC9                  | ExistingImagesTest :: AC9   | `uninstall.php` (`tracefern_existing_images`) |
+| Settings sentence    | ExistingImagesTest :: the settings page points at the buttons | `SettingsPage::render()` |

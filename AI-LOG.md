@@ -2819,3 +2819,32 @@ README are where the disclosure lives.
 - Measured: nothing new; read `SettingsPage`, `RecheckCommand::select()`
   and the queue in `UploadHook`, and the SPEC-015 test hook.
 - Decided by Maurice: to draft this spec. Approval is his.
+
+## 2026-09-29 — SPEC-031 built (tests first), with amendment 1
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push de commits, SPEC-031 approved, bouw hem"; "akkoord,
+  wijziging 1 approved, maak het af"; "pas de readme-FAQ ook aan". The
+  two open questions were not answered; the proposals (both buttons, no
+  confirmation) are recorded as approved.
+- Produced: `src/ExistingImages.php` (a run in one option, images claimed
+  one at a time by ascending ID); `UploadHook::runQueue()` takes a run's
+  images after pending uploads (`runExisting()`, the file choice of
+  `wp tracefern check`); the "Existing images" section, its two buttons,
+  progress, Stop and the admin-post handlers in `SettingsPage`; the
+  settings sentence; uninstall removes the option. Readme: the feature
+  list, installation step 4 and two FAQ answers point at the buttons
+  before WP-CLI. Tests: `tests/Integration/ExistingImagesTest.php`,
+  `tests/Unit/ExistingImagesTest.php`, a readme test,
+  `emptyTestEnvironment()` extended. SPEC-031 `implemented`, Traceability
+  filled. Amendment 1 renamed "backfill" to "existing images", because
+  SPEC-015 AC11 keeps that word out of `src/`.
+- Measured: red first (9 of 10 SPEC-031 tests failed; the tenth checks
+  that nothing happens without permission); green: 10 SPEC-031 tests,
+  `composer check` (119 unit tests), integration 196, multisite 7. In the
+  dev site Maurice's "Check all images again" checked 34 images within a
+  second; the page does not refresh itself, so progress shows only after
+  a reload.
+- Reasoned: on a quiet live site the runs wait for visits (WP-Cron), 20
+  images per run.
+- Decided by Maurice: the spec, amendment 1 and the readme change.

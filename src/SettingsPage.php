@@ -34,6 +34,40 @@ final class SettingsPage
         // saves: nothing of this is read on the front end (SPEC-012).
         add_action('admin_init', $this->registerSettings(...));
         add_action('admin_notices', $this->trustNotice(...));
+        // The "Existing images" buttons (SPEC-031).
+        add_action('admin_post_tracefern_existing_start', $this->startExistingRun(...));
+        add_action('admin_post_tracefern_existing_stop', $this->stopExistingRun(...));
+    }
+
+    /**
+     * "Check images that were never checked" / "Check all images again":
+     * stores a run and schedules the queue, then back to the settings page.
+     * Administrators only, with the section's nonce.
+     */
+    public function startExistingRun(): void
+    {
+        $this->guardExistingRun();
+        $mode = isset($_POST['mode']) && is_string($_POST['mode']) ? sanitize_key(wp_unslash($_POST['mode'])) : '';
+        ExistingImages::start($mode);
+        wp_safe_redirect(admin_url('options-general.php?page='.self::SLUG));
+        exit;
+    }
+
+    /** "Stop": deletes the run. */
+    public function stopExistingRun(): void
+    {
+        $this->guardExistingRun();
+        ExistingImages::stop();
+        wp_safe_redirect(admin_url('options-general.php?page='.self::SLUG));
+        exit;
+    }
+
+    private function guardExistingRun(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Sorry, you are not allowed to do that.', 'tracefern-image-check-for-c2pa'), '', ['response' => 403]);
+        }
+        check_admin_referer('tracefern_existing_images');
     }
 
     /**
@@ -133,7 +167,7 @@ final class SettingsPage
             /* translators: 1: list date, 2: commit */
             .sprintf(esc_html__('Bundled C2PA trust list: %1$s (commit %2$s of c2pa-org/conformance-public, CC BY 4.0).', 'tracefern-image-check-for-c2pa'), esc_html(TrustConfig::LIST_DATE), esc_html(TrustConfig::LIST_COMMIT))
             .'</p><p>'
-            .esc_html__('Settings apply to new uploads only; images already in the Media Library keep the result of their check.', 'tracefern-image-check-for-c2pa')
+            .esc_html__('Settings apply to new uploads. To apply them to the images already in the Media Library, use "Check all images again" below.', 'tracefern-image-check-for-c2pa')
             .'</p>';
 
         echo '<form method="post" action="options.php">';
@@ -150,7 +184,51 @@ final class SettingsPage
             .esc_html__('Trust settings JSON in the format c2patool and c2pa-verifier read. When set, they replace the bundled lists and the DigiCert option entirely. Leave empty to use the bundled lists.', 'tracefern-image-check-for-c2pa')
             .'</p></td></tr></table>';
         submit_button();
-        echo '</form></div>';
+        echo '</form>';
+        $this->existingImages();
+        echo '</div>';
+    }
+
+    /**
+     * The "Existing images" section (SPEC-031): how many images there are
+     * and how many were never checked; while a run goes, its progress and a
+     * Stop button; otherwise the two buttons.
+     */
+    private function existingImages(): void
+    {
+        $run = ExistingImages::progress();
+        $form = static fn (string $action, string $buttons): string => '<form method="post" action="'.esc_url(admin_url('admin-post.php')).'">'
+            .'<input type="hidden" name="action" value="'.esc_attr($action).'" />'
+            .wp_nonce_field('tracefern_existing_images', '_wpnonce', true, false)
+            .$buttons.'</form>';
+
+        echo '<h2>'.esc_html__('Existing images', 'tracefern-image-check-for-c2pa').'</h2><p>'
+            /* translators: 1: number of JPEG, PNG and WebP images, 2: how many of them were never checked */
+            .sprintf(esc_html__('%1$s JPEG, PNG and WebP images; %2$s never checked.', 'tracefern-image-check-for-c2pa'), esc_html(number_format_i18n(ExistingImages::count('all'))), esc_html(number_format_i18n(ExistingImages::count('unchecked'))))
+            .'</p>';
+
+        if ($run !== null && $run['finished'] === null) {
+            echo '<p>'
+                /* translators: 1: images done, 2: images in the run */
+                .sprintf(esc_html__('Checking existing images: %1$s of %2$s done. The checks run in the background.', 'tracefern-image-check-for-c2pa'), esc_html(number_format_i18n($run['done'])), esc_html(number_format_i18n($run['total'])))
+                .'</p>'
+                .$form('tracefern_existing_stop', '<button type="submit" class="button">'.esc_html__('Stop', 'tracefern-image-check-for-c2pa').'</button>');
+
+            return;
+        }
+
+        if ($run !== null) {
+            $format = get_option('date_format');
+            $time = get_option('time_format');
+            echo '<p>'
+                /* translators: 1: images checked, 2: date and time */
+                .sprintf(esc_html__('Finished: %1$s images checked, %2$s.', 'tracefern-image-check-for-c2pa'), esc_html(number_format_i18n($run['done'])), esc_html(wp_date((is_string($format) ? $format : 'Y-m-d').' '.(is_string($time) ? $time : 'H:i'), (int) $run['finished']) ?: ''))
+                .'</p>';
+        }
+
+        echo $form('tracefern_existing_start', '<p><button type="submit" name="mode" value="unchecked" class="button button-primary">'.esc_html__('Check images that were never checked', 'tracefern-image-check-for-c2pa').'</button> '
+            .'<button type="submit" name="mode" value="all" class="button">'.esc_html__('Check all images again', 'tracefern-image-check-for-c2pa').'</button></p>'
+            .'<p class="description">'.esc_html__('The checks run in the background, a few images at a time; new uploads go first. "Check all images again" applies the current trust settings and verifier to every image.', 'tracefern-image-check-for-c2pa').'</p>'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts above
     }
 
     /**

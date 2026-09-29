@@ -36,8 +36,8 @@ upload and shows the verdict where you already work with media.
   (signed)"** when AI edited it. Never on a file that does not verify.
 * **Sort and filter** the Media Library list by verdict, including all
   AI-generated images.
-* **Check existing images again** with WP-CLI:
-  `wp tracefern check --all`.
+* **Check existing images again** under Settings → Tracefern, or with
+  WP-CLI: `wp tracefern check --all`.
 
 The verdicts:
 
@@ -71,8 +71,8 @@ C2PA verifier written in PHP, bundled with the plugin.
    background, usually within seconds; until then it shows "Check pending".
 3. Optional: under Settings → Tracefern, choose whether to trust
    DigiCert timestamps, or paste your own trust settings.
-4. Images uploaded before the plugin was active show "Not checked". Check
-   them with `wp tracefern check --unchecked` (WP-CLI).
+4. Images uploaded before the plugin was active show "Not checked". Press
+   "Check images that were never checked" under Settings → Tracefern.
 
 == Frequently Asked Questions ==
 
@@ -130,7 +130,7 @@ The check runs in the background through WP-Cron, on the next request to
 the site after the upload, usually within seconds. If WP-Cron is switched
 off (`DISABLE_WP_CRON`), the checks run with the site's own cron job.
 After an hour without a result the image shows "Not checked"; check it
-with `wp tracefern check --unchecked`.
+again under Settings → Tracefern.
 
 = Why does an image say "Changed since its check"? =
 
@@ -151,8 +151,10 @@ not checked.
 
 = How do I check images again after changing the trust settings? =
 
-With WP-CLI: `wp tracefern check --all`, or `--state=Invalid,error`,
-or attachment IDs. Add `--dry-run` to see what would be checked.
+Under Settings → Tracefern, press "Check all images again"; the checks
+run in the background. Or with WP-CLI: `wp tracefern check --all`, or
+`--state=Invalid,error`, or attachment IDs; `--dry-run` shows what would
+be checked.
 
 = Does it work on multisite? =
 

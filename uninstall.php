@@ -20,7 +20,7 @@ $tracefern_clean = static function (): void {
     }
     // Background checks not yet run (SPEC-013).
     wp_unschedule_hook('tracefern_check');
-    foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done'] as $option) {
+    foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done', 'tracefern_existing_images'] as $option) {
         delete_option($option);
     }
 };
