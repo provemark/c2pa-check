@@ -183,9 +183,9 @@ final class UploadHook
 
 - Whether to report core's `original_image` for a rotated and scaled
   upload on WordPress Trac. Non-blocker; not code.
-- The changelog advice with `--state=none` rechecks every image without
-  credentials, not only the affected ones. Acceptable, or a narrower
-  option? Non-blocker.
+- Lapsed with amendment 1 (2026-09-29): the changelog advice with
+  `--state=none`. Images stored wrongly before this version are not
+  repaired by a re-check; the advice is to upload them again.
 
 ## Amendment 1 (2026-09-29, while building; approved by Maurice van Loon, 2026-09-29)
 

@@ -2644,3 +2644,13 @@ README are where the disclosure lives.
   -029: 83 passed in 139 s); the full integration suite once before this
   commit (187 passed in 317 s).
 - Decided by Maurice: the spec, its wording and no size limit.
+
+## 2026-09-29 — Spec housekeeping
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, rond 1 en 2 af" (after the list of open findings).
+- Produced: SPEC-024, SPEC-025 and SPEC-026 set to `implemented`; SPEC-029's
+  open question on `--state=none` marked lapsed by its amendment 1.
+- Measured: the three specs' Traceability tables are filled, and their
+  work is committed (`b481283`/`6c72a54`, `7582abf`, `46e9f47`).
+- Decided by Maurice: this housekeeping.
