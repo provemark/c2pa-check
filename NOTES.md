@@ -156,7 +156,9 @@ plugin's part.
    or `-scaled-1` copy when its sideload updates the metadata. WP-CLI and
    REST uploads, and the block editor without rotation, are correct.
    **Fixed 2026-09-29 by SPEC-029** (with amendments 1 and 2); images
-   stored wrongly before are not repaired automatically.
+   stored wrongly before are not repaired automatically. The core side is
+   reported as WordPress/gutenberg#83757 (`original_image` names the
+   rotated copy).
 
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)

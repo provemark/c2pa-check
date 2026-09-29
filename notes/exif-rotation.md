@@ -170,6 +170,9 @@ processing does not occur, but `original_image` still points at a copy
 for a photo that is both rotated and scaled. On the server route
 (`wp media import`, measured above) `original_image` is the upload.
 
+Reported by Maurice on 2026-09-29 as WordPress/gutenberg#83757
+(https://github.com/WordPress/gutenberg/issues/83757).
+
 ## Not measured
 
 - Other orientations (3, 8); only 6 was available.

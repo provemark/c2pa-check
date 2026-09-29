@@ -2718,3 +2718,13 @@ README are where the disclosure lives.
   controls correct. The double processing seen with WordPress 7.1.2's
   bundled packages did not occur.
 - Decided by Maurice: the measurement; whether to submit the issue.
+
+## 2026-09-29 — Gutenberg issue recorded
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ingediend, issue #83".
+- Produced: the issue number in `notes/exif-rotation.md` and `NOTES.md`
+  point 6.
+- Measured: WordPress/gutenberg#83757, opened by Maurice at 05:54 UTC,
+  found by author search.
+- Decided by Maurice: submitting the issue (done by him).
