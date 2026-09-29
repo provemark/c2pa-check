@@ -2701,3 +2701,20 @@ README are where the disclosure lives.
 - Reasoned: none beyond the note's wording.
 - Decided by Maurice: to reproduce this. Whether and where to report it
   is his.
+
+## 2026-09-29 — Rotated large photo measured with Gutenberg 24.0.0
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: Maurice noticed that the issue form's "tested with all plugins
+  deactivated except Gutenberg" did not hold; "akkoord, doe de meting
+  met Gutenberg".
+- Produced: a section in `notes/exif-rotation.md`; the issue draft for
+  WordPress/gutenberg rewritten around `original_image` and filled into
+  the form in Maurice's browser (not submitted; he submits). The release
+  environment was restored (probe removed, Gutenberg deleted, plugins
+  reactivated).
+- Measured: with only Gutenberg 24.0.0 active, 2 of 2 runs: one round of
+  sideloads and a finalize, but `original_image` names the rotated copy;
+  controls correct. The double processing seen with WordPress 7.1.2's
+  bundled packages did not occur.
+- Decided by Maurice: the measurement; whether to submit the issue.

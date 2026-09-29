@@ -152,6 +152,24 @@ dev site one earlier run of the same photo did get a finalize, with
 `original_image` naming a copy (see above), so the outcome is not the
 same every time; on the clean site it was 2 of 2.
 
+### The same with Gutenberg 24.0.0 active (measured)
+
+Repeated the same day in the same environment with only Gutenberg 24.0.0
+(the latest release, 2026-09-16) active:
+
+| upload | EXIF | result |
+|---|---|---|
+| Truepic camera photo (2 runs) | 6 | one round of sideloads (10), one `finalize`, 6 image sizes; **`original_image` names `…-rotated-1.jpg`**, and `wp_get_original_image_path()` returns it; 2 `_wp_sideloaded_file` rows left |
+| Lightroom church JPEG (control) | 1 | `original_image` is the upload |
+| `c2pa-rs-no_alg.jpg` (control) | 6 | `original_image` is the upload |
+
+In the finalize request the `original` entry names the upload as its
+`original_image`, and the `scaled` entry names the rotated copy; the
+second overwrites the first. So with the current Gutenberg the double
+processing does not occur, but `original_image` still points at a copy
+for a photo that is both rotated and scaled. On the server route
+(`wp media import`, measured above) `original_image` is the upload.
+
 ## Not measured
 
 - Other orientations (3, 8); only 6 was available.
