@@ -2490,3 +2490,20 @@ README are where the disclosure lives.
   passed; `composer check` green (96 tests). `readme.txt` is 10,205
   bytes, under the 10,240 its test allows.
 - Decided by Maurice: this readme text.
+
+## 2026-09-29 — Draft SPEC-028: changed after upload
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: the same request, part b.
+- Produced: `specs/SPEC-028-changed-after-upload.md`, status `draft`: a
+  SHA-256 fingerprint of the upload taken at the earliest priority of
+  `wp_handle_upload`, stored at `add_attachment`, compared by the check;
+  the display adds "Changed after upload" next to the verifier's verdict.
+  Eight acceptance criteria, three open questions (wording, readme room,
+  a size limit for hashing).
+- Measured: nothing new; it rests on `notes/image-optimizer.md` and
+  `notes/m1-original-file.md`. Read in core 7.1.2: `_wp_handle_upload()`
+  applies `wp_handle_upload` for sideloads too (`file.php:1074`).
+- Reasoned: that the earliest priority runs before optimizers resizing
+  there; the hashing cost.
+- Decided by Maurice: to propose this as a spec. Approval is his.
