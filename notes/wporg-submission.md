@@ -251,3 +251,19 @@ Releases after 0.1.0:
   the same zip (296,391 bytes), on Maurice's go. Found on the way: the
   readme is 10,140 bytes, about 100 below the 10 KB its test enforces.
   The next release must move older changelog entries out first.
+- **0.1.4, 2026-09-29** (SPEC-029, rotated photos from the block editor
+  are checked on the upload; SPEC-028, "Changed after upload"): built
+  from `10d5f01` (SHA-256 `fb33f82b…2f036f09`, kept in
+  `build/submitted/`). Before the build: `composer check` (99),
+  integration (187), multisite (7) and the Release suite (17) green, run
+  in parallel in their own environments; CI green on `10d5f01`. The
+  readme's changelog keeps only 0.1.4 and links the GitHub releases
+  (9,800 bytes). `trunk/` was replaced by the build (`diff -r` empty) and
+  `tags/0.1.4` copied; Maurice committed them (r3718293, 07:35).
+  Measured: the plugin API reported 0.1.4 (last updated 05:35 GMT) by
+  07:36; the public download
+  (`downloads.wordpress.org/plugin/tracefern-image-check-for-c2pa.0.1.4.zip`)
+  unpacks to the same files as the build, and so does an export of SVN
+  `tags/0.1.4`; the plugin page returns 200. Git tag `v0.1.4` on
+  `10d5f01`, and a GitHub release with the same zip (298,163 bytes), on
+  Maurice's go.
