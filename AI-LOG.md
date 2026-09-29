@@ -2592,3 +2592,14 @@ README are where the disclosure lives.
 - Decided by Maurice: the spec and both amendments. The fixture name in
   the spec was changed after approval (`no_alg.jpg` →
   `c2pa-rs-no_alg.jpg`) and reported to him.
+
+## 2026-09-29 — SPEC-028 draft brought up to date
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "eerst 28" (SPEC-028 before pushing).
+- Produced: SPEC-028's open question on a size limit answered with a
+  measurement and a proposal (no limit); a paragraph on the block editor
+  route now that SPEC-029 keeps the upload. Still `draft`.
+- Measured: `hash_file('sha256', …)` in the wp-env container (PHP 8.3.35,
+  aarch64), best of five: 26.7 ms for 5.6 MB, 242 ms for 50 MB.
+- Decided by Maurice: approval of SPEC-028 is his.

@@ -42,6 +42,12 @@ the upload, byte-identical, on every route with no optimizer; it also
 measured that `wp_handle_upload` fires for every image size the browser
 sideloads with client-side media processing on.
 
+With SPEC-029 (implemented): on the block editor route the upload itself
+arrives through `POST /wp/v2/media` and is fingerprinted like any other;
+the browser's copies arrive through the sideload endpoint, pass
+`wp_handle_upload` too, but create no attachment, so they store nothing
+(AC6), and the check reads the kept upload, which is the file compared.
+
 ## Scope
 
 **In scope**
@@ -173,9 +179,11 @@ final class UploadHook
   changelog keeps only the current version and links the earlier ones to
   the GitHub releases, which hold the same text (done before this spec;
   `readme.txt` is 9,571 bytes).
-- Hashing a very large upload in the upload request costs time (about
-  20 ms for the 5.7 MB Pixel file, reasoned from SHA-256 speed, not
-  measured). A size above which no fingerprint is taken? Non-blocker.
+- A size above which no fingerprint is taken? Measured on 2026-09-29 in
+  the wp-env container (PHP 8.3.35, aarch64), best of five
+  `hash_file('sha256', …)`: 26.7 ms for the 5.6 MB Pixel photo, 242 ms
+  for 50 MB, so about 5 ms per MB, next to an upload that itself moves
+  those bytes over the network. Proposal: no limit. Non-blocker.
 
 ## Traceability
 
