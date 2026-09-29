@@ -208,7 +208,7 @@ so the section can say when it finished (Scope).
 | AC3                  | ExistingImagesTest :: AC3   | `UploadHook::runQueue()` (pending uploads first) |
 | AC4                  | ExistingImagesTest :: AC4   | `SettingsPage::existingImages()`, `stopExistingRun()`; `ExistingImages::progress()`, `stop()` |
 | AC5                  | ExistingImagesTest :: AC5 (`withCheckThatDiesFor()`) | `ExistingImages::claim()` (cursor moves first); SPEC-013's provisional entry; SPEC-017's safety run |
-| AC6                  | ExistingImagesTest :: AC6   | `SettingsPage::guardExistingRun()`; `ExistingImages::start()` (unknown mode) |
+| AC6                  | ExistingImagesTest :: AC6   | `SettingsPage::startExistingRun()`, `stopExistingRun()` (capability, then nonce); `ExistingImages::start()` (unknown mode) |
 | AC7                  | ExistingImagesTest :: AC7   | `ExistingImages::start()` (one option, `count()` in SQL) |
 | AC8                  | Unit ExistingImagesTest :: AC8 | `SettingsPage::existingImages()` |
 | AC9                  | ExistingImagesTest :: AC9   | `uninstall.php` (`tracefern_existing_images`) |

@@ -2848,3 +2848,18 @@ README are where the disclosure lives.
 - Reasoned: on a quiet live site the runs wait for visits (WP-Cron), 20
   images per run.
 - Decided by Maurice: the spec, amendment 1 and the readme change.
+
+## 2026-09-29 — SPEC-031: Plugin Check findings fixed
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: part of "maak het af" (the release suite on the build).
+- Produced: in `SettingsPage`, the capability and `check_admin_referer()`
+  inline in each handler before `$_POST` is read, and the section's forms
+  printed part by part with `wp_nonce_field()` echoing itself; the
+  Traceability row for AC6 follows.
+- Measured: the Release suite on `f272e48` failed Plugin Check AC3 (three
+  `NonceVerification.Missing` warnings, two `EscapeOutput` errors on the
+  form HTML built in a closure); `composer check` had not seen them.
+  After the fix: `composer check` (119), SPEC-031 tests (11) green; the
+  Release suite follows on this commit.
+- Decided by Maurice: nothing new; the fix keeps SPEC-031's behaviour.
