@@ -2744,3 +2744,25 @@ README are where the disclosure lives.
   valid until 2038-01-15; `NoNetworkTest` covers `src/` and the main
   file; `tools` is outside PHPStan's paths and excluded by Pint.
 - Decided by Maurice: to draft this spec. Approval is his.
+
+## 2026-09-29 — SPEC-030 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, SPEC-030 approved, bouw hem". The two open questions
+  were not answered; the proposals (Monday 06:00 UTC, a public issue)
+  are recorded as approved with the spec.
+- Produced: `tools/maintenance-check.php` (readers for the three local
+  and three current values, the comparison, a JSON report or nothing);
+  `.github/workflows/maintenance.yml` (weekly and by hand, `contents:
+  read`, `issues: write`, one `maintenance` issue per distinct title);
+  `tests/Unit/MaintenanceCheckTest.php`; the script added to PHPStan's
+  paths and no longer excluded by Pint. SPEC-030 Traceability filled;
+  status stays `approved` until AC8.
+- Measured: red first (the script did not exist); green: 16 SPEC-030
+  tests, `composer check` (115 unit tests). The script against the real
+  sources: nothing to report, exit 0; with older local values: all three
+  reported. The workflow YAML parses; the duplicate filter works on sample
+  data. PHP 8.5 flagged `$http_response_header` at compile time, so the
+  status comes from `stream_get_meta_data()`. The integration suite was
+  not run: no plugin code changed.
+- Decided by Maurice: the spec. AC8 needs a push and one manual run.

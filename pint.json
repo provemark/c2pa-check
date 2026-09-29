@@ -5,7 +5,6 @@
     },
     "exclude": [
         "vendor",
-        "tools",
         "out"
     ]
 }

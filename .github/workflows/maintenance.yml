@@ -1,0 +1,48 @@
+# SPEC-030: once a week, compare what the plugin was released against
+# (Tested up to, the bundled C2PA trust lists, the locked verifier) with
+# what is current, and open one issue when something is behind. It changes
+# nothing itself. A value it cannot read makes the run red, without an issue.
+name: maintenance
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    name: maintenance check
+    # Pinned, as in ci.yml.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Compare with what is current, and report
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          report="$(php tools/maintenance-check.php)"
+          if [ -z "$report" ]; then
+            echo "All current."
+            exit 0
+          fi
+          title="$(jq -r .title <<< "$report")"
+          jq -r .body <<< "$report" > body.md
+          gh label create maintenance --color ededed --description "Something the plugin depends on changed (SPEC-030)" 2>/dev/null || true
+          open="$(gh issue list --state open --label maintenance --json title | jq -r --arg t "$title" '.[] | select(.title == $t) | .title')"
+          if [ -n "$open" ]; then
+            echo "Already open: $title"
+            exit 0
+          fi
+          gh issue create --title "$title" --body-file body.md --label maintenance

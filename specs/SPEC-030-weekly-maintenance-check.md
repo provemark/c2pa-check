@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-29                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -154,21 +154,30 @@ function newestVersionTag(array $tags): ?string;        // 'v0.10.0'
 
 ## Open questions
 
-- Monday 06:00 UTC, or another moment? Non-blocker.
-- The issue is visible to anyone (the repository is public). Acceptable,
-  or should the report only be a red run without an issue? Non-blocker.
+- Approved as proposed (2026-09-29): Monday 06:00 UTC, and a public
+  issue in this repository.
 
 ## Traceability
 
-Filled when status becomes `implemented`.
+Filled at implementation (2026-09-29). Unit tests in
+`tests/Unit/MaintenanceCheckTest.php`, group `SPEC-030`. The status
+stays `approved` until AC8 is checked by hand on GitHub.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
+| AC1                  | MaintenanceCheckTest :: AC1 (both) | `maintenanceReport()`; `testedUpTo()`, `bundledTrustCommit()`, `lockedVerifier()` |
+| AC2                  | MaintenanceCheckTest :: AC2 | `wordpressMajorMinor()`, `maintenanceReport()` |
+| AC3                  | MaintenanceCheckTest :: AC3 | `latestTrustCommit()`, `maintenanceReport()` |
+| AC4                  | MaintenanceCheckTest :: AC4 | `tagNames()`, `newestVersionTag()` |
+| AC5                  | MaintenanceCheckTest :: AC5 | `maintenanceReport()`, `maintenanceTitle()` |
+| AC6                  | MaintenanceCheckTest :: AC6 (both; `MAINTENANCE_CHECK_OFFLINE=1` stands in for an unreachable remote) | the readers above; `fetchUrl()`, `main()` (exit 1, nothing on stdout) |
+| AC7                  | MaintenanceCheckTest :: AC7 | `.github/workflows/maintenance.yml` (`on`, `permissions`) |
+| AC8                  | pending: one `workflow_dispatch` run after the push | `.github/workflows/maintenance.yml` (issue search before `gh issue create`) |
+
+Also checked by hand on 2026-09-29: the script against the real sources
+reports nothing (all current, exit 0); with older local values it reports
+all three; the YAML parses; the duplicate filter's `jq` finds a matching
+title and not another. `tools/maintenance-check.php` is in PHPStan's paths
+and linted by Pint. The HTTP status is read from `stream_get_meta_data()`,
+because PHP 8.5 deprecates `$http_response_header` even where it is not
+reached.
