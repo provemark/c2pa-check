@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.3
+Stable tag: 0.1.4
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -203,9 +203,9 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
 
-= 0.1.3 =
+= 0.1.4 =
 
-* The AI label follows an image's history: an AI image that was later watermarked or converted is still "AI-generated (signed)".
-* New label "AI-edited (signed)", and `ai_edited` in the `tracefern_verdict` filter.
+* A signed photo with EXIF rotation uploaded in the block editor is checked on the uploaded file, not on the browser's rotated or scaled copy. Such photos uploaded with an earlier version may wrongly show "No Content Credentials"; upload them again.
+* New line "Changed after upload" when the file on the server is not the one that was uploaded, for example after an image optimizer rewrote it.
 
 Earlier versions: https://github.com/provemark/tracefern-image-check/releases

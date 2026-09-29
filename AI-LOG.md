@@ -2654,3 +2654,16 @@ README are where the disclosure lives.
 - Measured: the three specs' Traceability tables are filled, and their
   work is committed (`b481283`/`6c72a54`, `7582abf`, `46e9f47`).
 - Decided by Maurice: this housekeeping.
+
+## 2026-09-29 — Prepare 0.1.4
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, bereid 0.1.4 voor".
+- Produced: `Version: 0.1.4` in the plugin header, `Stable tag: 0.1.4`,
+  and the 0.1.4 changelog entry (SPEC-029, with the advice to upload
+  again rotated photos from the block editor; SPEC-028) in place of
+  0.1.3's, which is in its GitHub release. `readme.txt` is 9,800 bytes.
+- Measured: `composer check` green (99 unit tests). The suites on the
+  build follow in the release record.
+- Decided by Maurice: preparing the release. The SVN commit, push, tag
+  and GitHub release are his, or wait for his go.
