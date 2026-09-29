@@ -173,6 +173,32 @@ for a photo that is both rotated and scaled. On the server route
 Reported by Maurice on 2026-09-29 as WordPress/gutenberg#83757
 (https://github.com/WordPress/gutenberg/issues/83757).
 
+### The proposed fix, gutenberg#83785 (measured)
+
+Tested 2026-09-29 in the same clean environment (only Gutenberg active, a
+temporary must-use probe, removed afterwards) with the CI plugin zip of
+https://github.com/WordPress/gutenberg/pull/83785 at `f7f6f4e`
+(`24.1.0-rc.1`). The PR skips the separate rotated copy when the image
+is above the threshold, and lets the scaling step rotate, as core does.
+Gutenberg 24.0.0 was run first on the same site as the baseline.
+
+| upload | 24.0.0 (2 runs) | PR build (2 runs) |
+|---|---|---|
+| Truepic camera photo, 4032×3024, EXIF 6 | 20 sideloads (`original` and `scaled` twice), no `finalize`, 0 image sizes, no `original_image`, `wp_get_original_image_path()` → `-scaled-2`, 20 rows left | one round (6 image sizes + `scaled`, no `original`), `finalize`; `-scaled` 1920×2560 attached; 6 image sizes; `original_image` the upload; `wp_get_original_image_path()` the upload, byte-identical to the source; 0 rows left |
+| Lightroom church JPEG (control) | `original_image` the upload | the same |
+| `c2pa-rs-no_alg.jpg` (control) | `-rotated-1`, `original_image` the upload | the same |
+
+The `-scaled` copy and the image sizes of the PR run are upright
+(portrait sizes, no Orientation tag, and one inspected by eye). The
+uploaded file keeps orientation 6 and the verifier CLI still says
+`Invalid` on it, as on the source.
+
+With 24.0.0 this session showed the double processing without
+`finalize` (2 of 2), not the single round with `original_image` naming
+the rotated copy measured earlier the same day. Which variant occurs is
+not stable between sessions; why was not investigated. With the PR build
+neither occurred.
+
 ## Not measured
 
 - Other orientations (3, 8); only 6 was available.

@@ -2927,3 +2927,22 @@ README are where the disclosure lives.
   200.
 - Decided by Maurice: the push, the SVN commit (done by him), the tag and
   the release.
+
+## 2026-09-29 — Test gutenberg#83785 against the #83757 reproduction
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, test de PR lokaal met mijn reproductie"; "ja, leg vast".
+- Produced: a run in the clean release environment with only Gutenberg
+  active, first 24.0.0 and then the PR's CI plugin zip (`f7f6f4e`), with
+  a temporary must-use probe; the section "The proposed fix,
+  gutenberg#83785" in `notes/exif-rotation.md`; a draft comment for the
+  PR, which is not posted. Probe, both Gutenberg copies, the test
+  attachments and their files were removed afterwards.
+- Measured: with the PR build the rotated Truepic photo gets one round
+  of sideloads and a finalize, and `original_image` names the upload,
+  byte-identical to the source (2 of 2); the two controls are unchanged.
+  With 24.0.0 it was processed twice without finalize (2 of 2).
+- Reasoned: that the variant seen with 24.0.0 differs between sessions;
+  not investigated.
+- Decided by Maurice: running the test and recording it. Posting the
+  comment waits for his go.
