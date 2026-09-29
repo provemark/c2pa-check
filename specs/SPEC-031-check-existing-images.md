@@ -193,7 +193,7 @@ sketched a class `Backfill`; built that way, SPEC-015's test fails
 
 AC9 then reads "no `tracefern_existing_images` option on any site".
 
-## Proposed amendment 2 (2026-09-29; not approved)
+## Amendment 2 (2026-09-29; approved by Maurice van Loon, 2026-09-29)
 
 **Why.** Measured on the dev site with a temporary probe (removed
 afterwards): after "Check all images again" the queue started 18 ms after
@@ -246,3 +246,4 @@ so the section can say when it finished (Scope).
 | AC8                  | Unit ExistingImagesTest :: AC8 | `SettingsPage::existingImages()` |
 | AC9                  | ExistingImagesTest :: AC9   | `uninstall.php` (`tracefern_existing_images`) |
 | Settings sentence    | ExistingImagesTest :: the settings page points at the buttons | `SettingsPage::render()` |
+| AC10 (amendment 2)   | ExistingImagesTest :: AC10 (both) | `SettingsPage::existingRunProgress()` (capability and nonce, then the run), `progressLine()`, the `aria-live` line and `wp_print_inline_script_tag()` in `existingImages()` |

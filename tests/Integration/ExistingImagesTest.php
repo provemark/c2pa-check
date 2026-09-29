@@ -224,3 +224,51 @@ it('the settings page points at the buttons instead of "new uploads only"', func
         ->and($page)->toContain('Check all images again')
         ->and(str_contains($page, 'Settings apply to new uploads only'))->toBeFalse();
 })->group('SPEC-031');
+
+/**
+ * The progress action as $user's browser calls it (admin-ajax), with the
+ * section's nonce or without; returns the decoded JSON answer.
+ *
+ * @return array<mixed>
+ */
+function askProgress(string $user = 'admin', bool $nonce = true): array
+{
+    $nonceCode = $nonce ? "\$_REQUEST['nonce'] = \$_POST['nonce'] = wp_create_nonce('tracefern_existing_progress');" : '';
+    $out = wpEvalAs($user, "add_filter('wp_doing_ajax', '__return_true'); add_filter('wp_die_ajax_handler', static fn () => static function () { exit; }); \$_SERVER['REQUEST_METHOD'] = 'POST'; $nonceCode do_action('wp_ajax_tracefern_existing_progress');");
+    $json = json_decode(trim((string) preg_replace('/^[^{]*/', '', $out)), true);
+
+    return is_array($json) ? $json : [];
+}
+
+it('AC10 (amendment 2): the progress updates itself while a run goes', function (): void {
+    uncheckedAttachments('fixture-unsigned.jpg', 21);
+
+    $idle = wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();");
+    expect($idle)->not->toContain('aria-live')
+        ->and($idle)->not->toContain('tracefern_existing_progress');
+
+    pressExistingImagesButton('tracefern_existing_start', 'unchecked');
+    $running = wpEval("require_once ABSPATH.'wp-admin/includes/admin.php'; (new Tracefern\\ImageCheck\\SettingsPage)->render();");
+    expect($running)->toContain('aria-live="polite"')
+        ->and($running)->toContain('tracefern_existing_progress');
+
+    runPendingChecksOutput();
+    $answer = askProgress();
+    $data = is_array($answer['data'] ?? null) ? $answer['data'] : [];
+    expect($answer['success'] ?? null)->toBeTrue()
+        ->and($data['done'] ?? null)->toBe(20)
+        ->and($data['total'] ?? null)->toBe(21)
+        ->and($data['finished'] ?? null)->toBeFalse()
+        ->and(is_string($data['text'] ?? null) ? $data['text'] : '')->toContain('20 of 21 done');
+
+    runQueueUntilIdle();
+    $after = askProgress();
+    expect(is_array($after['data'] ?? null) ? ($after['data']['finished'] ?? null) : null)->toBeTrue();
+})->group('SPEC-031');
+
+it('AC10 (amendment 2): the progress action refuses without the nonce or the permission', function (): void {
+    wpCli(['user', 'create', 'm31-subscriber', 'm31-subscriber@example.test', '--role=subscriber']);
+
+    expect(askProgress('admin', nonce: false)['success'] ?? null)->toBeFalse()
+        ->and(askProgress('m31-subscriber')['success'] ?? null)->toBeFalse();
+})->group('SPEC-031');

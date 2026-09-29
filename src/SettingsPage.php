@@ -37,6 +37,31 @@ final class SettingsPage
         // The "Existing images" buttons (SPEC-031).
         add_action('admin_post_tracefern_existing_start', $this->startExistingRun(...));
         add_action('admin_post_tracefern_existing_stop', $this->stopExistingRun(...));
+        add_action('wp_ajax_tracefern_existing_progress', $this->existingRunProgress(...));
+    }
+
+    /**
+     * The progress of a run, for the section's script (SPEC-031 amendment
+     * 2): `done`, `total`, whether it has `finished`, and the progress line
+     * as the page shows it. Administrators only, with the section's nonce.
+     */
+    public function existingRunProgress(): void
+    {
+        if (! current_user_can('manage_options') || check_ajax_referer('tracefern_existing_progress', 'nonce', false) === false) {
+            wp_send_json_error(null, 403);
+        }
+        $run = ExistingImages::progress();
+        if ($run === null || $run['finished'] !== null) {
+            wp_send_json_success(['done' => $run['done'] ?? 0, 'total' => $run['total'] ?? 0, 'finished' => true, 'text' => '']);
+        }
+        wp_send_json_success(['done' => $run['done'], 'total' => $run['total'], 'finished' => false, 'text' => self::progressLine($run['done'], $run['total'])]);
+    }
+
+    /** "Checking existing images: N of M done. …", translated, numbers localised. */
+    private static function progressLine(int $done, int $total): string
+    {
+        /* translators: 1: images done, 2: images in the run */
+        return sprintf(__('Checking existing images: %1$s of %2$s done. The checks run in the background.', 'tracefern-image-check-for-c2pa'), number_format_i18n($done), number_format_i18n($total));
     }
 
     /**
@@ -202,12 +227,26 @@ final class SettingsPage
             .'</p>';
 
         if ($run !== null && $run['finished'] === null) {
-            echo '<p>'
-                /* translators: 1: images done, 2: images in the run */
-                .sprintf(esc_html__('Checking existing images: %1$s of %2$s done. The checks run in the background.', 'tracefern-image-check-for-c2pa'), esc_html(number_format_i18n($run['done'])), esc_html(number_format_i18n($run['total'])))
+            echo '<p id="tracefern-existing-progress" aria-live="polite">'.esc_html(self::progressLine($run['done'], $run['total']))
                 .'</p><form method="post" action="'.esc_url(admin_url('admin-post.php')).'"><input type="hidden" name="action" value="tracefern_existing_stop" />';
             wp_nonce_field('tracefern_existing_images');
             echo '<button type="submit" class="button">'.esc_html__('Stop', 'tracefern-image-check-for-c2pa').'</button></form>';
+            // The line updates itself every 3 seconds; when the run has
+            // finished the page reloads once (SPEC-031 amendment 2).
+            wp_print_inline_script_tag(
+                '(function () {'
+                .'var url = '.wp_json_encode(admin_url('admin-ajax.php')).', nonce = '.wp_json_encode(wp_create_nonce('tracefern_existing_progress')).';'
+                .'var line = document.getElementById("tracefern-existing-progress");'
+                .'function tick() {'
+                .'var body = new FormData(); body.append("action", "tracefern_existing_progress"); body.append("nonce", nonce);'
+                .'fetch(url, { method: "POST", body: body, credentials: "same-origin" })'
+                .'.then(function (r) { return r.json(); })'
+                .'.then(function (r) { if (!r || !r.success) { return; } if (r.data.finished) { window.location.reload(); return; } line.textContent = r.data.text; setTimeout(tick, 3000); })'
+                .'.catch(function () { setTimeout(tick, 3000); });'
+                .'}'
+                .'setTimeout(tick, 3000);'
+                .'})();'
+            );
 
             return;
         }

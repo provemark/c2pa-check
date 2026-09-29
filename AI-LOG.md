@@ -2880,3 +2880,20 @@ README are where the disclosure lives.
   "WP-Cron cannot start" came from `wp cron test` in the CLI container,
   which cannot reach the site.
 - Decided by Maurice: to measure and propose. Approval is his.
+
+## 2026-09-29 — SPEC-031 amendment 2 built (tests first)
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, wijziging 2 approved, bouw hem"; "akkoord, commit en
+  push als alles groen is".
+- Produced: `SettingsPage::existingRunProgress()` (admin-ajax
+  `tracefern_existing_progress`, capability and nonce, answering `done`,
+  `total`, `finished` and the progress line), `progressLine()`, the
+  progress line as an `aria-live` region, and a small script printed with
+  `wp_print_inline_script_tag()` only while a run is going: it polls every
+  3 seconds and reloads once when the run has finished. Two AC10 tests;
+  Traceability row.
+- Measured: red first (both AC10 tests failed); green: 13 SPEC-031 tests,
+  `composer check` (119 unit tests), integration 198, multisite 7; the
+  Release suite follows on this commit.
+- Decided by Maurice: amendment 2, and committing and pushing when green.
