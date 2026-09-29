@@ -2766,3 +2766,14 @@ README are where the disclosure lives.
   status comes from `stream_get_meta_data()`. The integration suite was
   not run: no plugin code changed.
 - Decided by Maurice: the spec. AC8 needs a push and one manual run.
+
+## 2026-09-29 — SPEC-030 checked on GitHub
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push de twee commits en start de workflow".
+- Produced: SPEC-030 status `implemented`, AC8 filled.
+- Measured: `0413140` and `e23fcc7` pushed; the `maintenance` workflow
+  started by hand (run 36529574384 on `e23fcc7`): green, "All current.",
+  no issue and no label created. The branch that opens an issue, and its
+  duplicate search, did not run, because nothing is behind today.
+- Decided by Maurice: the push and the manual run.

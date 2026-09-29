@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-09-29                      |
 | Supersedes | —                                                 |
@@ -161,7 +161,7 @@ function newestVersionTag(array $tags): ?string;        // 'v0.10.0'
 
 Filled at implementation (2026-09-29). Unit tests in
 `tests/Unit/MaintenanceCheckTest.php`, group `SPEC-030`. The status
-stays `approved` until AC8 is checked by hand on GitHub.
+became `implemented` after the manual run for AC8.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
@@ -172,7 +172,7 @@ stays `approved` until AC8 is checked by hand on GitHub.
 | AC5                  | MaintenanceCheckTest :: AC5 | `maintenanceReport()`, `maintenanceTitle()` |
 | AC6                  | MaintenanceCheckTest :: AC6 (both; `MAINTENANCE_CHECK_OFFLINE=1` stands in for an unreachable remote) | the readers above; `fetchUrl()`, `main()` (exit 1, nothing on stdout) |
 | AC7                  | MaintenanceCheckTest :: AC7 | `.github/workflows/maintenance.yml` (`on`, `permissions`) |
-| AC8                  | pending: one `workflow_dispatch` run after the push | `.github/workflows/maintenance.yml` (issue search before `gh issue create`) |
+| AC8                  | by hand: run 36529574384 (`workflow_dispatch` on `e23fcc7`, 2026-09-29) green, "All current.", no issue; the duplicate search itself checked on sample data only, since nothing was behind | `.github/workflows/maintenance.yml` (issue search before `gh issue create`) |
 
 Also checked by hand on 2026-09-29: the script against the real sources
 reports nothing (all current, exit 0); with older local values it reports
