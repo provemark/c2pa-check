@@ -154,3 +154,13 @@ it('the FAQ explains what an image optimizer does to Content Credentials', funct
         ->toContain('"No Content Credentials"')
         ->and(strlen($readme))->toBeLessThan(10240);
 })->group('image-optimizer');
+
+it('the changelog keeps the current version and links earlier ones to the GitHub releases', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $changelog = (string) preg_replace('/.*\n== Changelog ==\n(.*?)(\n== .*|$)/s', '$1', $readme);
+    preg_match('/^Stable tag: (.+)$/m', $readme, $stable);
+    preg_match_all('/^= (.+) =$/m', $changelog, $versions);
+
+    expect($versions[1])->toBe([$stable[1] ?? null])
+        ->and($changelog)->toContain('https://github.com/provemark/tracefern-image-check/releases');
+})->group('changelog');

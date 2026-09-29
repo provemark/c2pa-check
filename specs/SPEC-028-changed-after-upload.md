@@ -167,10 +167,12 @@ final class UploadHook
 
 ## Open questions
 
-- The wording, in the column and in the details (proposal above). Blocker.
-- The readme is 10,205 bytes against a 10,240 limit; the FAQ line needs
-  room. Move the changelog entries before 0.1.3 out of `readme.txt`
-  (where to?), or shorten another answer. Blocker.
+- Resolved 2026-09-29 (Maurice van Loon): the wording as proposed in
+  Scope.
+- Resolved 2026-09-29 (Maurice van Loon): room in the readme. The
+  changelog keeps only the current version and links the earlier ones to
+  the GitHub releases, which hold the same text (done before this spec;
+  `readme.txt` is 9,571 bytes).
 - Hashing a very large upload in the upload request costs time (about
   20 ms for the 5.7 MB Pixel file, reasoned from SHA-256 speed, not
   measured). A size above which no fingerprint is taken? Non-blocker.

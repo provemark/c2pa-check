@@ -2507,3 +2507,16 @@ README are where the disclosure lives.
 - Reasoned: that the earliest priority runs before optimizers resizing
   there; the hashing cost.
 - Decided by Maurice: to propose this as a spec. Approval is his.
+
+## 2026-09-29 — Changelog to the GitHub releases; SPEC-028 questions
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "tekst akkoord; verplaats oude changelog naar GitHub releases".
+- Produced: `readme.txt` keeps the 0.1.3 changelog entry and links the
+  earlier ones to the GitHub releases; a readme test for that (group
+  `changelog`). SPEC-028's two blocking questions marked resolved.
+- Measured: the GitHub releases 0.1.0, 0.1.1 and 0.1.2 exist and hold the
+  removed changelog text (`gh release view`), so nothing was published.
+  The new test failed first, then passed; `composer check` green (97
+  tests). `readme.txt` is 9,571 bytes.
+- Decided by Maurice: the SPEC-028 wording; the changelog move.

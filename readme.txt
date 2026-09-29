@@ -208,18 +208,4 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 * The AI label follows an image's history: an AI image that was later watermarked or converted is still "AI-generated (signed)".
 * New label "AI-edited (signed)", and `ai_edited` in the `tracefern_verdict` filter.
 
-= 0.1.2 =
-
-* Bundles c2pa-verifier 0.2.6, a security release: an image signed with an RSA key whose public exponent is 1 no longer shows as trusted, since such a signature needs no private key.
-
-= 0.1.1 =
-
-* Other plugins can read the verdict through the `tracefern_verdict` filter.
-
-= 0.1.0 =
-
-* Verifies the Content Credentials of JPEG, PNG and WebP uploads on the original file, in the background.
-* Media Library column and attachment details, with an AI label for verified AI images.
-* Bundled C2PA trust lists (2026-08-14), DigiCert timestamps, custom trust settings.
-* Sorting and filtering by verdict; `wp tracefern check` for existing images.
-* Suggested privacy policy text; data removed on uninstall.
+Earlier versions: https://github.com/provemark/tracefern-image-check/releases
