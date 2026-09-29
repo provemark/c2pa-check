@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -209,9 +209,8 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
 
-= 0.1.4 =
+= 0.1.5 =
 
-* A signed photo with EXIF rotation uploaded in the block editor is checked on the uploaded file, not on the browser's rotated or scaled copy. Such photos uploaded with an earlier version may wrongly show "No Content Credentials"; upload them again.
-* New line "Changed after upload" when the file on the server is not the one that was uploaded, for example after an image optimizer rewrote it.
+* Check existing images from Settings → Tracefern: "Check images that were never checked", or "Check all images again" after changing the trust settings. The checks run in the background, with progress on the page; no WP-CLI needed.
 
 Earlier versions: https://github.com/provemark/tracefern-image-check/releases

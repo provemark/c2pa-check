@@ -2897,3 +2897,16 @@ README are where the disclosure lives.
   `composer check` (119 unit tests), integration 198, multisite 7; the
   Release suite follows on this commit.
 - Decided by Maurice: amendment 2, and committing and pushing when green.
+
+## 2026-09-29 — Prepare 0.1.5
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, zet 0.1.5 klaar".
+- Produced: `Version: 0.1.5`, `Stable tag: 0.1.5`, and the 0.1.5
+  changelog entry (SPEC-031) in place of 0.1.4's, which is in its GitHub
+  release. `readme.txt` is 9,997 bytes. The readme-only SVN update
+  prepared earlier for SPEC-025 amendment 1 is dropped: 0.1.5 carries it.
+- Measured: `composer check` green (119 unit tests). The suites on the
+  build follow in the release record.
+- Decided by Maurice: preparing the release. The SVN commit, push, tag
+  and GitHub release are his, or wait for his go.
