@@ -172,3 +172,18 @@ it('SPEC-028: the FAQ names "Changed after upload"', function (): void {
     expect($faq)->toContain('"Changed after upload"')
         ->and(strlen($readme))->toBeLessThan(10240);
 })->group('SPEC-028');
+
+it('SPEC-025 AC6 (amendment 1): the answer names what sets the verification apart', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $faq = (string) preg_replace('/.*\n== Frequently Asked Questions ==\n(.*?)(\n== .*|$)/s', '$1', $readme);
+    $answers = preg_split('/^= .+ =$/m', $faq) ?: [];
+    $paragraphs = array_values(array_filter(array_map(static fn (string $p): string => trim((string) preg_replace('/\s+/', ' ', $p)), preg_split('/\n\s*\n/', trim($answers[1] ?? '')) ?: [])));
+
+    expect($paragraphs)->toHaveCount(2)
+        ->and($paragraphs[1] ?? '')->toStartWith('A few plugins verify too.')
+        ->toContain('on the server')
+        ->toContain('every upload')
+        ->toContain('C2PA trust lists')
+        ->toContain('"Verified"')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('SPEC-025');

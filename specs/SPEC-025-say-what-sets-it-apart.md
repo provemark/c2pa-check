@@ -181,7 +181,7 @@ Not applicable: text in `readme.txt` and a Unit test in
   site gets an update for a text change. Proposal: (a).
   **Decided by Maurice, 2026-09-28: (a).**
 
-## Proposed amendment 1 (2026-09-29; not approved)
+## Amendment 1 (2026-09-29; approved by Maurice van Loon, 2026-09-29)
 
 **Why.** On 2026-09-29 the directory search for "c2pa" gave 28 plugins
 (plugin API, `query_plugins`, read that day). From their own
@@ -236,3 +236,4 @@ least one test; every source file maps back to this spec.
 | AC3                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC3 | `readme.txt` (`== Frequently Asked Questions ==`, first question) |
 | AC4                  | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC4 (the allow-list names the two GitHub repositories, `provemark/tracefern-image-check` and `provemark/c2pa-verifier`, rather than all of `github.com/provemark/`, which `tests/Unit/NameTest.php` also requires) | `readme.txt` (all URLs) |
 | AC5                  | SPEC-024 AC2–AC3            | —                    |
+| AC6 (amendment 1)    | `tests/Unit/ReadmeTest.php` :: SPEC-025 AC6 (amendment 1) | `readme.txt` (first FAQ answer, second paragraph) |

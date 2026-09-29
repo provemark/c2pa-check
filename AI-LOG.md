@@ -2791,3 +2791,16 @@ README are where the disclosure lives.
   of the twelve that mention C2PA; one, added that day, verifies in the
   browser without a trust list (by its own description; not installed).
 - Decided by Maurice: to draft the amendment. Approval is his.
+
+## 2026-09-29 — SPEC-025 amendment 1 built
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, wijziging 1 approved, voer hem door".
+- Produced: the second paragraph of the first FAQ answer in `readme.txt`;
+  a readme test for AC6; the amendment marked approved and its
+  Traceability row.
+- Measured: the new test failed first (one paragraph, not two), then
+  passed; `composer check` green (116 unit tests). `readme.txt` is 10,017
+  bytes.
+- Decided by Maurice: the amendment. The SVN readme update is his to
+  commit.

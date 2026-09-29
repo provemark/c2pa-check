@@ -84,8 +84,12 @@ camera photo with Content Credentials is labelled AI-generated. Others
 read what the manifest claims without checking it, so an AI image that was
 changed after signing keeps its label. Tracefern verifies first: a camera
 photo stays a camera photo, and a changed image says "Does not verify" and
-loses the label. It adds no badges to your pages; it gives you the verdict
-a label can rely on.
+loses the label.
+
+A few plugins verify too. Tracefern does it on the server, by itself, for
+every upload, and checks the signer against the bundled C2PA trust lists,
+so it can say "Verified" rather than only that the signature holds. It adds
+no badges to your pages; it gives you the verdict a label can rely on.
 
 = What is the difference between "Verified" and "Intact"? =
 
