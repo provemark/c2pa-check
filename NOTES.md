@@ -148,6 +148,13 @@ plugin's part.
    hash (shown "Changed since its check"; checked again, "Does not
    verify"). Options to weigh are in the note: a readme warning, a hash
    of the upload taken early, or an early check.
+6. **A rotated image on the block editor route is checked on a copy**
+   (added 2026-09-29, measured, `notes/exif-rotation.md`). With
+   client-side processing, a signed JPEG with EXIF orientation 6 is
+   stored as `none`: the kept path moves to the browser's `-rotated-1`
+   or `-scaled-1` copy when its sideload updates the metadata. WP-CLI and
+   REST uploads, and the block editor without rotation, are correct. A
+   bug; needs a spec.
 
 When a fixed verifier is released: `composer update provemark/c2pa-verifier`,
 then the WPCS baseline reviewed again (`tests/wpcs-verifier-baseline.json`)
@@ -161,8 +168,8 @@ bounds the known files, the background check the next unknown one.
 
 - Resolved 2026-09-26 (`notes/m1-original-file.md`): which hook gives the
   untouched original file, and whether it is byte-identical to the upload,
-  including with client-side media processing enabled. Not measured
-  there: the `-rotated` case.
+  including with client-side media processing enabled. The `-rotated`
+  case was measured on 2026-09-29 (`notes/exif-rotation.md`).
 - Resolved 2026-09-27 (see Measured): whether wordpress.org accepts the
   CC BY 4.0 trust lists as bundled data.
 - Resolved in M5 (SPEC-006): Plugin Check never scans `vendor/`; the

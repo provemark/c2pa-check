@@ -2520,3 +2520,23 @@ README are where the disclosure lives.
   The new test failed first, then passed; `composer check` green (97
   tests). `readme.txt` is 9,571 bytes.
 - Decided by Maurice: the SPEC-028 wording; the changelog move.
+
+## 2026-09-29 — EXIF rotation measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, begin met meting A" (a signed photo with EXIF
+  rotation, the `-rotated` case `notes/m1-original-file.md` left open).
+- Produced: `notes/exif-rotation.md`; `NOTES.md` "Open" point 6, and the
+  `-rotated` case under "To measure" marked measured. No plugin code.
+- Measured: three signed fixtures with orientation 6 from the verifier's
+  tree (`c2pa-rs/no_alg.jpg`, two Truepic photos) via WP-CLI, REST and
+  the block editor in Chrome 153 with client-side processing. WP-CLI and
+  REST: the plugin checks the upload and equals the CLI (state and
+  failure codes). Block editor: it stores `none`, having checked the
+  browser's `-rotated-1` / `-scaled-1` copy; for the large photo
+  `original_image` itself names the `-rotated-1` copy. Controls without
+  rotation on the block editor route were correct.
+- Reasoned: the cause, `UploadHook::shownFile()` matching only exact
+  `-scaled` / `-rotated` names, so `onMetadataUpdate()` moves the kept
+  path to the copy.
+- Decided by Maurice: to measure this. The fix needs a spec.
