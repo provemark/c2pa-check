@@ -126,6 +126,32 @@ verdict was right), but the recorded copies were empty, so the display
 compared the `-scaled-2` copy with the verdict and said "Changed since its
 check".
 
+## Reproduced on a clean WordPress, without this plugin (measured)
+
+Measured 2026-09-29 in the release environment (WordPress 7.1.2, PHP 8.3,
+port 8890) with every plugin deactivated, this one included; only a
+temporary must-use probe logged REST requests, `wp_update_attachment_metadata`
+and `update_attached_file` (removed afterwards). Chrome 153 on
+`post-new.php` (`crossOriginIsolated` true), uploads through the block
+editor's `mediaUpload`:
+
+| upload | EXIF | sequence | finalize | final metadata |
+|---|---|---|---|---|
+| Truepic camera photo, 4032×3024 (run 1) | 6 | the copies twice: `original` → `-rotated-1`, `-rotated-2`; `scaled` → `-scaled-1`, `-scaled-2`; every image size twice (20 sideloads) | **none** | `file` the upload, 4032×3024, **0 image sizes**, no `original_image`; attached `-scaled-2`; `wp_get_original_image_path()` → `-scaled-2`; 20 `_wp_sideloaded_file` rows left; 16 files on disk that no metadata names |
+| the same photo again (run 2) | 6 | the same, 20 sideloads | **none** | the same |
+| Lightroom church JPEG, 3280×2451 (control) | 1 | one round, `scaled` → `-scaled` | yes | `-scaled` attached, `original_image` the upload, 6 image sizes, no rows left |
+| `c2pa-rs-no_alg.jpg`, 480×270 (small, rotated) | 6 | one round, `original` → `-rotated-1` | yes | `-rotated-1` attached, `original_image` the upload, 2 image sizes, no rows left |
+
+So in WordPress 7.1.2 itself, a photo that is both rotated by EXIF and
+above `big_image_size_threshold`, uploaded in the block editor with
+client-side processing, is processed twice by the browser and never
+finalized: its metadata keeps no image sizes and no `original_image`,
+and `wp_get_original_image_path()` returns a browser copy. A large photo
+without rotation and a small rotated one are finalized correctly. On the
+dev site one earlier run of the same photo did get a finalize, with
+`original_image` naming a copy (see above), so the outcome is not the
+same every time; on the clean site it was 2 of 2.
+
 ## Not measured
 
 - Other orientations (3, 8); only 6 was available.

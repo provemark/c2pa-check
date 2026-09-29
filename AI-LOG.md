@@ -2684,3 +2684,20 @@ README are where the disclosure lives.
   returns 200.
 - Decided by Maurice: the SVN commit (done by him), the tag and the
   release.
+
+## 2026-09-29 — Rotated large photo reproduced on a clean WordPress
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, begin met stap 1" (reproduce the core behaviour found
+  during SPEC-029 without this plugin, before any report to WordPress).
+- Produced: a section in `notes/exif-rotation.md`. No plugin code. The
+  release environment was restored (probe removed, plugins reactivated).
+- Measured: in WordPress 7.1.2 with no plugins active, Chrome 153, the
+  Truepic photo (EXIF 6, 4032×3024) was processed twice and never
+  finalized, 2 of 2 runs: no image sizes and no `original_image` in its
+  metadata, `wp_get_original_image_path()` returning `-scaled-2`, 16
+  unreferenced files. Controls finalized correctly: a large photo without
+  rotation, and a small rotated one.
+- Reasoned: none beyond the note's wording.
+- Decided by Maurice: to reproduce this. Whether and where to report it
+  is his.
