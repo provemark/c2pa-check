@@ -193,6 +193,39 @@ sketched a class `Backfill`; built that way, SPEC-015's test fails
 
 AC9 then reads "no `tracefern_existing_images` option on any site".
 
+## Proposed amendment 2 (2026-09-29; not approved)
+
+**Why.** Measured on the dev site with a temporary probe (removed
+afterwards): after "Check all images again" the queue started 18 ms after
+the press, in a WP-Cron request the button's own request spawned, and
+all 34 images were done within about a second. But the page shown after
+the redirect is built while that happens, so it says "0 of 34 done" and
+stays so: the section never updates itself. Maurice pressed the button
+three times within 40 seconds, thinking nothing happened. (An earlier
+reading that WP-Cron could not start there came from `wp cron test` in
+the WP-CLI container, which cannot reach the site; the web server can.)
+
+**Change:**
+
+- While a run is going, the section asks for its progress every 3
+  seconds (an admin-ajax action `tracefern_existing_progress`,
+  `manage_options` and a nonce, answering `done`, `total`, `finished`)
+  and updates the progress line in place; the line is an
+  `aria-live="polite"` region, so screen readers hear it. When the run
+  has finished, the page reloads once to show "Finished" and the buttons.
+- The script is a few lines printed with `wp_print_inline_script_tag()`
+  only on this page and only while a run is going; without JavaScript the
+  page works as now (reload by hand).
+- Reasoned, not measured: each progress request is an ordinary WordPress
+  request, which also gives WP-Cron a chance to start the next queue run,
+  so a run keeps going on a quiet site as long as the page is open.
+
+**Criteria.** New AC10 — *the progress updates itself*: while a run is
+going, the section holds the progress line in an `aria-live` region and
+the script that polls; the progress action answers `done`, `total` and
+`finished` for an administrator with the nonce, and refuses without
+either (error path). Not in the page when no run is going.
+
 ## Traceability
 
 Filled at implementation (2026-09-29), with the names of amendment 1.

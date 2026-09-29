@@ -2863,3 +2863,20 @@ README are where the disclosure lives.
   After the fix: `composer check` (119), SPEC-031 tests (11) green; the
   Release suite follows on this commit.
 - Decided by Maurice: nothing new; the fix keeps SPEC-031's behaviour.
+
+## 2026-09-29 — SPEC-031: measured the wait, proposed amendment 2
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, meet het en stel de wijziging voor" (the check button
+  seemed slow on the dev site).
+- Produced: a proposed amendment 2 in SPEC-031: the section polls its
+  progress every 3 seconds while a run is going, in an `aria-live`
+  region, and reloads once when it has finished.
+- Measured: with a temporary probe on the dev site (removed): the queue
+  ran 18 ms after the press, in a WP-Cron request the button's request
+  spawned; 34 images were done within about a second; the page after the
+  redirect showed "0 of 34 done" and did not change. The web server's
+  logs show three presses within 40 seconds at 07:03. The earlier
+  "WP-Cron cannot start" came from `wp cron test` in the CLI container,
+  which cannot reach the site.
+- Decided by Maurice: to measure and propose. Approval is his.
