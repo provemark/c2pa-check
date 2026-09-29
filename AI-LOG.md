@@ -2728,3 +2728,19 @@ README are where the disclosure lives.
 - Measured: WordPress/gutenberg#83757, opened by Maurice at 05:54 UTC,
   found by author search.
 - Decided by Maurice: submitting the issue (done by him).
+
+## 2026-09-29 — Draft SPEC-030: a weekly maintenance check
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, stel SPEC-030 op".
+- Produced: `specs/SPEC-030-weekly-maintenance-check.md`, status
+  `draft`: a script in `tools/` compares `Tested up to`, the bundled
+  trust-list commit and the locked verifier with the current WordPress
+  release, trust-list commit and verifier tag; a weekly workflow opens
+  one `maintenance` issue when something is behind. It changes nothing
+  itself. Eight criteria, two open questions (timing, a public issue).
+- Measured: the current values (WordPress 7.1.2, trust lists `99927ca`,
+  verifier `v0.2.6`); `/tools` is `export-ignore`; the DigiCert root is
+  valid until 2038-01-15; `NoNetworkTest` covers `src/` and the main
+  file; `tools` is outside PHPStan's paths and excluded by Pint.
+- Decided by Maurice: to draft this spec. Approval is his.
