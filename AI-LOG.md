@@ -3081,3 +3081,12 @@ README are where the disclosure lives.
   afterwards): both test files `Valid`, local originals gone, the
   originals read through `s3useast1://`; CLI exit 0 on both.
 - Decided by Maurice: none in this entry.
+
+## 2026-09-30 — Confirm SPEC-026 amendment 1; push SPEC-032
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, bevestig amendement 1 en push de commits".
+- Produced: SPEC-026 amendment 1 confirmed; `main` pushed with SPEC-032
+  (draft, approval, build, measurement) and this entry.
+- Decided by Maurice: confirming amendment 1 (the reason `too_large`) and
+  the push.

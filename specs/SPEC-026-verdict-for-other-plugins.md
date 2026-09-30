@@ -194,8 +194,8 @@ if ( is_array( $verdict ) && $verdict['ai'] ) {
 
 ## Amendments
 
-1. **2026-09-30, proposed with SPEC-032; awaiting confirmation by Maurice
-   van Loon.** The `reason` of an `error` gains `too_large`: an original
+1. **2026-09-30, proposed with SPEC-032; confirmed the same day by
+   Maurice van Loon.** The `reason` of an `error` gains `too_large`: an original
    read from another plugin's cloud storage that is larger than 64 MiB
    (SPEC-032). A plugin reading the verdict must treat an unknown reason
    as an error it cannot explain, as it already must for `error` itself.
