@@ -3136,3 +3136,22 @@ README are where the disclosure lives.
   build (`diff -r` empty); the plugin page returns 200.
 - Decided by Maurice: the push, the SVN commit (done by him), the tag and
   the release.
+
+## 2026-09-30 — Draft SPEC-033: a dashboard summary
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: an opinion on three proposals for the free plugin (a front-end
+  badge, a manual AI-disclosure field, a dashboard line); then "ja, stel
+  SPEC-033 voor de dashboardregel op".
+- Produced: `specs/SPEC-033-dashboard-summary.md` (draft): one dashboard
+  widget with the counts of the SPEC-007 filters, each linked to its list.
+- Measured: nothing yet; the cost of the counts on 10,000 attachments is an
+  open question before `implemented`.
+- Reasoned: that the badge and the manual field conflict with the readme's
+  "adds no badges to your pages" and with showing only verdicts the
+  verifier gave; that counting through `MediaSort::apply()` keeps every
+  number equal to the list it links to; that neutral wording and no
+  promotion follow from the facts and guideline 11.
+- Decided by Maurice: to draft the dashboard line as SPEC-033. On the
+  badge and the manual field he has not decided; approval of the spec is
+  his.
