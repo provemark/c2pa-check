@@ -3155,3 +3155,28 @@ README are where the disclosure lives.
 - Decided by Maurice: to draft the dashboard line as SPEC-033. On the
   badge and the manual field he has not decided; approval of the spec is
   his.
+
+## 2026-09-30 — Comment on WordPress/ai#1071
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: review a draft reply for WordPress/ai#1058 (prepared elsewhere);
+  then "ja, zet het om naar een reactie voor #1071", "maak het iets minder
+  AI-achtig", "wordt elk punt dat hij vraagt aangestipt?", "klopt de tekst
+  helemaal?".
+- Produced: the text of the comment, checked against its sources. Posted
+  by Maurice: https://github.com/WordPress/ai/issues/1071#issuecomment-5913643908
+- Measured: `gh` reads of WordPress/ai#1058, #1071, PR #459 (approved by
+  dkotter, open, a rename to "Content Verification" requested on
+  2026-09-29), libvips#4420 (experimental C2PA planned for 8.19; 8.18.7 is
+  the latest release); the AI plugin's `Requires PHP: 7.4`; the verifier's
+  `composer.json` (8.3, openssl, mbstring; sodium on 8.3 for Ed25519);
+  `src/` has no bulk or row action.
+- Reasoned: #1071 rather than #1058 as the place (it asks for help with
+  exactly the verification step, and #459 only detects a manifest). Errors
+  found in the drafts and corrected before posting: libvips#4233 does not
+  exist (it is #4420); "pure PHP, no extensions"; verdict words that were
+  neither the verifier's nor the plugin's; "not checked" versus "could not
+  be checked"; a claim of running on real media libraries and of having
+  built all three entry points, neither of which is true.
+- Decided by Maurice: to offer the verifier to the AI plugin, the wording,
+  and posting it himself; Tracefern not named.
