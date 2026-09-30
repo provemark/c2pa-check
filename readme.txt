@@ -56,8 +56,10 @@ What it does not do:
 
 * It never signs anything and holds no keys.
 * It never blocks an upload.
-* It makes no network calls. A manifest that is only referenced by URL is
-  not fetched, and trust lists are never downloaded.
+* It makes no network calls of its own. When another plugin has moved the
+  original image to cloud storage, the image is read through that plugin,
+  once per check. A manifest that is only referenced by URL is not
+  fetched, and trust lists are never downloaded.
 
 Verification is done by
 [provemark/c2pa-verifier](https://github.com/provemark/c2pa-verifier), a
@@ -141,7 +143,8 @@ longer applies, so none is shown; check it again with
 editor, or restored to its original, is checked again automatically. After
 moving a site with a tool that does not keep file modification times, or
 with media moved to external storage, every image can show this; check
-them again with `wp tracefern check --all`.
+them again with `wp tracefern check --all`. Images whose original another
+plugin keeps in cloud storage are checked there, up to 64 MB.
 
 = Which formats are checked? =
 

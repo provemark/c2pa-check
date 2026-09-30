@@ -71,7 +71,7 @@ The array (all keys always present):
 | `signer` | `['issuer' => ?string, 'common_name' => ?string]` or `null` |
 | `signed_at`, `checked_at` | ISO 8601 strings or `null` |
 | `codes` | list of C2PA status codes (`Invalid` only), else `[]` |
-| `reason` | for `error`: `interrupted`, `unreadable`, `exception`, `unsupported`; else `null` |
+| `reason` | for `error`: `interrupted`, `unreadable`, `exception`, `unsupported`, `too_large` (amendment 1); else `null` |
 | `verifier`, `trust` | the verifier version and trust settings used, or `null` |
 
 Text from the file (`signer`) is returned as stored (at most 256
@@ -191,6 +191,14 @@ if ( is_array( $verdict ) && $verdict['ai'] ) {
   0.2.0 (a new feature), with a changelog line. Non-blocker for building.
   **Decided by Maurice, 2026-09-28: 0.1.1** (first said 0.2.0, changed the
   same day).
+
+## Amendments
+
+1. **2026-09-30, proposed with SPEC-032; awaiting confirmation by Maurice
+   van Loon.** The `reason` of an `error` gains `too_large`: an original
+   read from another plugin's cloud storage that is larger than 64 MiB
+   (SPEC-032). A plugin reading the verdict must treat an unknown reason
+   as an error it cannot explain, as it already must for `error` itself.
 
 ## Traceability
 

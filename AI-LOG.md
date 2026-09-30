@@ -3039,3 +3039,29 @@ README are where the disclosure lives.
   text and AC8 made testable.
 - Decided by Maurice: a fixed 64 MiB limit; the readme sentence as
   proposed.
+
+## 2026-09-30 — Build SPEC-032: check an offloaded original
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, schrijf de tests"; "akkoord, bouw de oplossing".
+- Produced: `tests/Integration/fake-offload.php` (a stand-in offload plugin
+  whose stream does not seek, as the AWS wrapper), `OffloadTest.php`
+  (AC1–AC6), the AC8 readme test; `Checker` copies a path in a
+  plugin-registered (`user-space`) stream wrapper into `php://temp`, at
+  most 64 MiB, refuses PHP's own wrappers by name, and refuses a copy
+  that fails or ends before its stated size; the reason `too_large`;
+  "Changed after upload" compares the copy's hash when the upload's path
+  ends the stream path; the readme line and FAQ; SPEC-026 amendment 1
+  proposed (the new reason).
+- Measured: before the change the SPEC-032 group gave 7 failed, 4 passed
+  (AC1 and AC2 stored `error`/`exception`, as with WP Offload Media; AC3
+  `php`, `data`, `phar` and AC5 `fail_open` passed before: PHP cannot stat
+  those paths or the open fails, so they guard the rule). After: 11
+  passed. `composer check` 120, integration 208, multisite 7. Three faults
+  in the first test set-up, fixed before the run above: a seekable fake
+  wrapper (AC1/AC2 passed on the old code), one that allowed rewind() at
+  0 (the verifier then said `Invalid`), and a trap on `phar://` that broke
+  WP-CLI itself.
+- Reasoned: that a stated size larger than the limit could be refused
+  before any download (not done; the spec bounds the copy).
+- Decided by Maurice: building it.

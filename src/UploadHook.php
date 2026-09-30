@@ -505,7 +505,8 @@ final class UploadHook
             delete_option(self::TRUST_FAILED_OPTION);
         }
 
-        $entry = $this->checker->check($path, $settings, $trust);
+        $sha256 = null;
+        $entry = $this->checker->check($path, $settings, $trust, $sha256);
         // Which file this verdict describes (SPEC-014): a later change to it
         // shows as "Changed since its check".
         $relative = $path === '' ? null : self::relativeToUploads($path);
@@ -515,11 +516,18 @@ final class UploadHook
         $entry += ['file' => $relative, 'size' => $size === false ? null : $size, 'modified' => $modified === false ? null : $modified];
 
         // The file at the uploaded path is not the file that was uploaded
-        // (SPEC-028): an optimizer or another plugin rewrote it.
+        // (SPEC-028): an optimizer or another plugin rewrote it. For an
+        // original another plugin moved to its storage, the upload's path
+        // ends its stream path, and the hash is the copy's (SPEC-032).
         $upload = get_post_meta($attachmentId, self::UPLOAD_KEY, true);
-        if (is_array($upload) && $relative !== null && ($upload['file'] ?? null) === $relative && is_string($upload['sha256'] ?? null)
-            && is_file($path) && hash_file('sha256', $path) !== $upload['sha256']) {
-            $entry['changed_after_upload'] = true;
+        $uploaded = is_array($upload) ? ($upload['file'] ?? null) : null;
+        $offloaded = Checker::streamPath($path);
+        if (is_array($upload) && $relative !== null && is_string($uploaded) && $uploaded !== '' && is_string($upload['sha256'] ?? null)
+            && ($offloaded ? str_ends_with($path, '/'.$uploaded) : $uploaded === $relative)) {
+            $actual = $offloaded ? $sha256 : (is_file($path) ? hash_file('sha256', $path) : false);
+            if (is_string($actual) && $actual !== $upload['sha256']) {
+                $entry['changed_after_upload'] = true;
+            }
         }
 
         // Deleted while it was being checked (SPEC-015): leave no rows behind.

@@ -198,3 +198,12 @@ it('SPEC-031: the readme points at the buttons before WP-CLI', function (): void
         ->and($install)->toContain('"Check images that were never checked"')
         ->and(strlen($readme))->toBeLessThan(10240);
 })->group('SPEC-031');
+
+it('AC8: says that an offloaded original is read through the offload plugin', function (): void {
+    $readme = (string) file_get_contents(dirname(__DIR__, 2).'/readme.txt');
+    $flat = (string) preg_replace('/\s+/', ' ', $readme);
+
+    expect($flat)->not->toContain('It makes no network calls. ')
+        ->and($flat)->toContain('It makes no network calls of its own. When another plugin has moved the original image to cloud storage, the image is read through that plugin, once per check.')
+        ->and(strlen($readme))->toBeLessThan(10240);
+})->group('SPEC-032');

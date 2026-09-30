@@ -21,7 +21,7 @@ final class Display
 {
     private const array STATES = ['Trusted', 'Valid', 'Invalid', 'none', 'error'];
 
-    private const array REASONS = ['interrupted', 'unreadable', 'exception', 'unsupported'];
+    private const array REASONS = ['interrupted', 'unreadable', 'exception', 'unsupported', 'too_large'];
 
     /**
      * C0 and C1 controls and the Unicode direction controls (UAX #9).
@@ -442,6 +442,7 @@ final class Display
                 'interrupted' => __('the check did not finish', 'tracefern-image-check-for-c2pa'),
                 'unreadable' => __('the file could not be read', 'tracefern-image-check-for-c2pa'),
                 'unsupported' => __('not a JPEG, PNG or WebP file', 'tracefern-image-check-for-c2pa'),
+                'too_large' => __('the file is larger than the plugin reads from external storage', 'tracefern-image-check-for-c2pa'),
                 default => __('the verifier failed', 'tracefern-image-check-for-c2pa'),
             };
             $rows[] = [esc_html__('Reason', 'tracefern-image-check-for-c2pa'), esc_html($words)];

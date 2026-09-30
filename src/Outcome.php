@@ -115,7 +115,7 @@ final class Outcome
     }
 
     /**
-     * @param  'interrupted'|'unreadable'|'exception'|'unsupported'  $reason
+     * @param  'interrupted'|'unreadable'|'exception'|'unsupported'|'too_large'  $reason
      * @return array<string, mixed>
      */
     public static function error(string $reason, string $verifierVersion, DateTimeImmutable $at, string $trust = 'none'): array
