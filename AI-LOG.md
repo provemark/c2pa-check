@@ -3030,3 +3030,12 @@ README are where the disclosure lives.
   the two blocking questions.
 - Decided by Maurice: none yet; the size limit and the readme wording are
   his.
+
+## 2026-09-30 — Approve SPEC-032
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, 64 MiB en jouw readme-tekst".
+- Produced: SPEC-032 `approved`, with both open questions resolved in its
+  text and AC8 made testable.
+- Decided by Maurice: a fixed 64 MiB limit; the readme sentence as
+  proposed.

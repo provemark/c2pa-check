@@ -2,9 +2,9 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | draft                                             |
+| Status     | approved                                          |
 | Author     | Maurice van Loon                                  |
-| Approved   | —                                                 |
+| Approved   | Maurice van Loon, 2026-09-30                      |
 | Supersedes | —                                                 |
 
 > Lifecycle: `draft` → maintainer approves → `approved` → tests-first →
@@ -58,7 +58,7 @@ way: it does not depend on how well another plugin's stream seeks.
    path is untrusted text (another plugin or a database edit can write
    post meta); a path the rule does not allow is `unreadable`, and it is
    not opened.
-3. **A size limit** (open question 1): a file larger than the limit is
+3. **A size limit of 64 MiB** (open question 1): a file larger than the limit is
    not copied beyond it and ends as `error` with a new reason,
    `too_large`, shown as "the file is larger than the plugin reads
    from external storage".
@@ -67,8 +67,12 @@ way: it does not depend on how well another plugin's stream seeks.
 5. **What is recorded.** The verdict's `file`, `size` and `modified`
    are those of the path, as today (SPEC-014); the fingerprint check of
    SPEC-028 hashes the copy, so "Changed after upload" keeps working.
-6. **The readme** (open question 2): the line "It makes no network
-   calls" and the FAQ on external storage say what now happens.
+6. **The readme** (open question 2): "It makes no network calls"
+   becomes "It makes no network calls of its own. When another plugin has
+   moved the original image to cloud storage, the image is read through
+   that plugin, once per check." The FAQ on external storage says that
+   such images are checked, and that "Changed since its check" may still
+   show after a move.
 
 **Out of scope** (each needs its own spec before it may be built)
 
@@ -147,7 +151,10 @@ gone. The real plugin is measured once by hand (AC7).
   - Then both are `Valid`, equal to the CLI, recorded in
     `notes/offload-media.md`
 
-- **AC8 — the readme says it** (wording per open question 2)
+- **AC8 — the readme says it**
+  - Given `readme.txt`
+  - Then it holds the sentence of scope item 6 and no longer the bare
+    "It makes no network calls.", and stays under the 10,240-byte cap
 
 ## References
 
@@ -179,18 +186,13 @@ Illustrative only.
 
 ## Open questions
 
-1. **The size limit** *(blocking)*. Proposal: a fixed 64 MiB. A 50 MP
-   JPEG from a camera is about 20–30 MB (reasoned); the copy spills to a
-   temporary file beyond 2 MB, so memory is not the limit, the download is.
-   Alternative: `wp_max_upload_size()`, the largest file the site accepts,
-   which can be 1 GB or more on some hosts.
-2. **The readme's "It makes no network calls"** *(blocking)*. Proposal:
-   "It makes no network calls of its own. When another plugin has moved
-   the original image to cloud storage, the image is read through that
-   plugin, once per check." And the FAQ on external storage: images there
-   are checked; "Changed since its check" may still show after a move.
-   Alternative: keep the promise absolute and make this behaviour an
-   option on the settings page, off by default.
+Both resolved by Maurice van Loon on 2026-09-30, as proposed:
+
+1. **The size limit:** a fixed 64 MiB (not `wp_max_upload_size()`, which
+   can be 1 GB or more). A 50 MP camera JPEG is about 20–30 MB
+   (reasoned); the copy spills to a temporary file beyond 2 MB, so the
+   download, not memory, is what the limit bounds.
+2. **The readme:** the sentence in scope item 6, not a settings option.
 
 ## Traceability
 
