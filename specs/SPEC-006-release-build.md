@@ -226,6 +226,19 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    the other finding is `Hash/BmffHashCheck.php`'s range digest, a loop
    already. Nothing new is read or executed.
 
+10. **2026-09-30, approved by Maurice van Loon after his review.** The
+    bundled verifier moves to v0.2.8 (its SPEC-051, SPEC-052 and SPEC-053;
+    SPEC-052 fixes a wrong `Trusted`). AC4's baseline rises from 621 to
+    634 `WordPress.Security.EscapeOutput.ExceptionNotEscaped` findings;
+    every other count is unchanged. All 13 are in
+    `Hash/BmffHashCheck.php` (21 → 34, measured per file on v0.2.7 and
+    v0.2.8), in six new exception messages: the merkle map's `alg` not
+    text or not one of the three, the range digest's guard, and the three
+    exclusion limits. Two of them carry text from the file (a hash
+    algorithm name, an exclusion's `xpath`). They become a status
+    explanation, which the plugin escapes where it shows one. Nothing new
+    is read or executed.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

@@ -3090,3 +3090,18 @@ README are where the disclosure lives.
   (draft, approval, build, measurement) and this entry.
 - Decided by Maurice: confirming amendment 1 (the reason `too_large`) and
   the push.
+
+## 2026-09-30 — Bundle c2pa-verifier 0.2.8
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "stop het ook in de wp plugin"; then "akkoord, amendement 10
+  goedgekeurd".
+- Produced: `composer.json` `^0.2.8`, `composer.lock` on v0.2.8;
+  `MaintenanceCheckTest` expects v0.2.8; the WPCS baseline for v0.2.8;
+  SPEC-006 amendment 10; NOTES "Open" 4.
+- Measured: `composer check` exit 0, 120 passed; `composer test:release`
+  before the baseline update: 1 failed, AC4
+  `ExceptionNotEscaped: 634 (baseline 621)`; `phpcs` per file on v0.2.7's
+  and v0.2.8's `src/`: all 13 in `Hash/BmffHashCheck.php` (21 → 34);
+  after the update `composer test:release` exit 0, 17 passed.
+- Decided by Maurice: amendment 10 approved after his review.
