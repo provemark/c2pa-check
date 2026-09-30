@@ -3065,3 +3065,19 @@ README are where the disclosure lives.
 - Reasoned: that a stated size larger than the limit could be refused
   before any download (not done; the spec bounds the copy).
 - Decided by Maurice: building it.
+
+## 2026-09-30 — SPEC-032 AC7 measured; implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, bouw de oplossing" (AC7 is part of the approved spec).
+- Produced: `notes/offload-media.md` "After SPEC-032"; SPEC-032
+  `implemented` with its Traceability; NOTES "Open" 3.
+- Measured: the Release suite on `904a206`: 12 passed, 5 failed, all five
+  in `PreviewTest`, which could not download
+  `https://playground.wordpress.net/wp-cli.phar` (HTTP 403 with a
+  short-lived `_hcc` cookie for every user agent: the CDN's bot check; not
+  bypassed). Plugin Check and the WPCS baseline passed. AC7 with WP Offload
+  Media Lite 3.4.3 and a local Versity gateway (pulled again, removed
+  afterwards): both test files `Valid`, local originals gone, the
+  originals read through `s3useast1://`; CLI exit 0 on both.
+- Decided by Maurice: none in this entry.

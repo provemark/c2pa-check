@@ -108,3 +108,19 @@ Options, each with its cost:
 
 And for the verifier, separately: read until the requested length or the
 real end of the stream, so a short read is not taken as the end.
+
+## After SPEC-032 (measured, AC7)
+
+Measured 2026-09-30 in the release environment with the build of
+`904a206` (0.1.6 plus SPEC-032) and WP Offload Media Lite 3.4.3 against
+the same local gateway, "Remove Local Media" and delivery on (round C
+above). WP-CLI imports, the queue run by hand:
+
+| upload | local original | path checked | stored | CLI |
+|---|---|---|---|---|
+| `fixture-signed.jpg` | gone | `s3useast1://tracefern-test/2026/09/fixture-signed.jpg` | `Valid` | exit 0 |
+| Lightroom church JPEG | gone | `s3useast1://tracefern-test/2026/09/adobe-20260425-lightroom-classic-church.jpg` (the original, not `-scaled`) | `Valid` | exit 0 |
+
+No "Changed after upload" on either; the stored upload fingerprint equals
+the fixture's hash. The plugin read each original once, through WP Offload
+Media's stream, into a temporary copy.

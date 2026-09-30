@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-09-30                      |
 | Supersedes | —                                                 |
@@ -200,11 +200,11 @@ Filled when status becomes `implemented`.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
+| AC1                  | `tests/Integration/OffloadTest.php` :: "AC1: an offloaded original is checked" / SPEC-032 | `Checker::check()`, `Checker::copyOfOffloaded()`, `Checker::streamPath()` |
+| AC2                  | `tests/Integration/OffloadTest.php` :: "AC2: a large image's original is checked, not its -scaled copy" / SPEC-032 | `UploadHook::fileToCheck()` (unchanged), `Checker::copyOfOffloaded()` |
+| AC3                  | `tests/Integration/OffloadTest.php` :: "AC3: PHP's own wrappers are not opened" (http, php, data, phar) / SPEC-032 | `Checker::PHP_WRAPPERS`, the `user-space` check in `Checker::copyOfOffloaded()` |
+| AC4                  | `tests/Integration/OffloadTest.php` :: "AC4: a file larger than the limit is not copied past it" / SPEC-032 | `Checker::MAX_OFFLOADED`; reason `too_large` in `Outcome::error()`, `Display::REASONS` and the reason's words |
+| AC5                  | `tests/Integration/OffloadTest.php` :: "AC5: a stream that breaks gives no verdict" (fail_open, stop_half) / SPEC-032 | `Checker::copyOfOffloaded()` (open, `feof()`, stated size) |
+| AC6                  | `tests/Integration/OffloadTest.php` :: "AC6: \"Changed after upload\" works for an offloaded original" / SPEC-032 | `UploadHook::checkAndStore()` (the copy's SHA-256 from `Checker::check()`) |
+| AC7                  | measured by hand, `notes/offload-media.md` "After SPEC-032" | — |
+| AC8                  | `tests/Unit/ReadmeTest.php` :: "AC8: says that an offloaded original is read through the offload plugin" / SPEC-032 | `readme.txt` |
