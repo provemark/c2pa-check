@@ -39,7 +39,7 @@ it('AC1: reads the three local values from the repository', function (): void {
 
     expect(testedUpTo((string) file_get_contents($root.'/readme.txt')))->toBe('7.1')
         ->and(bundledTrustCommit((string) file_get_contents($root.'/trust/README.md')))->toBe('99927ca')
-        ->and(lockedVerifier((string) file_get_contents($root.'/composer.lock')))->toBe('v0.2.6');
+        ->and(lockedVerifier((string) file_get_contents($root.'/composer.lock')))->toBe('v0.2.7');
 })->group('SPEC-030');
 
 it('AC2: a new WordPress major version is reported, a minor one is not', function (): void {

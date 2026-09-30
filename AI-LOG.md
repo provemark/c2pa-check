@@ -2970,3 +2970,19 @@ README are where the disclosure lives.
 - Reasoned: the REST route behaves as WP-CLI (not measured).
 - Decided by Maurice: the measurement, the MinIO and then Versity image.
   What to do about it (a spec, a readme line, a verifier issue) is his.
+
+## 2026-09-30 — Bundle c2pa-verifier 0.2.7
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, neem 0.2.7 op in de plugin"; "akkoord, keur
+  amendement 9 goed en commit".
+- Produced: `composer.json` `^0.2.7` and `composer.lock` (v0.2.6 →
+  v0.2.7); `MaintenanceCheckTest` AC1 expects `v0.2.7`; the WPCS baseline
+  for v0.2.7; SPEC-006 amendment 9; NOTES (verifier updates, "Open" 3).
+- Measured: `composer check` failed once on `MaintenanceCheckTest` AC1,
+  which pins the locked verifier (`v0.2.6` expected, `v0.2.7` found), then
+  119 passed; integration 198, multisite 7, release 17 passed. `phpcs`
+  on the shipped verifier: `file_system_operations_fread` 6 → 2 (in
+  `Container/Read.php` and `Hash/BmffHashCheck.php`'s loop), every other
+  count unchanged.
+- Decided by Maurice: bundling 0.2.7 and approving SPEC-006 amendment 9.

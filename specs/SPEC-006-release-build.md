@@ -217,6 +217,15 @@ None. Resolved by Maurice on 2026-09-26, as proposed in the draft:
    three existing findings decode PEM. It decodes key material the file
    carries; nothing is executed.
 
+9. **2026-09-30, approved by Maurice van Loon after his review.** The
+   bundled verifier moves to v0.2.7 (its SPEC-050: a short read is not the
+   end of the file). AC4's baseline falls from 642 to 638 findings in the
+   same 6 sniffs: `file_system_operations_fread` 6 → 2, every other count
+   unchanged, verifier v0.2.7. The five single `fread()` calls of v0.2.6
+   now go through one helper, `Container/Read.php`, which reads in a loop;
+   the other finding is `Hash/BmffHashCheck.php`'s range digest, a loop
+   already. Nothing new is read or executed.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
