@@ -280,3 +280,14 @@ Releases after 0.1.0:
   and an export of SVN `tags/0.1.5` hold the same files as the build; the
   plugin page returns 200. Git tag `v0.1.5` on `63be425`, and a GitHub
   release with the same zip (301,997 bytes), on Maurice's go.
+- **0.1.6, 2026-09-30** (verifier v0.2.7, its SPEC-050; SPEC-006
+  amendment 9): built from `605b3da` (SHA-256 `e639c64a…05ac36`, kept in
+  `build/submitted/`). Before the build: `composer check` (119),
+  integration (198), multisite (7) and the Release suite (17) green; CI
+  run 36676062646 green on `605b3da` (9 jobs). `trunk/` was replaced by
+  the build (`diff -r` empty) and `tags/0.1.6` copied; Maurice committed
+  them (r3720433, 08:14). Measured: the plugin API reported 0.1.6 (last
+  updated 06:14 GMT) at once; the public download and an export of SVN
+  `tags/0.1.6` hold the same files as the build; the plugin page returns
+  200. Git tag `v0.1.6` on `605b3da`, and a GitHub release with the same
+  zip (302,943 bytes), on Maurice's go.

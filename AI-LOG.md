@@ -2999,3 +2999,20 @@ README are where the disclosure lives.
   earlier as not seekable), so the entry does not claim a visible fix.
 - Decided by Maurice: preparing the release. The SVN commit, push, tag
   and GitHub release are his, or wait for his go.
+
+## 2026-09-30 — 0.1.6 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push en wacht op CI"; "ik heb gecommit"; "akkoord,
+  maak tag en release en push".
+- Produced: `605b3da` pushed with `4461cf9` and `c5d5f71`; after CI went
+  green, the SVN working copy with `trunk/` replaced by the build and
+  `tags/0.1.6` copied; the annotated tag `v0.1.6` on `605b3da`; the
+  GitHub release 0.1.6 with the zip; the record in
+  `notes/wporg-submission.md`.
+- Measured: CI run 36676062646 green on `605b3da` (9 jobs). SVN r3720433
+  by Maurice (08:14). An export of SVN `tags/0.1.6`, the public download
+  and the build hold the same files (`diff -r` empty); the plugin API
+  reported 0.1.6 at once; the plugin page returns 200.
+- Decided by Maurice: the push, the SVN commit (done by him), the tag and
+  the release.
