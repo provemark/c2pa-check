@@ -3016,3 +3016,17 @@ README are where the disclosure lives.
   reported 0.1.6 at once; the plugin page returns 200.
 - Decided by Maurice: the push, the SVN commit (done by him), the tag and
   the release.
+
+## 2026-09-30 — Draft SPEC-032: check an offloaded original
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, schrijf de spec voor WP Offload Media".
+- Produced: `specs/SPEC-032-offloaded-original.md` (draft); NOTES "Open" 3
+  points at it.
+- Measured: nothing new; the spec rests on `notes/offload-media.md`.
+- Reasoned: that only stream wrappers a plugin registered may be copied
+  (a stored path is untrusted), that display calls through a wrapper may
+  each reach the storage (out of scope, to measure), and the proposals for
+  the two blocking questions.
+- Decided by Maurice: none yet; the size limit and the readme wording are
+  his.

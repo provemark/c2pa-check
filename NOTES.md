@@ -133,7 +133,9 @@ plugin's part.
    verifier takes a short read for the end of the file (a verifier issue,
    fixed in verifier v0.2.7, its SPEC-050, bundled 2026-09-30). The
    plugin still stores `error` on such sites; a way to read the offloaded
-   original is for a spec.
+   original is for a spec: SPEC-032, drafted 2026-09-30 (copy a stream a
+   plugin hands out into `php://temp`, bounded; two blocking questions:
+   the size limit and the readme's "no network calls").
 4. **Mostly closed by verifier v0.2.5 (2026-09-27).** Measured there (its
    steps 164 and 168): name constraints, unknown critical extensions and
    the chain's placement gave wrong `Trusted` and are fixed; SHA-1 and MD5
