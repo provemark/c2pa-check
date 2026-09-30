@@ -3105,3 +3105,16 @@ README are where the disclosure lives.
   and v0.2.8's `src/`: all 13 in `Hash/BmffHashCheck.php` (21 → 34);
   after the update `composer test:release` exit 0, 17 passed.
 - Decided by Maurice: amendment 10 approved after his review.
+
+## 2026-09-30 — Prepare 0.1.7: bundle c2pa-verifier 0.2.8
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "stop het ook in de wp plugin".
+- Produced: the plugin header and `readme.txt` at 0.1.7, with its
+  changelog entry.
+- Measured: `composer test:release` exit 0, 17 passed. `composer check`
+  first failed: `ReadmeTest` found `readme.txt` at 10,297 bytes, over
+  wordpress.org's 10,240 (the first changelog line was too long). The
+  line was shortened; `readme.txt` 10,147 bytes, `composer check` exit 0.
+- Decided by Maurice: none in this entry; push, tag and the WordPress.org
+  commit wait for his go.

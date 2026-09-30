@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Tracefern Image Check for C2PA
  * Description:       Verifies the Content Credentials (C2PA) of uploaded images and shows the result in the Media Library.
- * Version:           0.1.6
+ * Version:           0.1.7
  * Requires at least: 7.1
  * Requires PHP:      8.3
  * Author:            Maurice van Loon
