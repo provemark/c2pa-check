@@ -4,7 +4,7 @@ Tags: c2pa, content credentials, provenance, media library, ai
 Requires at least: 7.1
 Tested up to: 7.1
 Requires PHP: 8.3
-Stable tag: 0.1.5
+Stable tag: 0.1.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -209,8 +209,8 @@ licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
 
 == Changelog ==
 
-= 0.1.5 =
+= 0.1.6 =
 
-* Check existing images from Settings → Tracefern: "Check images that were never checked", or "Check all images again" after changing the trust settings. The checks run in the background, with progress on the page; no WP-CLI needed.
+* Bundles c2pa-verifier 0.2.7, which no longer mistakes a stream that delivers its bytes in pieces for a truncated file. Images on the local disk are checked as before.
 
 Earlier versions: https://github.com/provemark/tracefern-image-check/releases

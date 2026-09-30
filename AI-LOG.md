@@ -2986,3 +2986,16 @@ README are where the disclosure lives.
   `Container/Read.php` and `Hash/BmffHashCheck.php`'s loop), every other
   count unchanged.
 - Decided by Maurice: bundling 0.2.7 and approving SPEC-006 amendment 9.
+
+## 2026-09-30 — Prepare 0.1.6
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, zet 0.1.6 klaar".
+- Produced: `Version: 0.1.6`, `Stable tag: 0.1.6`, and the 0.1.6
+  changelog entry (verifier 0.2.7) in place of 0.1.5's, which is in its
+  GitHub release. `readme.txt` is under the 10,240-byte cap.
+- Reasoned: the plugin itself never met the verifier's short-read fault
+  (it opens only local files; an offload plugin's stream is refused
+  earlier as not seekable), so the entry does not claim a visible fix.
+- Decided by Maurice: preparing the release. The SVN commit, push, tag
+  and GitHub release are his, or wait for his go.
