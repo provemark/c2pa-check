@@ -123,6 +123,14 @@ plugin's part.
    offload plugin's own hook), read the file through a stream wrapper the
    offload plugin provides, or say in the readme that such sites are not
    supported. The FAQ covers only the "Changed since its check" side.
+   **Measured 2026-09-30** with WP Offload Media Lite 3.4.3
+   (`notes/offload-media.md`): with "Remove Local Media" on, the check
+   stores `error` (`unreadable`, or `exception` when the offload plugin
+   delivers from the bucket and hands out its `s3://` stream wrapper
+   path, which the verifier refuses as not seekable). Fail closed, as
+   reasoned. A bounded `php://temp` copy of the object gave the CLI's
+   verdict. Opening the wrapper as seekable gave a wrong `Invalid`: the
+   verifier takes a short read for the end of the file (a verifier issue).
 4. **Mostly closed by verifier v0.2.5 (2026-09-27).** Measured there (its
    steps 164 and 168): name constraints, unknown critical extensions and
    the chain's placement gave wrong `Trusted` and are fixed; SHA-1 and MD5

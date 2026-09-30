@@ -2946,3 +2946,27 @@ README are where the disclosure lives.
   not investigated.
 - Decided by Maurice: running the test and recording it. Posting the
   comment waits for his go.
+
+## 2026-09-30 — Measure the plugin next to WP Offload Media
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "meet het met WP Offload Media"; "akkoord ook met image als het
+  past"; "ja, gebruik versity".
+- Produced: a run in the release environment with WP Offload Media Lite
+  3.4.3 against a local S3-compatible gateway (Versity, in Docker,
+  throwaway keys), configured by a temporary must-use plugin; three
+  rounds (remove local off; on without delivery; on with delivery) on the
+  WP-CLI and block editor routes; `notes/offload-media.md`; NOTES "Open" 3
+  updated. Gateway, image, plugin, its tables and options, the probe and
+  the test attachments were removed afterwards.
+- Measured: with local media removed the plugin stores `error`
+  (`unreadable`, or `exception` through the offload plugin's stream
+  wrapper, which the verifier refuses as not seekable); the offloaded
+  originals are byte-identical to the fixtures; a `php://temp` copy gives
+  the CLI's `Valid`; opening the wrapper as seekable gives a wrong
+  `Invalid` because the verifier treats a short read as the end of the
+  file. One block editor upload was `Valid` because the check ran before
+  the local file was removed.
+- Reasoned: the REST route behaves as WP-CLI (not measured).
+- Decided by Maurice: the measurement, the MinIO and then Versity image.
+  What to do about it (a spec, a readme line, a verifier issue) is his.
