@@ -3118,3 +3118,21 @@ README are where the disclosure lives.
   line was shortened; `readme.txt` 10,147 bytes, `composer check` exit 0.
 - Decided by Maurice: none in this entry; push, tag and the WordPress.org
   commit wait for his go.
+
+## 2026-09-30 — 0.1.7 released
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, push en breng plugin 0.1.7 uit"; "ik heb gecommit";
+  "akkoord, zet de tag als CI groen is".
+- Produced: `eaf8530` and `a028c48` pushed; the SVN working copy with
+  `trunk/` replaced by the build and `tags/0.1.7` copied; the annotated tag
+  `v0.1.7` on `a028c48` after CI went green; the GitHub release 0.1.7 with
+  the zip; the record in `notes/wporg-submission.md`.
+- Measured: integration (208), multisite (7), Release (17) green locally;
+  SVN r3721108 by Maurice (13:31), before CI had finished; CI run
+  36708160959 green on `a028c48` (9 jobs) afterwards. The plugin API
+  reported 0.1.7 at once; the public download, an export of SVN
+  `tags/0.1.7` and the GitHub release's zip hold the same files as the
+  build (`diff -r` empty); the plugin page returns 200.
+- Decided by Maurice: the push, the SVN commit (done by him), the tag and
+  the release.

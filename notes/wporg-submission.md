@@ -291,3 +291,16 @@ Releases after 0.1.0:
   `tags/0.1.6` hold the same files as the build; the plugin page returns
   200. Git tag `v0.1.6` on `605b3da`, and a GitHub release with the same
   zip (302,943 bytes), on Maurice's go.
+- **0.1.7, 2026-09-30** (verifier v0.2.8, its SPEC-051, SPEC-052 and
+  SPEC-053; SPEC-006 amendment 10): built from `a028c48` (SHA-256
+  `100866c0…b4b3e7`, kept in `build/submitted/`). Before the build:
+  `composer check` (120), integration (208), multisite (7) and the Release
+  suite (17) green. `trunk/` was replaced by the build (`diff -r` empty),
+  the one new file (`Hash/BmffLimitException.php`) added, and `tags/0.1.7`
+  copied; Maurice committed them (r3721108, 13:31) while CI run
+  36708160959 on `a028c48` was still running; it finished green (9 jobs)
+  afterwards. Measured: the plugin API reported 0.1.7 (last updated 11:31
+  GMT) at once; the public download and an export of SVN `tags/0.1.7`
+  hold the same files as the build; the plugin page returns 200. Git tag
+  `v0.1.7` on `a028c48` after CI was green, and a GitHub release with the
+  same zip, whose files equal SVN `tags/0.1.7`, on Maurice's go.
