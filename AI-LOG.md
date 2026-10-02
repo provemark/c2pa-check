@@ -3180,3 +3180,21 @@ README are where the disclosure lives.
   built all three entry points, neither of which is true.
 - Decided by Maurice: to offer the verifier to the AI plugin, the wording,
   and posting it himself; Tracefern not named.
+
+## 2026-10-02 — Bundle c2pa-verifier 0.2.9
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "release 0.2.9 en pas ook de plekken aan waar deze wordt
+  gebruikt".
+- Produced: `composer.json` `^0.2.9`, `composer.lock` on v0.2.9;
+  `MaintenanceCheckTest` expects v0.2.9; the WPCS baseline's verifier
+  label v0.2.9 (counts unchanged); NOTES "Open" 4.
+- Measured: `composer check` exit 0, 120 passed; `composer
+  test:integration` 208 passed; `composer test:multisite` 7 passed;
+  `composer test:release` 17 passed (AC4 against the unchanged baseline
+  included); the built zip has 154 files, names v0.2.9 in
+  `vendor/composer/installed.php` and holds no `requirements.php`.
+- Reasoned: no SPEC-006 amendment, since the verifier's `src/` is byte for
+  byte v0.2.8's (`git diff v0.2.8 v0.2.9 -- src/` empty in the verifier)
+  and the build drops everything else of the package.
+- Decided by Maurice: bundle 0.2.9. Push waits for his go.
