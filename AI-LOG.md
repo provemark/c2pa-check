@@ -3289,3 +3289,20 @@ README are where the disclosure lives.
 - Open: the timing on 10,000 attachments (SPEC-033's open question), a
   blocker for `implemented`.
 - Decided by Maurice: build it.
+
+## 2026-10-03 — SPEC-033's cost measured on 10,000 and 100,000 images
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, doe de meting".
+- Produced: `notes/spec033-dashboard-cost.md`.
+- Measured: one dashboard view (median of 10, object cache flushed each
+  time) 51.8, 49.9 and 50.4 ms at 10,019 images; 1,866 ms at 100,019;
+  core's "At a Glance" 1.1 ms and "Activity" 1.7 ms. Per count, and
+  EXPLAIN: each state count scans all of `wp_postmeta` with a temporary
+  table and filesort. By hand: `orderby none` saves 9 %; one grouped
+  state query takes 299–354 ms for all five states instead of about
+  1,250 ms, with the same numbers.
+- Reasoned: at 10,000 the view is at the spec's 50 ms threshold, at
+  100,000 far above it, so the spec's rule calls for an amendment; the
+  grouped query alone would leave about 0.9 s (an estimate, added up).
+- Decided by Maurice: the measurement. What to do with it is open.
