@@ -108,7 +108,7 @@ took 992 ms against 371 ms for `COUNT(*)` (median of 3), and the
 amendment says `COUNT(*)`. The build follows the amendment. Measured: 0
 attachments with more than one `_tracefern_state` row. Reasoned: the
 plugin cannot make one, since `Index::write()` uses `update_post_meta()`,
-which changes existing rows and adds none; only another plugin calling
+which changes the existing rows and adds one only when there is none; only another plugin calling
 `add_post_meta()` on that key could, and then that line would count the
 attachment twice where the filter lists it once.
 
