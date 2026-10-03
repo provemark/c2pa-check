@@ -3222,3 +3222,13 @@ README are where the disclosure lives.
   version, so the new entry replaces 0.1.7's); a first remark said
   otherwise and was corrected before the edit.
 - Decided by Maurice: the four changes. Approval of the spec still open.
+
+## 2026-10-03 — Approve SPEC-033
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord, zet SPEC-033 op approved".
+- Produced: SPEC-033 status `approved`, approved by Maurice van Loon on
+  2026-10-03.
+- Measured: none.
+- Reasoned: none.
+- Decided by Maurice: approval of SPEC-033 as revised in `4d764fa`.
