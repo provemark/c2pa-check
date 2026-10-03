@@ -3398,3 +3398,17 @@ README are where the disclosure lives.
   folder, so both were void).
 - Reasoned: none.
 - Decided by Maurice: amendment 2.
+
+## 2026-10-03 — Prepare 0.1.8
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, bereid 0.1.8 voor"; then "ga verder met 0.1.8".
+- Produced: version 0.1.8 in the plugin header and `Stable tag`; the
+  changelog entry for 0.1.8 (the dashboard box, c2pa-verifier 0.2.9)
+  replaces 0.1.7's.
+- Measured: `readme.txt` 10,172 bytes (limit 10,240); the new changelog
+  line 143 bytes against 155 for the old; no other "0.1.7" in shipped
+  PHP, text or JSON files. `php tools/maintenance-check.php`: no report,
+  exit 0 (WordPress, trust lists and verifier current).
+- Reasoned: none.
+- Decided by Maurice: release 0.1.8.
