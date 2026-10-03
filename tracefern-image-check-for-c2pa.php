@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 use Tracefern\ImageCheck\Checker;
+use Tracefern\ImageCheck\DashboardSummary;
 use Tracefern\ImageCheck\MediaScreens;
 use Tracefern\ImageCheck\MediaSort;
 use Tracefern\ImageCheck\PrivacyPolicy;
@@ -70,6 +71,7 @@ register_deactivation_hook(__FILE__, [UploadHook::class, 'deactivate']);
     (new SettingsPage)->register();
     (new PrivacyPolicy)->register();
     (new Verdict)->register();
+    (new DashboardSummary)->register();
 
     if (defined('WP_CLI') && WP_CLI) {
         WP_CLI::add_command('tracefern', new RecheckCommand($hook));

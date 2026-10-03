@@ -1281,13 +1281,13 @@ function summaryLines(string $html): array
 }
 
 /**
- * The widget's total: the number in "N JPEG, PNG and WebP images", or "—",
- * or null when there is no total line.
+ * The widget's total: the number in "N JPEG, PNG and WebP images" (or
+ * "1 … image"), or "—", or null when there is no total line.
  */
 function summaryTotal(string $html): int|string|null
 {
     $text = visibleText($html);
-    if (preg_match('/(\d[\d,.]*|—) JPEG, PNG and WebP images/u', $text, $m) !== 1) {
+    if (preg_match('/(\d[\d,.]*|—) JPEG, PNG and WebP image/u', $text, $m) !== 1) {
         return null;
     }
 

@@ -156,7 +156,7 @@ it('AC3: says so when there are no images, and shows no lines', function (): voi
 
     $html = (string) dashboardWidget();
 
-    expect(visibleText($html))->toBe('No JPEG, PNG and WebP images yet.')
+    expect(visibleText($html))->toBe('No JPEG, PNG or WebP images yet.')
         ->and(summaryLines($html))->toBe([])
         ->and(summaryTotal($html))->toBeNull();
 })->group('SPEC-033');
@@ -183,7 +183,7 @@ it('AC4: shows "—" for a line whose count failed, never 0', function (): void 
     $lines = summaryLines($html);
 
     expect($lines['error']['count'] ?? null)->toBe('—')
-        ->and($lines['error']['href'] ?? 'a link')->toBeNull()
+        ->and(array_key_exists('error', $lines) && $lines['error']['href'] === null)->toBeTrue()
         ->and($lines['valid']['count'] ?? null)->toBe(1)
         ->and(summaryTotal($html))->toBe(1)
         ->and(strtolower(visibleText($html)))->toContain('could not be read');
@@ -195,7 +195,7 @@ it('AC4: shows "—" for a total whose count failed, never 0', function (): void
     $html = (string) dashboardWidget('admin', '$GLOBALS["wpdb"]->suppress_errors(true); '.BREAK_TOTAL);
 
     expect(summaryTotal($html))->toBe('—')
-        ->and(visibleText($html))->not->toContain('No JPEG, PNG and WebP images yet.')
+        ->and(visibleText($html))->not->toContain('No JPEG, PNG or WebP images yet.')
         ->and(summaryLines($html)['valid']['count'] ?? null)->toBe(1)
         ->and(strtolower(visibleText($html)))->toContain('could not be read');
 })->group('SPEC-033');

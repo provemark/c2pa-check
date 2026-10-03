@@ -3260,3 +3260,32 @@ README are where the disclosure lives.
 - Reasoned: that core's `wp_dashboard_setup()` is better left out of the
   helper, since it asks wordpress.org about the browser and PHP version.
 - Decided by Maurice: write the tests.
+
+## 2026-10-03 — SPEC-033 built
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, bouw DashboardSummary".
+- Produced: `src/DashboardSummary.php` (widget `tracefern_summary` on
+  `wp_dashboard_setup` for `upload_files`; nine counts through one
+  `WP_Query` each, with the list's post statuses and, per key,
+  `MediaSort::apply()`; null on a database error; "—", a "could not be
+  read" line, the "add up" sentence, "Check them" for `manage_options`
+  when "Not checked" is above 0); registered in the main plugin file; the
+  readme's "Sort and filter" line names the dashboard counts (readme
+  10,184 bytes, 56 left for the release's changelog delta).
+- Measured: Integration group SPEC-033 8 of 8 and Multisite 1 of 1 green;
+  `composer check` (121 passed), `test:integration` 216, `test:multisite`
+  8, `test:release` 17 (Plugin Check included). In WordPress's
+  `WP_Query::set_found_posts()`, a query with no rows (a failed one too)
+  runs no `FOUND_ROWS()`, so the failed query's error is still
+  `$wpdb->last_error` when `query()` returns.
+- Corrected in the tests after they were red, none in what they require:
+  AC3's text said "PNG and WebP images yet" where the spec says "PNG or
+  WebP"; `summaryTotal()` now also reads the singular ("1 … image");
+  AC4's link check used `??`, which reads a null href as missing.
+- Reasoned: a stale `$wpdb->last_error` (a cache plugin answering the
+  query without the database) can only turn a count into "—", never into
+  a wrong number.
+- Open: the timing on 10,000 attachments (SPEC-033's open question), a
+  blocker for `implemented`.
+- Decided by Maurice: build it.

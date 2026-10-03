@@ -35,7 +35,7 @@ upload and shows the verdict where you already work with media.
   was made by generative AI, also after later edits, and **"AI-edited
   (signed)"** when AI edited it. Never on a file that does not verify.
 * **Sort and filter** the Media Library list by verdict, including all
-  AI-generated images.
+  AI-generated images, and see the counts on the dashboard.
 * **Check existing images again** under Settings → Tracefern, or with
   WP-CLI: `wp tracefern check --all`.
 
