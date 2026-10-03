@@ -1193,3 +1193,120 @@ function blueprintSteps(array $blueprint, string $kind): array
 
     return $steps;
 }
+
+/**
+ * The dashboard's "Content Credentials" widget (SPEC-033) as a user sees
+ * it: the dashboard screen set, `wp_dashboard_setup` fired (or
+ * `wp_network_dashboard_setup` on the network dashboard), the widget found
+ * by its title and its callback run. Null when the widget is not there.
+ * $before runs first, in the same request (a filter, say). Core's own
+ * wp_dashboard_setup() is not called: it asks wordpress.org about the
+ * browser and PHP version.
+ */
+function dashboardWidget(string $user = 'admin', string $before = '', ?string $networkUrl = null, bool $networkDashboard = false): ?string
+{
+    $screen = $networkDashboard ? 'dashboard-network' : 'dashboard';
+    $hook = $networkDashboard ? 'wp_network_dashboard_setup' : 'wp_dashboard_setup';
+    $php = 'require_once ABSPATH."wp-admin/includes/dashboard.php"; require_once ABSPATH."wp-admin/includes/template.php"; '
+        .'$screen = "'.$screen.'"; '.ON_SCREEN."\n".$before."\n"
+        .<<<PHP
+            do_action('$hook');
+            global \$wp_meta_boxes;
+            \$found = null;
+            foreach (\$wp_meta_boxes[get_current_screen()->id] ?? [] as \$contexts) {
+                foreach (\$contexts as \$boxes) {
+                    foreach (\$boxes as \$box) {
+                        if (is_array(\$box) && (\$box['title'] ?? null) === 'Content Credentials') {
+                            \$found = \$box;
+                        }
+                    }
+                }
+            }
+            if (\$found === null) { echo 'NO-WIDGET'; return; }
+            echo 'WIDGET-START';
+            call_user_func(\$found['callback'], '', \$found);
+            echo 'WIDGET-END';
+            PHP;
+    $out = $networkUrl === null
+        ? wpCli(['eval', $php, '--user='.$user])['output']
+        : networkCli(['eval', $php, '--user='.$user], $networkUrl)['output'];
+
+    if (str_contains($out, 'NO-WIDGET') || ! str_contains($out, 'WIDGET-START')) {
+        return str_contains($out, 'NO-WIDGET') ? null : throw new RuntimeException('dashboard did not load: '.$out);
+    }
+
+    return str_contains($out, 'WIDGET-END')
+        ? (string) preg_replace('/^.*WIDGET-START(.*)WIDGET-END.*$/s', '$1', $out)
+        : throw new RuntimeException('the widget did not finish rendering: '.$out);
+}
+
+/** The SPEC-007 filter labels, in their order (MediaSort::options()). */
+const SUMMARY_LABELS = [
+    'trusted' => 'Verified: trusted signer',
+    'valid' => 'Intact: signer not trusted',
+    'invalid' => 'Does not verify',
+    'ai' => 'AI-generated (signed)',
+    'error' => 'Could not be checked',
+    'none' => 'No Content Credentials',
+    'pending' => 'Check pending',
+    'unchecked' => 'Not checked',
+];
+
+/**
+ * The widget's lines: per filter key, the number shown (an int, or the
+ * string "—" for a count that could not be made) and the href of its link,
+ * if any. A line is an <li> whose text holds the label.
+ *
+ * @return array<string, array{count: int|string|null, href: string|null}>
+ */
+function summaryLines(string $html): array
+{
+    $doc = new DOMDocument;
+    @$doc->loadHTML('<?xml encoding="UTF-8"><div>'.$html.'</div>', LIBXML_NOERROR);
+    $lines = [];
+    foreach ($doc->getElementsByTagName('li') as $li) {
+        $text = trim((string) preg_replace('/\s+/u', ' ', $li->textContent));
+        foreach (SUMMARY_LABELS as $key => $label) {
+            if (! str_contains($text, $label) || isset($lines[$key])) {
+                continue;
+            }
+            $rest = str_replace($label, '', $text);
+            $count = preg_match('/(\d[\d,.\s]*)/u', $rest, $m) === 1 ? (int) preg_replace('/\D/', '', $m[1]) : (str_contains($rest, '—') ? '—' : null);
+            $a = $li->getElementsByTagName('a')->item(0);
+            $lines[$key] = ['count' => $count, 'href' => $a instanceof DOMElement ? $a->getAttribute('href') : null];
+        }
+    }
+
+    return $lines;
+}
+
+/**
+ * The widget's total: the number in "N JPEG, PNG and WebP images", or "—",
+ * or null when there is no total line.
+ */
+function summaryTotal(string $html): int|string|null
+{
+    $text = visibleText($html);
+    if (preg_match('/(\d[\d,.]*|—) JPEG, PNG and WebP images/u', $text, $m) !== 1) {
+        return null;
+    }
+
+    return $m[1] === '—' ? '—' : (int) preg_replace('/\D/', '', $m[1]);
+}
+
+/**
+ * Every href in some HTML.
+ *
+ * @return list<string>
+ */
+function hrefs(string $html): array
+{
+    $doc = new DOMDocument;
+    @$doc->loadHTML('<?xml encoding="UTF-8"><div>'.$html.'</div>', LIBXML_NOERROR);
+    $found = [];
+    foreach ($doc->getElementsByTagName('a') as $a) {
+        $found[] = $a->getAttribute('href');
+    }
+
+    return $found;
+}

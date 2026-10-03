@@ -3232,3 +3232,31 @@ README are where the disclosure lives.
 - Measured: none.
 - Reasoned: none.
 - Decided by Maurice: approval of SPEC-033 as revised in `4d764fa`.
+
+## 2026-10-03 — SPEC-033's tests, red
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, schrijf de tests".
+- Produced: `tests/Integration/DashboardSummaryTest.php` (AC1 ×2, AC2 ×2,
+  AC3, AC4 ×2, AC6) and SPEC-033 AC5 in `tests/Multisite/MultisiteTest.php`,
+  all in group `SPEC-033`; helpers in `tests/Pest.php`:
+  `dashboardWidget()` (dashboard screen, `wp_dashboard_setup` or
+  `wp_network_dashboard_setup`, the widget found by its title "Content
+  Credentials" and rendered), `summaryLines()`, `summaryTotal()`,
+  `hrefs()`. The tests read a line as an `<li>` holding its label: the one
+  markup choice they make that the spec leaves open.
+- Measured: Integration group SPEC-033, 8 of 8 failed; Multisite group
+  SPEC-033, 1 of 1 failed; every failure is the widget being absent
+  (`dashboardWidget()` returns null). The oracle (`listedCounts()`, the
+  list's own query vars and the plugin's filter on the main query) gives
+  for AC1's library trusted 1, valid 0, invalid 1, ai 1, error 1, none 1,
+  pending 1, unchecked 2, and 7 images listed; the same as the Author. A
+  first run said pending 2, unchecked 1: the last `wp_insert_attachment`
+  scheduled the queue again, and while it is scheduled every marker
+  counts as pending (SPEC-017); the setup now unschedules it last. The
+  helper, given a fake widget with the same title, read its total, counts,
+  "—" and links, and returned null for a Subscriber. PHPStan and Pint
+  pass.
+- Reasoned: that core's `wp_dashboard_setup()` is better left out of the
+  helper, since it asks wordpress.org about the browser and PHP version.
+- Decided by Maurice: write the tests.

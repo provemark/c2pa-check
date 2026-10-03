@@ -167,3 +167,31 @@ it('SPEC-015 AC7: network deactivation cleans up on every site', function (): vo
     unset($sites['scheduled before']);
     expect(array_values($sites))->each->toBe(['markers' => 0, 'events' => 0]);
 })->group('SPEC-015');
+
+/**
+ * How many JPEG, PNG and WebP images the Media Library list shows on the
+ * site at $url: the oracle for the widget's total there (SPEC-033).
+ */
+function siteImageCount(string $url): int
+{
+    return (int) networkEval(<<<'PHP'
+        $q = new WP_Query(['post_type' => 'attachment', 'post_status' => ['inherit', 'private'], 'post_mime_type' => ['image/jpeg', 'image/png', 'image/webp'], 'posts_per_page' => 1, 'fields' => 'ids']);
+        echo (int) $q->found_posts;
+        PHP, $url);
+}
+
+it('SPEC-033 AC5: each site\'s dashboard counts that site\'s images, and the network dashboard has no widget', function (): void {
+    networkImport('fixture-signed.jpg');
+    $mainBefore = siteImageCount(NETWORK_MAIN);
+    $site2Before = siteImageCount(NETWORK_SITE2);
+
+    networkImport('openai-20260826-c2pa_2x.png', NETWORK_SITE2);
+    $main = (string) dashboardWidget('admin', '', NETWORK_MAIN);
+    $site2 = (string) dashboardWidget('admin', '', NETWORK_SITE2);
+
+    expect(summaryTotal($main))->toBe($mainBefore)
+        ->and(summaryTotal($site2))->toBe($site2Before + 1)
+        ->and(siteImageCount(NETWORK_MAIN))->toBe($mainBefore)
+        ->and(summaryLines($site2)['trusted']['href'] ?? null)->toStartWith(NETWORK_SITE2.'wp-admin/upload.php')
+        ->and(dashboardWidget('admin', '', NETWORK_MAIN, true))->toBeNull();
+})->group('SPEC-033');
