@@ -1099,6 +1099,8 @@ function emptyTestEnvironment(): void
         foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done', 'tracefern_existing_images'] as $option) {
             delete_option($option);
         }
+        // The rows above went without hooks, so the dashboard cache did not see them go.
+        delete_transient('tracefern_summary');
         wp_unschedule_hook('tracefern_check');
         @unlink(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies.php');
         @unlink(WPMU_PLUGIN_DIR.'/tracefern-test-check-dies-for.php');

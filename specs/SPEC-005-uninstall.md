@@ -108,6 +108,10 @@ delete_option('provemark_c2pa_trust_failed');
    `_provemark_c2pa_ai` and the option `provemark_c2pa_index_done`; AC1
    checks them.
 
+2. **2026-10-03, approved by Maurice van Loon** with SPEC-033 amendment 1.
+   Uninstall also deletes the transient `tracefern_summary`, the
+   dashboard's cached counts, on every site; SPEC-033 AC9 checks it.
+
 ## Traceability
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |

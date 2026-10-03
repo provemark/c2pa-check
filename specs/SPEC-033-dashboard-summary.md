@@ -290,6 +290,18 @@ final class DashboardSummary
    *API sketch:* `DashboardSummary::forget(): void` empties the cache (the
    hooks call it); `counts()` reads the cache before it counts.
 
+2. **2026-10-03, proposed (awaiting approval): the oldest fresh marker,
+   not the youngest.** Amendment 1 says the cache stores "the moment the
+   youngest fresh pending marker becomes Not checked". The first marker to
+   cross `PENDING_FOR` is the oldest fresh one, so a cache that waited for
+   the youngest would show "Check pending" for images the filter already
+   lists under "Not checked". Changed: the cache stores the moment the
+   **oldest** fresh pending marker becomes "Not checked" (its time plus
+   `UploadHook::PENDING_FOR`). Built that way in the commit that builds
+   amendment 1; AC8 uses one marker, so it does not tell the two apart. A
+   test with two fresh markers of different ages does, and is added once
+   this is approved.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at

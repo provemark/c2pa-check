@@ -23,6 +23,8 @@ $tracefern_clean = static function (): void {
     foreach (['tracefern_digicert', 'tracefern_custom_trust', 'tracefern_trust_failed', 'tracefern_index_done', 'tracefern_existing_images'] as $option) {
         delete_option($option);
     }
+    // The dashboard's counts (SPEC-033 amendment 1).
+    delete_transient('tracefern_summary');
 };
 
 if (is_multisite()) {

@@ -564,6 +564,9 @@ final class UploadHook
         $clean = static function (): void {
             wp_unschedule_hook(self::EVENT);
             delete_post_meta_by_key(self::PENDING_KEY);
+            // The dashboard's counts (SPEC-033 amendment 1): nothing keeps
+            // them true while the plugin is off.
+            DashboardSummary::forget();
         };
 
         if ($networkWide === true && is_multisite()) {

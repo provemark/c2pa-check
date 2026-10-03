@@ -162,11 +162,12 @@ it('AC3: says so when there are no images, and shows no lines', function (): voi
 })->group('SPEC-033');
 
 // A `query` filter that breaks the one counting query it recognises: the
-// error line's (its meta value) or the total's (the MIME types without any
-// plugin meta key).
-const BREAK_ERROR_LINE = <<<'PHP'
+// AI line's (its meta key; since amendment 1 the state lines share one
+// query, which BREAK_STATE_QUERY breaks) or the total's (the MIME types
+// without any plugin meta key).
+const BREAK_AI_LINE = <<<'PHP'
     add_filter('query', function (string $sql): string {
-        return str_contains($sql, 'SQL_CALC_FOUND_ROWS') && str_contains($sql, '_tracefern_state') && str_contains($sql, "'error'") ? 'SELECT broken FROM nowhere' : $sql;
+        return str_contains($sql, 'SQL_CALC_FOUND_ROWS') && str_contains($sql, '_tracefern_ai') ? 'SELECT broken FROM nowhere' : $sql;
     });
     PHP;
 
@@ -179,11 +180,11 @@ const BREAK_TOTAL = <<<'PHP'
 it('AC4: shows "—" for a line whose count failed, never 0', function (): void {
     attachmentWithEntry(sampleEntry(['state' => 'Valid']));
 
-    $html = (string) dashboardWidget('admin', '$GLOBALS["wpdb"]->suppress_errors(true); '.BREAK_ERROR_LINE);
+    $html = (string) dashboardWidget('admin', '$GLOBALS["wpdb"]->suppress_errors(true); '.BREAK_AI_LINE);
     $lines = summaryLines($html);
 
-    expect($lines['error']['count'] ?? null)->toBe('—')
-        ->and(array_key_exists('error', $lines) && $lines['error']['href'] === null)->toBeTrue()
+    expect($lines['ai']['count'] ?? null)->toBe('—')
+        ->and(array_key_exists('ai', $lines) && $lines['ai']['href'] === null)->toBeTrue()
         ->and($lines['valid']['count'] ?? null)->toBe(1)
         ->and(summaryTotal($html))->toBe(1)
         ->and(strtolower(visibleText($html)))->toContain('could not be read');
