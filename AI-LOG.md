@@ -3350,3 +3350,32 @@ README are where the disclosure lives.
   each change, and also requires the cache to exist after the first view;
   without that requirement it would pass with no cache at all.
 - Decided by Maurice: amendment 1, and writing its tests.
+
+## 2026-10-03 — SPEC-033 amendment 1 built and measured
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, bouw de cache en de gegroepeerde query".
+- Produced: in `DashboardSummary` the transient `tracefern_summary` (one
+  set of counts per set of post statuses, the queue's state, a stale-at
+  moment, one hour expiry, nothing stored when a count failed),
+  `forget()` on `added_post_meta`/`updated_post_meta`/`deleted_post_meta`
+  for the three keys and on `clean_post_cache` for attachments, the
+  grouped state query; `UploadHook::deactivate()` and `uninstall.php`
+  delete the transient; SPEC-005 amendment 2 (follows from SPEC-033
+  amendment 1); `emptyTestEnvironment()` deletes the transient (its rows
+  go without hooks); the pre-amendment AC4 line test now breaks the AI
+  line, as the error line no longer has its own query; SPEC-033 amendment
+  2 proposed (the oldest fresh marker, not the youngest, sets the
+  stale-at moment; built that way).
+- Measured: SPEC-033 groups 20 + 2 green; `composer check` 121,
+  `test:integration` 228, `test:multisite` 9, `test:release` 17 (before
+  the `COUNT(*)` change; the SPEC-033 groups again after it). First view
+  36–37 ms at 10,019 images and 989 ms at 100,019; cached view 0.3 ms at
+  both. `COUNT(DISTINCT post_id)` 992 ms against `COUNT(*)` 371 ms at
+  100,000; 0 attachments with two state rows. In
+  `notes/spec033-dashboard-cost.md`.
+- Reasoned: that the plugin cannot write two state rows for one
+  attachment; that a change landing while a view counts can leave
+  numbers that lag until the next change or the hour, since the view
+  stores what it counted after the change emptied the cache.
+- Decided by Maurice: build amendment 1. Amendment 2 awaits approval.

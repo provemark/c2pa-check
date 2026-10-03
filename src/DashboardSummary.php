@@ -166,8 +166,8 @@ final class DashboardSummary
         $wpdb = Index::db();
         // One query per dashboard view that counts, instead of five scans of the meta table.
         $rows = count($statuses) > 1
-            ? $wpdb->get_results($wpdb->prepare("SELECT m.meta_value AS state, COUNT(DISTINCT m.post_id) AS n FROM %i m INNER JOIN %i p ON p.ID = m.post_id WHERE m.meta_key = %s AND p.post_type = 'attachment' AND p.post_status IN (%s, %s) GROUP BY m.meta_value", $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY, $statuses[0], $statuses[1]), ARRAY_A) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- kept in the transient
-            : $wpdb->get_results($wpdb->prepare("SELECT m.meta_value AS state, COUNT(DISTINCT m.post_id) AS n FROM %i m INNER JOIN %i p ON p.ID = m.post_id WHERE m.meta_key = %s AND p.post_type = 'attachment' AND p.post_status = %s GROUP BY m.meta_value", $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY, $statuses[0]), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- kept in the transient
+            ? $wpdb->get_results($wpdb->prepare("SELECT m.meta_value AS state, COUNT(*) AS n FROM %i m INNER JOIN %i p ON p.ID = m.post_id WHERE m.meta_key = %s AND p.post_type = 'attachment' AND p.post_status IN (%s, %s) GROUP BY m.meta_value", $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY, $statuses[0], $statuses[1]), ARRAY_A) // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- kept in the transient
+            : $wpdb->get_results($wpdb->prepare("SELECT m.meta_value AS state, COUNT(*) AS n FROM %i m INNER JOIN %i p ON p.ID = m.post_id WHERE m.meta_key = %s AND p.post_type = 'attachment' AND p.post_status = %s GROUP BY m.meta_value", $wpdb->postmeta, $wpdb->posts, Index::STATE_KEY, $statuses[0]), ARRAY_A); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- kept in the transient
 
         if ($wpdb->last_error !== '' || ! is_array($rows)) {
             return array_fill_keys(array_values(self::STATES), null);

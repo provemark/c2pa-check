@@ -85,3 +85,35 @@ Two changes measured at 100,000, by hand, not in the plugin:
   states.
 - The site owner sees nothing of this on a small library; a large one
   (a newsroom, a photo archive) is the user this plugin hopes for.
+
+## With amendment 1 (measured 2026-10-03, same method)
+
+The cache and the grouped state query, on the same seeded library; "first
+view" empties the cache before each of the 10 renders, "cached view" does
+not. Object cache flushed before every render.
+
+| Library | First view (median of 10) | Cached view (median of 10) |
+|---|---|---|
+| 10,019 images | 36.3 and 37.2 ms (two requests; was 50 ms) | 0.3 ms, 2 queries (the transient) |
+| 100,019 images | 989 ms (was 1,866 ms) | 0.3 ms |
+
+A first view at 100,000, per query: the grouped state query about 370 ms,
+"Not checked" about 516 ms, AI-generated 52 ms, Check pending 29 ms, the
+total 20 ms, the stale-at query (`MIN` over pending markers) 17 ms.
+
+**`COUNT(*)`, not `COUNT(DISTINCT post_id)`.** The first build counted
+`DISTINCT m.post_id`, so that an attachment with two state rows would
+count once, as the filter's `GROUP BY ID` counts it. At 100,000 that query
+took 992 ms against 371 ms for `COUNT(*)` (median of 3), and the
+amendment says `COUNT(*)`. The build follows the amendment. Measured: 0
+attachments with more than one `_tracefern_state` row. Reasoned: the
+plugin cannot make one, since `Index::write()` uses `update_post_meta()`,
+which changes existing rows and adds none; only another plugin calling
+`add_post_meta()` on that key could, and then that line would count the
+attachment twice where the filter lists it once.
+
+**What remains (reasoned).** On a large library the first view after a
+change still costs about a second; every view after it, until the next
+change, costs a fraction of a millisecond. The changes that empty the
+cache are uploads, checks and edits of attachments, so on a busy site the
+first view after one of them pays. "Not checked" is now the largest part.
