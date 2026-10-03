@@ -3379,3 +3379,22 @@ README are where the disclosure lives.
   numbers that lag until the next change or the hour, since the view
   stores what it counted after the change emptied the cache.
 - Decided by Maurice: build amendment 1. Amendment 2 awaits approval.
+
+## 2026-10-03 — SPEC-033 amendment 2; SPEC-033 implemented
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord met amendement 2, schrijf de test".
+- Produced: amendment 2 approved; the test "AC8 (amendment 2): the oldest
+  fresh marker, not the youngest, ends the cache" (two fresh markers,
+  `PENDING_FOR` − 2 s and 60 s old); Traceability filled; status
+  `implemented`.
+- Measured: with the stale-at query switched by hand to the youngest
+  marker (`MAX`), the test fails (`pending 2, unchecked 0` shown where the
+  filter lists `1, 1`); with the built `MIN` it passes, and the SPEC-033
+  group is 21 of 21; `git diff -- src` empty afterwards. Before the
+  commit: `composer check` 121, `test:integration` 229,
+  `test:multisite` 9, `test:release` 17 (rerun alone: a second run
+  started while the first was still building had removed its build
+  folder, so both were void).
+- Reasoned: none.
+- Decided by Maurice: amendment 2.

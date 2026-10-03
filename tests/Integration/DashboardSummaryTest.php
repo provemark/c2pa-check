@@ -404,3 +404,20 @@ it('AC9: no cache is left after uninstall', function (): void {
     // still-active plugin again.
     expect(summaryCacheExists("require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');"))->toBeFalse();
 })->group('SPEC-033');
+
+it('AC8 (amendment 2): the oldest fresh marker, not the youngest, ends the cache', function (): void {
+    $older = attachmentWithEntry(null);
+    $younger = attachmentWithEntry(null);
+    wpEval("update_post_meta($older, '_tracefern_pending', time() - 3600 + 2); update_post_meta($younger, '_tracefern_pending', time() - 60); wp_unschedule_hook('tracefern_check');");
+
+    $before = shownAndListed();
+    expect($before['shown'])->toBe($before['listed'])
+        ->and($before['listed']['pending'])->toBe(2)
+        ->and(summaryCacheExists())->toBeTrue();
+
+    sleep(3);
+    $after = shownAndListed();
+
+    expect($after['listed']['pending'])->toBe(1)
+        ->and($after['shown'])->toBe($after['listed']);
+})->group('SPEC-033');

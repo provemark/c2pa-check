@@ -2,7 +2,7 @@
 
 | Field      | Value                                             |
 |------------|---------------------------------------------------|
-| Status     | approved                                          |
+| Status     | implemented                                       |
 | Author     | Maurice van Loon                                  |
 | Approved   | Maurice van Loon, 2026-10-03                      |
 | Supersedes | —                                                 |
@@ -290,7 +290,7 @@ final class DashboardSummary
    *API sketch:* `DashboardSummary::forget(): void` empties the cache (the
    hooks call it); `counts()` reads the cache before it counts.
 
-2. **2026-10-03, proposed (awaiting approval): the oldest fresh marker,
+2. **2026-10-03, approved by Maurice van Loon: the oldest fresh marker,
    not the youngest.** Amendment 1 says the cache stores "the moment the
    youngest fresh pending marker becomes Not checked". The first marker to
    cross `PENDING_FOR` is the oldest fresh one, so a cache that waited for
@@ -309,12 +309,12 @@ least one test; every source file maps back to this spec.
 
 | Acceptance criterion | Test (file :: name / group) | Source (file/symbol) |
 |----------------------|-----------------------------|----------------------|
-| AC1                  | —                           | —                    |
-| AC2                  | —                           | —                    |
-| AC3                  | —                           | —                    |
-| AC4                  | —                           | —                    |
-| AC5                  | —                           | —                    |
-| AC6                  | —                           | —                    |
-| AC7                  | —                           | —                    |
-| AC8                  | —                           | —                    |
-| AC9                  | —                           | —                    |
+| AC1 | `tests/Integration/DashboardSummaryTest.php` :: AC1 (both) | `src/DashboardSummary.php` (`counts()`, `count()`, `statuses()`, `render()`); `tracefern-image-check-for-c2pa.php` |
+| AC2 | `tests/Integration/DashboardSummaryTest.php` :: AC2 (both) | `DashboardSummary::addWidget()` (`upload_files`), `render()` (`manage_options`) |
+| AC3 | `tests/Integration/DashboardSummaryTest.php` :: AC3 | `DashboardSummary::render()` |
+| AC4 | `tests/Integration/DashboardSummaryTest.php` :: AC4 (both), AC4 (amendment 1) | `DashboardSummary::count()`, `stateCounts()` (null on `$wpdb->last_error`), `render()` ("—"), `counts()` (nothing failed is stored) |
+| AC5 | `tests/Multisite/MultisiteTest.php` :: SPEC-033 AC5 | `DashboardSummary::register()` (`wp_dashboard_setup` only); the transient per site |
+| AC6 | `tests/Integration/DashboardSummaryTest.php` :: AC6 | `DashboardSummary::render()` (`esc_html`, `esc_url`, `admin_url`) |
+| AC7 | `tests/Integration/DashboardSummaryTest.php` :: AC7 | `DashboardSummary::counts()`, `cached()` |
+| AC8 | `tests/Integration/DashboardSummaryTest.php` :: AC8 (eight changes), AC8 (amendment 2) | `DashboardSummary::register()`, `onMeta()`, `onPost()`, `forget()`, `staleAt()` |
+| AC9 | `tests/Integration/DashboardSummaryTest.php` :: AC9 (both); `tests/Multisite/MultisiteTest.php` :: SPEC-033 AC9 | `UploadHook::deactivate()`, `uninstall.php` |
