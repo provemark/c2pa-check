@@ -3326,3 +3326,27 @@ README are where the disclosure lives.
   the stored deadline.
 - Decided by Maurice: the direction (cache plus grouped query). Approval
   of the amendment open.
+
+## 2026-10-03 — SPEC-033 amendment 1 approved; its tests, red
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "akkoord met amendement 1, schrijf de tests".
+- Produced: amendment 1 marked approved; in
+  `tests/Integration/DashboardSummaryTest.php` AC4 (amendment 1), AC7, AC8
+  (eight changes: an upload checked, an entry changing state, an
+  attachment trashed, one deleted, a pending marker set, the queue
+  scheduled, the queue unscheduled, a fresh marker passing `PENDING_FOR`
+  after 3 s), AC9 (deactivation, uninstall); in
+  `tests/Multisite/MultisiteTest.php` AC9 for network deactivation.
+  Helpers: `summaryCacheExists()` (the transient's row in the options
+  table), `listedTotal()`, `viewWithQueryCount()`, `shownAndListed()`.
+- Measured: Integration group SPEC-033 12 failed, 8 passed (the eight
+  from before the amendment); Multisite 1 failed, 1 passed. The reasons:
+  the five state lines show numbers where the broken grouped query should
+  give "—"; a second view ran 9 counting queries, not 0; no
+  `_transient_tracefern_summary` row after a view (AC8, AC9);
+  `before [0, 0]` on the network. PHPStan and Pint pass.
+- Reasoned: AC8 compares the widget with the oracle before and after
+  each change, and also requires the cache to exist after the first view;
+  without that requirement it would pass with no cache at all.
+- Decided by Maurice: amendment 1, and writing its tests.

@@ -195,3 +195,32 @@ it('SPEC-033 AC5: each site\'s dashboard counts that site\'s images, and the net
         ->and(summaryLines($site2)['trusted']['href'] ?? null)->toStartWith(NETWORK_SITE2.'wp-admin/upload.php')
         ->and(dashboardWidget('admin', '', NETWORK_MAIN, true))->toBeNull();
 })->group('SPEC-033');
+
+it('SPEC-033 AC9: network deactivation leaves no dashboard cache on any site', function (): void {
+    foreach ([NETWORK_MAIN, NETWORK_SITE2] as $url) {
+        dashboardWidget('admin', '', $url);
+    }
+
+    try {
+        $left = json_decode(networkEval(<<<'PHP'
+            require_once ABSPATH.'wp-admin/includes/plugin.php';
+            global $wpdb;
+            $read = function () use ($wpdb): array {
+                $out = [];
+                foreach (array_slice(get_sites(['fields' => 'ids', 'number' => 0]), 0, 2) as $site) {
+                    switch_to_blog($site);
+                    $out[] = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name = '_transient_tracefern_summary'");
+                    restore_current_blog();
+                }
+                return $out;
+            };
+            $before = $read();
+            deactivate_plugins('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php', false, true);
+            echo json_encode(['before' => $before, 'after' => $read()]);
+            PHP), true);
+    } finally {
+        networkEval("require_once ABSPATH.'wp-admin/includes/plugin.php'; activate_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php', '', true);");
+    }
+
+    expect($left)->toBe(['before' => [1, 1], 'after' => [0, 0]]);
+})->group('SPEC-033');

@@ -220,3 +220,186 @@ it('AC6: escapes its labels and links, links only into the admin, and warns abou
         ->and(array_filter(hrefs($plain), fn (string $h): bool => ! str_starts_with($h, 'http://localhost:8892/wp-admin/')))->toBe([])
         ->and($classes)->not->toMatch('/(^|\s)(notice\S*|error|warning|alert)(\s|$)/');
 })->group('SPEC-033');
+
+// Amendment 1: a cache, and one query for the states.
+
+/** The transient's row, read straight from the options table (no cache in between). */
+function summaryCacheExists(string $after = ''): bool
+{
+    return wpEval($after." global \$wpdb; echo \$wpdb->get_var(\"SELECT COUNT(*) FROM {\$wpdb->options} WHERE option_name = '_transient_tracefern_summary'\");") === '1';
+}
+
+/**
+ * The total the Media Library list shows $user: its own query vars, the
+ * three formats the plugin checks.
+ */
+function listedTotal(string $user = 'admin'): int
+{
+    return (int) wpCli(['eval', <<<'PHP'
+        require_once ABSPATH.'wp-admin/includes/post.php';
+        $vars = wp_edit_attachments_query_vars(['mode' => 'list', 'post_mime_type' => 'image/jpeg,image/png,image/webp']);
+        $q = new WP_Query(['posts_per_page' => 1, 'fields' => 'ids'] + $vars);
+        echo (int) $q->found_posts;
+        PHP, '--user='.$user])['output'];
+}
+
+/**
+ * Renders the widget and returns its numbers and how many counting
+ * queries the render ran: those with SQL_CALC_FOUND_ROWS and those on the
+ * state key.
+ *
+ * @return array{html: string, queries: int}
+ */
+function viewWithQueryCount(): array
+{
+    $marker = 'QUERIES:';
+    $before = <<<'PHP'
+        $GLOBALS['m33_queries'] = 0;
+        add_filter('query', function (string $sql): string {
+            if (str_contains($sql, 'SQL_CALC_FOUND_ROWS') || str_contains($sql, '_tracefern_state')) {
+                $GLOBALS['m33_queries']++;
+            }
+            return $sql;
+        });
+        add_action('shutdown', function (): void { echo 'QUERIES:', $GLOBALS['m33_queries'], "\n"; });
+        PHP;
+    $out = wpCli(['eval', 'require_once ABSPATH."wp-admin/includes/dashboard.php"; require_once ABSPATH."wp-admin/includes/template.php"; $screen = "dashboard"; '.ON_SCREEN."\n".$before."\n".<<<'PHP'
+        do_action('wp_dashboard_setup');
+        global $wp_meta_boxes;
+        foreach ($wp_meta_boxes['dashboard'] ?? [] as $contexts) { foreach ($contexts as $boxes) { foreach ($boxes as $box) {
+            if (is_array($box) && ($box['title'] ?? null) === 'Content Credentials') { echo 'WIDGET-START'; call_user_func($box['callback'], '', $box); echo 'WIDGET-END'; }
+        } } }
+        PHP, '--user=admin'])['output'];
+
+    return [
+        'html' => (string) preg_replace('/^.*WIDGET-START(.*)WIDGET-END.*$/s', '$1', $out),
+        'queries' => preg_match('/'.$marker.'(\d+)/', $out, $m) === 1 ? (int) $m[1] : -1,
+    ];
+}
+
+/**
+ * The widget's numbers next to the oracle's.
+ *
+ * @return array{shown: array<string, int|string|null>, listed: array<string, int>}
+ */
+function shownAndListed(): array
+{
+    $html = (string) dashboardWidget();
+    $shown = ['total' => summaryTotal($html)];
+    foreach (summaryLines($html) as $key => $line) {
+        $shown[$key] = $line['count'];
+    }
+
+    return ['shown' => $shown, 'listed' => ['total' => listedTotal()] + listedCounts()];
+}
+
+// The grouped state query (amendment 1) is the only one that groups by
+// meta_value: broken here, as AC4 breaks one count.
+const BREAK_STATE_QUERY = <<<'PHP'
+    add_filter('query', function (string $sql): string {
+        return str_contains($sql, '_tracefern_state') && str_contains($sql, 'GROUP BY') && str_contains($sql, 'meta_value') && ! str_contains($sql, 'SQL_CALC_FOUND_ROWS') ? 'SELECT broken FROM nowhere' : $sql;
+    });
+    PHP;
+
+it('AC4 (amendment 1): a failing state query shows "—" on the five state lines, and is not kept', function (): void {
+    attachmentWithEntry(sampleEntry(['state' => 'Valid']));
+    attachmentWithEntry(sampleEntry(['state' => 'Trusted', 'ai' => true]));
+    attachmentWithEntry(null);
+    wpEval("wp_unschedule_hook('tracefern_check');");
+
+    $broken = (string) dashboardWidget('admin', '$GLOBALS["wpdb"]->suppress_errors(true); '.BREAK_STATE_QUERY);
+    $lines = summaryLines($broken);
+    $after = summaryLines((string) dashboardWidget());
+
+    expect(array_map(fn (string $key): int|string|null => $lines[$key]['count'] ?? null, ['trusted', 'valid', 'invalid', 'error', 'none']))->toBe(['—', '—', '—', '—', '—'])
+        ->and([$lines['ai']['count'] ?? null, $lines['pending']['count'] ?? null, $lines['unchecked']['count'] ?? null, summaryTotal($broken)])->toBe([1, 0, 1, 3])
+        ->and(strtolower(visibleText($broken)))->toContain('could not be read')
+        ->and(array_map(fn (array $line): int|string|null => $line['count'], $after))->toBe(['trusted' => 1, 'valid' => 1, 'invalid' => 0, 'ai' => 1, 'error' => 0, 'none' => 0, 'pending' => 0, 'unchecked' => 1]);
+})->group('SPEC-033');
+
+it('AC7: a second view with nothing changed counts nothing', function (): void {
+    attachmentWithEntry(sampleEntry(['state' => 'Valid']));
+    attachmentWithEntry(null);
+    wpEval("wp_unschedule_hook('tracefern_check');");
+
+    $first = viewWithQueryCount();
+    $second = viewWithQueryCount();
+
+    expect($first['queries'])->toBeGreaterThan(0)
+        ->and($second['queries'])->toBe(0)
+        ->and(summaryLines($second['html']))->toBe(summaryLines($first['html']))
+        ->and(summaryTotal($second['html']))->toBe(2);
+})->group('SPEC-033');
+
+it('AC8: after each change the next view equals the filters', function (string $change): void {
+    $signed = importMedia(fixturePath('fixture-signed.jpg'));
+    $unsigned = importMedia(fixturePath('fixture-unsigned.jpg'));
+    $never = attachmentWithEntry(null);
+    $old = pendingImage(3600 + 600);
+    wpEval("wp_unschedule_hook('tracefern_check');");
+
+    if ($change === 'a fresh marker passes PENDING_FOR') {
+        wpEval("update_post_meta($never, '_tracefern_pending', time() - 3600 + 2);");
+    }
+    if ($change === 'the queue unscheduled') {
+        wpEval("wp_schedule_single_event(time() + 600, 'tracefern_check');");
+    }
+
+    $before = shownAndListed();
+    expect($before['shown'])->toBe($before['listed'])
+        ->and(summaryCacheExists())->toBeTrue();
+
+    match ($change) {
+        'an upload checked' => importMedia(fixturePath('fixture-signed.png')),
+        'an entry changes state' => (function () use ($signed): void {
+            setOption('tracefern_custom_trust', customSettingsJson());
+            wpCli(['tracefern', 'check', (string) $signed]);
+        })(),
+        'an attachment trashed' => wpEval("wp_trash_post($unsigned);"),
+        'an attachment deleted' => wpEval("wp_delete_attachment($signed, true);"),
+        'a pending marker set' => wpEval("update_post_meta($never, '_tracefern_pending', time());"),
+        'the queue scheduled' => wpEval("wp_schedule_single_event(time() + 600, 'tracefern_check');"),
+        'the queue unscheduled' => wpEval("wp_unschedule_hook('tracefern_check');"),
+        'a fresh marker passes PENDING_FOR' => sleep(3),
+        default => throw new InvalidArgumentException('unknown change: '.$change),
+    };
+
+    $after = shownAndListed();
+
+    expect($after['shown'])->toBe($after['listed'])
+        ->and($after['listed'])->not->toBe($before['listed']);
+})->with([
+    'an upload checked',
+    'an entry changes state',
+    'an attachment trashed',
+    'an attachment deleted',
+    'a pending marker set',
+    'the queue scheduled',
+    'the queue unscheduled',
+    'a fresh marker passes PENDING_FOR',
+])->group('SPEC-033');
+
+it('AC9: no cache is left after deactivation', function (): void {
+    attachmentWithEntry(sampleEntry(['state' => 'Valid']));
+    dashboardWidget();
+    expect(summaryCacheExists())->toBeTrue();
+
+    try {
+        wpCli(['plugin', 'deactivate', 'tracefern-image-check-for-c2pa']);
+        $left = summaryCacheExists();
+    } finally {
+        wpCli(['plugin', 'activate', 'tracefern-image-check-for-c2pa']);
+    }
+
+    expect($left)->toBeFalse();
+})->group('SPEC-033');
+
+it('AC9: no cache is left after uninstall', function (): void {
+    attachmentWithEntry(sampleEntry(['state' => 'Valid']));
+    dashboardWidget();
+    expect(summaryCacheExists())->toBeTrue();
+
+    // Read in the uninstall's own request: a later one would run the
+    // still-active plugin again.
+    expect(summaryCacheExists("require_once ABSPATH.'wp-admin/includes/plugin.php'; uninstall_plugin('tracefern-image-check-for-c2pa/tracefern-image-check-for-c2pa.php');"))->toBeFalse();
+})->group('SPEC-033');

@@ -218,7 +218,7 @@ final class DashboardSummary
 
 ## Amendments
 
-1. **2026-10-03, proposed (awaiting approval): a cache, and one query for
+1. **2026-10-03, approved by Maurice van Loon: a cache, and one query for
    the states.** *Why:* the open question's measurement
    (`notes/spec033-dashboard-cost.md`) gives one dashboard view 50 ms at
    10,000 images, at the threshold, and 1,866 ms at 100,000, far above
