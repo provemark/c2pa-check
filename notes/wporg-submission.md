@@ -304,3 +304,18 @@ Releases after 0.1.0:
   hold the same files as the build; the plugin page returns 200. Git tag
   `v0.1.7` on `a028c48` after CI was green, and a GitHub release with the
   same zip, whose files equal SVN `tags/0.1.7`, on Maurice's go.
+- **0.1.8, 2026-10-03** (SPEC-033 with amendments 1 and 2, the dashboard
+  summary; SPEC-005 amendment 2; verifier v0.2.9, `src/` unchanged, so no
+  SPEC-006 amendment): built from `5401874` (SHA-256 `9f620094…41258921`,
+  310,362 bytes, kept in `build/submitted/`). Before the build:
+  `composer check` (121), integration (229), multisite (9) and the
+  Release suite (17) green; CI run 37120790249 green on `5401874` (9
+  jobs) before the SVN commit. `trunk/` was replaced by the build
+  (`diff -r` empty), the one new file (`src/DashboardSummary.php`) added,
+  and `tags/0.1.8` copied; Maurice committed them (r3726234, 14:16).
+  Measured: the plugin API reported 0.1.8 (last updated 12:16 GMT) at
+  once; the public download and an export of SVN `tags/0.1.8` hold the
+  same files as the build; `trunk/readme.txt` says `Stable tag: 0.1.8`;
+  the plugin page returns 200. Git tag `v0.1.8` on `5401874`, and a
+  GitHub release with the same zip (SHA-256 equal, files equal to SVN
+  `tags/0.1.8`), on Maurice's go.

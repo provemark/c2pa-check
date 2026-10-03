@@ -3412,3 +3412,20 @@ README are where the disclosure lives.
   exit 0 (WordPress, trust lists and verifier current).
 - Reasoned: none.
 - Decided by Maurice: release 0.1.8.
+
+## 2026-10-03 — Release 0.1.8
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, push maar"; "svn commit is gedaan"; "ja, maak de tag en de
+  GitHub-release".
+- Produced: push of `main` to `5401874`; the SVN working copy (trunk from
+  the build, `tags/0.1.8`), committed by Maurice as r3726234; annotated
+  tag `v0.1.8` on `5401874`; GitHub release 0.1.8 with the zip; the
+  record in `notes/wporg-submission.md` §5.
+- Measured: CI run 37120790249 green on `5401874` (9 jobs); plugin API
+  0.1.8 at 12:16 GMT; the public download, an export of SVN `tags/0.1.8`
+  and the GitHub release's zip all hold the files of the build (zip
+  SHA-256 `9f620094…41258921` on GitHub equal to `build/submitted/`);
+  page 200.
+- Reasoned: none.
+- Decided by Maurice: the push, the SVN commit, the tag and the release.
