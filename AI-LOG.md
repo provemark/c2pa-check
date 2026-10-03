@@ -3306,3 +3306,23 @@ README are where the disclosure lives.
   100,000 far above it, so the spec's rule calls for an amendment; the
   grouped query alone would leave about 0.9 s (an estimate, added up).
 - Decided by Maurice: the measurement. What to do with it is open.
+
+## 2026-10-03 — SPEC-033 amendment 1 proposed: a cache, one state query
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "ja, schrijf amendement 1 met cache en gegroepeerde query".
+- Produced: SPEC-033 amendment 1 (proposed): a per-site transient
+  `tracefern_summary` emptied on every meta or attachment change the
+  plugin can see, stale on its own when the youngest fresh pending marker
+  passes `PENDING_FOR` or the queue's state changes, one hour as the
+  bound for changes it cannot see; the five state counts in one grouped
+  query; AC4 widened, AC7–AC9 new; rows for them in Traceability.
+- Measured: every write of the keys the counts read goes through
+  `update_post_meta`, `delete_post_meta` or `delete_post_meta_by_key`
+  (`src/Index.php`, `src/UploadHook.php`); `uninstall.php` and
+  `UploadHook::deactivate()` are where the transient must go.
+- Reasoned: that a pending marker turns into "Not checked" by time alone,
+  so a cache emptied only on writes would drift from the filter; hence
+  the stored deadline.
+- Decided by Maurice: the direction (cache plus grouped query). Approval
+  of the amendment open.

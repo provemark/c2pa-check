@@ -216,6 +216,80 @@ final class DashboardSummary
   widget in the first free column; the proposal is to leave that to
   WordPress.
 
+## Amendments
+
+1. **2026-10-03, proposed (awaiting approval): a cache, and one query for
+   the states.** *Why:* the open question's measurement
+   (`notes/spec033-dashboard-cost.md`) gives one dashboard view 50 ms at
+   10,000 images, at the threshold, and 1,866 ms at 100,000, far above
+   it. Each of the five state counts scans all of `wp_postmeta`; one
+   grouped query for all five took 299–354 ms instead of about 1,250 ms,
+   with the same numbers. Neither change alone is enough at 100,000
+   (about 0.9 s with the grouped query, an estimate).
+
+   *Changed in Scope:*
+   - **"No storage" is replaced.** One transient per site,
+     `tracefern_summary`, holds the last counts that were all made. It
+     never holds a count that failed: a view with any "—" stores nothing,
+     and the next view counts again.
+   - **The cache is emptied by every change the plugin can see**, so a
+     cached view shows what the filters list:
+     - a meta key the counts read is added, changed or deleted
+       (`_tracefern_state`, `_tracefern_ai`, `_tracefern_pending`; hooks
+       `added_post_meta`, `updated_post_meta`, `deleted_post_meta`, which
+       `delete_post_meta_by_key()` also fires);
+     - an attachment is added, changed (its status or MIME type
+       included), trashed, restored or deleted (`clean_post_cache` for
+       post type `attachment`);
+     - the plugin is deactivated or uninstalled (the transient is
+       deleted; SPEC-005's list of what uninstall removes gains it).
+   - **The cache knows when it goes stale on its own.** It stores whether
+     the queue was scheduled and the moment the youngest fresh pending
+     marker becomes "Not checked" (its time plus
+     `UploadHook::PENDING_FOR`). A view after that moment, or with the
+     queue's state changed, counts again.
+   - **Changes the plugin cannot see** (another plugin writing the tables
+     directly) are bounded by the transient's expiry, one hour. Reasoned:
+     no hook exists for them; the hour is the most a count can lag.
+   - **The five state counts** (Trusted, Valid, Invalid, error, none) come
+     from one query: `meta_value, COUNT(*)` from `wp_postmeta` joined to
+     `wp_posts`, for meta key `Index::STATE_KEY`, post type `attachment`
+     and the list's post statuses, grouped by `meta_value`. A state with
+     no row is 0; `unreadable` is read and not shown. A database error
+     makes all five null. The total, AI-generated, Check pending and Not
+     checked keep their `WP_Query` through `MediaSort::apply()`.
+   - The cache holds one set of counts per set of post statuses (with and
+     without `private`), so an Author and an Administrator each see their
+     own list's numbers.
+
+   *Changed in Behavior:*
+   - **AC4** also: given the grouped state query broken by a `query`
+     filter, the five state lines show "—", the total, AI-generated,
+     Check pending and Not checked show numbers; and after the filter is
+     removed, the next view shows all numbers (nothing failed was stored).
+   - **AC7 — a second view counts nothing** — given a view that made all
+     counts, when the widget is rendered again with nothing changed, then
+     it runs no counting query (none with `SQL_CALC_FOUND_ROWS` and none
+     on `_tracefern_state`) and shows the same numbers.
+   - **AC8 — the cache never shows what the filters no longer list** —
+     given a cached view, after each of: an upload checked; an entry that
+     changes state (re-check with other trust settings); an attachment
+     trashed; one deleted; a pending marker set; the queue scheduled and
+     unscheduled; a fresh pending marker passing `PENDING_FOR` (set
+     `PENDING_FOR` − 2 s ago, then 3 s waited); then the next view equals
+     the oracle of AC1 for every key and the total.
+   - **AC9 — no cache left behind** — given a cached view, when the plugin
+     is deactivated, and separately uninstalled, then
+     `tracefern_summary` is gone; on multisite, on every site.
+
+   *Changed in Open questions:* the cost question is answered by the
+   measurement above. Before `implemented`, the same measurement is
+   repeated with the amendment: the first view and a cached view at
+   10,000 and at 100,000 images, written into the same note.
+
+   *API sketch:* `DashboardSummary::forget(): void` empties the cache (the
+   hooks call it); `counts()` reads the cache before it counts.
+
 ## Traceability
 
 Filled when status becomes `implemented`. Every acceptance criterion maps to at
@@ -229,3 +303,6 @@ least one test; every source file maps back to this spec.
 | AC4                  | —                           | —                    |
 | AC5                  | —                           | —                    |
 | AC6                  | —                           | —                    |
+| AC7                  | —                           | —                    |
+| AC8                  | —                           | —                    |
+| AC9                  | —                           | —                    |
