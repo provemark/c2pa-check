@@ -3198,3 +3198,27 @@ README are where the disclosure lives.
   byte v0.2.8's (`git diff v0.2.8 v0.2.9 -- src/` empty in the verifier)
   and the build drops everything else of the package.
 - Decided by Maurice: bundle 0.2.9. Push waits for his go.
+
+## 2026-10-03 — SPEC-033 draft revised after review
+
+- Model: Claude Opus 5.5, Claude Code CLI
+- Asked: "laten we SPEC-033 doorlopen"; then "ja, verwerk de vier punten".
+- Produced: four changes to the draft: every number (total and lines)
+  from one `WP_Query` with the list's post statuses, so a trashed image
+  counts nowhere; the total no longer from `ExistingImages::count()`
+  (every post status, and 0 on a failed query); "Not checked" named as
+  the filter's, which can differ from the settings page's count; the
+  readme budget (93 bytes for the feature line and the changelog entry
+  together). AC1 gains an old pending marker and a trashed image (total
+  7); AC4 covers a failing total.
+- Measured: `ExistingImages::count()` returns 0 when `get_var()` gives a
+  non-number (`src/ExistingImages.php`); its `unchecked` mode excludes any
+  pending marker, while `MediaSort::apply()` counts one older than
+  `PENDING_FOR` as not checked; `wp_edit_attachments_query_vars()` sets
+  `inherit`, plus `private` with `read_private_posts`
+  (`wp-admin/includes/post.php` in wp-env's WordPress); `readme.txt`
+  10,147 bytes.
+- Reasoned: that the changelog needs no move (it keeps only the current
+  version, so the new entry replaces 0.1.7's); a first remark said
+  otherwise and was corrected before the edit.
+- Decided by Maurice: the four changes. Approval of the spec still open.

@@ -60,11 +60,26 @@ Two limits on the wording, both deliberate:
 - *The count equals the filter.* For every key, the number shown is the
   number of images that list shows (same meta query, same pending cutoff,
   same MIME types for "Check pending" and "Not checked").
-- *A total line* above them: "N JPEG, PNG and WebP images", the count
-  `ExistingImages::count('all')` already makes. "AI-generated (signed)"
-  overlaps the states (an AI image is also Verified or Intact); the widget
-  says so in one sentence under the lines, so the lines are not read as
-  adding up to the total.
+- *One way of counting, for every number.* All nine numbers (the total and
+  the eight lines) come from a `WP_Query` with `post_type` `attachment`
+  and the post statuses the Media Library list shows the viewing user:
+  `inherit`, plus `private` when the user can read private attachments
+  (as `wp_edit_attachments_query_vars()` sets them). An attachment in the
+  trash counts nowhere, as it is listed nowhere.
+- *A total line* above them: "N JPEG, PNG and WebP images", that query
+  restricted to `UploadHook::MIME_TYPES`. Not `ExistingImages::count()`:
+  that counts every post status, the trash included, and turns a failed
+  query into 0. "AI-generated (signed)" overlaps the states (an AI image
+  is also Verified or Intact), and an entry with state `unreadable` is in
+  no line (SPEC-007 has no filter for it); the widget says in one sentence
+  under the lines that they need not add up to the total.
+- *"Not checked" follows the filter, not the settings page.* The filter
+  counts an image whose pending marker is older than
+  `UploadHook::PENDING_FOR` as not checked (SPEC-013);
+  `ExistingImages::count('unchecked')`, shown in Settings → Tracefern,
+  leaves any image with a pending marker out. The two numbers can differ,
+  and this spec does not change either. Bringing them together needs its
+  own spec.
 - *For users with `manage_options`*, when "Not checked" is above 0: one
   link "Check them" to the Existing images section of Settings →
   Tracefern (SPEC-031). No button in the widget itself; the run starts
@@ -75,7 +90,12 @@ Two limits on the wording, both deliberate:
   WordPress itself keeps for Screen Options; SPEC-005's uninstall needs no
   change.
 - *`readme.txt`*: one line in the feature list. Within the 10,240-byte
-  limit (SPEC-025, `tests/Unit/ReadmeTest.php`).
+  limit (SPEC-025, `tests/Unit/ReadmeTest.php`). The readme is at 10,147
+  bytes, so the budget is tight: the feature line and the release's
+  changelog entry, which replaces the current one (the changelog keeps
+  only the current version), together may add at most 93 bytes. If they
+  do not fit, wording elsewhere in the readme is shortened in the same
+  commit, not the limit raised.
 
 **Out of scope** (each needs its own spec before it may be built)
 
@@ -102,12 +122,15 @@ says how it is escaped.
 - **AC1 — the counts equal the filters**
   - Given uploads of the OpenAI image (default settings), the Amazon Titan
     image (DigiCert off), `fixture-unsigned.jpg`, one image with an `error`
-    entry, one with a fresh pending marker and one without any entry
+    entry, one with a fresh pending marker, one with a pending marker older
+    than `UploadHook::PENDING_FOR`, one without any entry, and one signed
+    image moved to the trash
   - When the widget is rendered
   - Then for every key of `MediaSort::options()` the shown count equals
-    the number of attachments a `WP_Query` with that `tracefern` filter
-    returns, the total is 6, and each count above 0 links to
-    `upload.php?mode=list&tracefern=<key>`
+    the number of rows `upload.php?mode=list&tracefern=<key>` lists for
+    the same user, the total is 7 (the trashed image counts nowhere), the
+    old pending marker is under "Not checked", and each count above 0
+    links to `upload.php?mode=list&tracefern=<key>`
 
 - **AC2 — only for users who can upload**
   - Given a Subscriber and an Author
@@ -123,11 +146,11 @@ says how it is escaped.
 
 - **AC4 — a failing count is not a zero** *(required: error path)*
   - Given a database error on one of the counting queries (a `query`
-    filter that breaks it)
+    filter that breaks it), once on a line and once on the total
   - When the widget is rendered
-  - Then that line shows "—" and the widget says the counts could not be
-    read; no line shows 0 for a count that was not made, and the
-    dashboard still loads
+  - Then that line, or the total, shows "—" and the widget says the counts
+    could not be read; no number shows 0 for a count that was not made,
+    and the dashboard still loads
 
 - **AC5 — multisite: each site its own**
   - Given two sites of a network, each with different images
@@ -157,8 +180,8 @@ says how it is escaped.
   lists. The verdicts behind it are those of `provemark/c2pa-verifier`
   (the version in `composer.json`), already checked by SPEC-001 and
   SPEC-007. WordPress and PHP as in `.wp-env.json`.
-- Reasoned: that a widget which reuses `MediaSort::apply()` cannot drift
-  from the filter; that eight counts per dashboard view are cheap enough
+- Reasoned: that a widget which reuses `MediaSort::apply()` and the
+  list's post statuses cannot drift from the filter; that eight counts per dashboard view are cheap enough
   (to measure, see Open questions); that Screen Options covers hiding the
   widget, so the plugin needs no setting for it.
 
@@ -171,11 +194,13 @@ final class DashboardSummary
 {
     public function register(): void;          // add_action('wp_dashboard_setup', ...)
 
-    /** @return array<string, int|null> key => count; null when the query failed */
-    public static function counts(): array;    // per key of MediaSort::options(),
+    /** @return array<string, int|null> 'total' and key => count; null when the query failed */
+    public static function counts(): array;    // 'total', then per key of MediaSort::options(),
                                                // through MediaSort::apply() on a WP_Query
-                                               // with 'fields' => 'ids', 'posts_per_page' => 1,
-                                               // reading found_posts
+                                               // with post_type 'attachment', the list's
+                                               // post statuses, 'fields' => 'ids',
+                                               // 'posts_per_page' => 1, reading found_posts;
+                                               // a database error ($wpdb->last_error) => null
 
     public function render(): void;            // escaped lines, links, "Check them"
 }
